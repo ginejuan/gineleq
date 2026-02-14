@@ -47,11 +47,13 @@ export async function loginAction(formData: FormData): Promise<AuthResult> {
 // --------------------------------------------------------------------------
 
 export async function registerAction(formData: FormData): Promise<AuthResult> {
+    const firstName = (formData.get('firstName') as string)?.trim();
+    const lastName = (formData.get('lastName') as string)?.trim();
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     const confirmPassword = formData.get('confirmPassword') as string;
 
-    if (!email || !password || !confirmPassword) {
+    if (!firstName || !lastName || !email || !password || !confirmPassword) {
         return { error: 'Todos los campos son obligatorios.' };
     }
 
@@ -70,6 +72,10 @@ export async function registerAction(formData: FormData): Promise<AuthResult> {
         email,
         password,
         email_confirm: true,
+        user_metadata: {
+            first_name: firstName,
+            last_name: lastName,
+        },
     });
 
     if (error) {

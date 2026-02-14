@@ -3,7 +3,7 @@
 /**
  * Página de Registro
  * 
- * Formulario: email + contraseña + confirmar contraseña.
+ * Formulario: nombre + apellidos + email + contraseña + confirmar contraseña.
  * 
  * Responsabilidad: SOLO presentación visual.
  * La lógica de registro está en /login/actions.ts.
@@ -58,6 +58,37 @@ export default function RegistroPage() {
                         {error && (
                             <div className={styles.errorMessage}>{error}</div>
                         )}
+
+                        <div className={styles.formRow}>
+                            <div className={styles.formGroup}>
+                                <label htmlFor="firstName" className={styles.formLabel}>
+                                    Nombre
+                                </label>
+                                <input
+                                    id="firstName"
+                                    name="firstName"
+                                    type="text"
+                                    placeholder="Ej: María"
+                                    required
+                                    autoComplete="given-name"
+                                    className={styles.formInput}
+                                />
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label htmlFor="lastName" className={styles.formLabel}>
+                                    Apellidos
+                                </label>
+                                <input
+                                    id="lastName"
+                                    name="lastName"
+                                    type="text"
+                                    placeholder="Ej: García López"
+                                    required
+                                    autoComplete="family-name"
+                                    className={styles.formInput}
+                                />
+                            </div>
+                        </div>
 
                         <div className={styles.formGroup}>
                             <label htmlFor="email" className={styles.formLabel}>

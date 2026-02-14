@@ -71,6 +71,12 @@
     gap: var(--spacing-xs);
 }
 
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+}
+
 .formLabel {
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);

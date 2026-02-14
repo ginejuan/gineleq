@@ -33,32 +33,33 @@ eption
   CommandError
  
   Creating an optimized production build ...
-Ô£ô Compiled successfully in 2.4s
+Ô£ô Compiled successfully in 2.9s
   Running TypeScript ...
   Collecting page data using 21 workers ...
   Generating static pages using 21 workers (0/14) ...
   Generating static pages using 21 workers (3/14) 
   Generating static pages using 21 workers (6/14) 
   Generating static pages using 21 workers (10/14) 
-Ô£ô Generating static pages using 21 workers (14/14) in 696.3ms
+Ô£ô Generating static pages using 21 workers (14/14) in 1262.4ms
   Finalizing page optimization ...
 
 Route (app)
 Ôöî Ôùï /
 Ôö£ Ôùï /_not-found
-Ôö£ Ôùï /agenda
-Ôö£ Ôùï /alertas
-Ôö£ Ôùï /dashboard
-Ôö£ Ôùï /historial
-Ôö£ Ôùï /importacion
-Ôö£ Ôùï /lista-espera
+Ôö£ ãÆ /agenda
+Ôö£ ãÆ /alertas
+Ôö£ ãÆ /dashboard
+Ôö£ ãÆ /historial
+Ôö£ ãÆ /importacion
+Ôö£ ãÆ /lista-espera
 Ôö£ Ôùï /login
-Ôö£ Ôùï /programacion
+Ôö£ ãÆ /programacion
 Ôö£ Ôùï /recuperar
 Ôöö Ôùï /registro
 
 
 ãÆ Proxy (Middleware)
 
-Ôùï  (Static)  prerendered as static content
+Ôùï  (Static)   prerendered as static content
+ãÆ  (Dynamic)  server-rendered on demand
 
