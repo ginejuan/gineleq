@@ -106,9 +106,11 @@ function mapRowToExcelRow(headers: string[], rawRow: unknown[]): ExcelRow {
 
         let value = rawRow[col];
 
-        // Convertir fechas de serial Excel a string ISO
-        if (DATE_FIELDS.includes(dbField) && typeof value === 'number' && value > 0) {
-            value = excelSerialToDateString(value);
+        // Convertir fechas de serial Excel a string ISO, o null si vacío
+        if (DATE_FIELDS.includes(dbField)) {
+            value = (typeof value === 'number' && value > 0)
+                ? excelSerialToDateString(value)
+                : null;
         } else if (dbField === 'rdq') {
             value = Number(value) || 0;
         } else if (dbField === 't_registro' || dbField === 't_garantia' || dbField === 't_total') {
