@@ -116,8 +116,33 @@
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.logoutButton {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    color: rgba(255, 255, 255, 0.6);
+    background: none;
+    border: none;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    font-family: var(--font-family);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: left;
+    margin-bottom: var(--spacing-sm);
+}
+
+.logoutButton:hover {
+    color: var(--color-text-inverse);
+    background-color: rgba(239, 68, 68, 0.2);
+}
+
 .version {
     color: rgba(255, 255, 255, 0.3);
     font-size: var(--font-size-xs);
     text-align: center;
+    display: block;
 }

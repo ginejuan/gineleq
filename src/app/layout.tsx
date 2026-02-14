@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import Sidebar from '@/components/Sidebar/Sidebar';
 import './globals.css';
 
 const inter = Inter({
@@ -14,6 +13,15 @@ export const metadata: Metadata = {
   description: 'Sistema de Gestión de Lista de Espera Quirúrgica para Ginecología',
 };
 
+/**
+ * Root Layout
+ * 
+ * Layout base que aplica fuente y estilos globales.
+ * El Sidebar se incluye SOLO en las páginas protegidas
+ * (vía le layout de grupo o directamente en cada sub-layout).
+ * Las páginas de auth (/login, /registro, /recuperar) tienen su propio layout
+ * sin sidebar.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,12 +30,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={inter.variable}>
-        <div className="app-layout">
-          <Sidebar />
-          <main className="app-main">
-            {children}
-          </main>
-        </div>
+        {children}
       </body>
     </html>
   );

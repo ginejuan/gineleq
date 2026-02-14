@@ -5,6 +5,7 @@
  * 
  * Menú lateral con los 7 módulos definidos en arquitectura.md §5.
  * Usa usePathname() para resaltar la ruta activa.
+ * Incluye botón de cerrar sesión.
  * 
  * Responsabilidad: SOLO navegación y presentación visual.
  * No contiene lógica de negocio.
@@ -12,6 +13,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { logoutAction } from '@/app/login/actions';
 import styles from './Sidebar.module.css';
 
 interface NavItem {
@@ -76,8 +78,14 @@ export default function Sidebar() {
                 {NAV_ITEMS_GESTION.map(renderNavItem)}
             </nav>
 
-            {/* Footer */}
+            {/* Footer con logout */}
             <div className={styles.sidebarFooter}>
+                <form action={logoutAction}>
+                    <button type="submit" className={styles.logoutButton}>
+                        <span className={styles.navIcon}>🚪</span>
+                        Cerrar Sesión
+                    </button>
+                </form>
                 <span className={styles.version}>GineLeq v0.1.0</span>
             </div>
         </aside>
