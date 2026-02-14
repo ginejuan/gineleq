@@ -9,6 +9,7 @@
 
 import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
 // --------------------------------------------------------------------------
 // Tipos de respuesta
@@ -62,10 +63,20 @@ export async function registerAction(formData: FormData): Promise<AuthResult> {
         return { error: 'La contraseña debe tener al menos 6 caracteres.' };
     }
 
-    const supabase = await createSupabaseServerClient();
-    const { error } = await supabase.auth.signUp({ email, password });
+    // Usamos el admin client para crear usuarios auto-confirmados
+    // (evita el requerimiento de SMTP en Supabase self-hosted)
+    const adminClient = createSupabaseAdminClient();
+    const { error } = await adminClient.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+    });
 
     if (error) {
+        // Mensaje amigable para errores comunes
+        if (error.message.includes('already been registered')) {
+            return { error: 'Ya existe una cuenta con ese email.' };
+        }
         return { error: `Error al registrar: ${error.message}` };
     }
 
