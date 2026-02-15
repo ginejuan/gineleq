@@ -33,6 +33,14 @@
   --color-apto-bg: #ECFDF5;
   --color-apto-border: #6EE7B7;
 
+  /* Colores - Dashboard (filas + gráficos) */
+  --color-suspended-bg: #F1F5F9;
+  --color-local-bg: #E0F2FE;
+  --color-onco-mama: #EC4899;
+  --color-onco-gine: #8B5CF6;
+  --color-garantia: #F59E0B;
+  --color-estandar: #6B7280;
+
   /* Colores - Neutros */
   --color-bg: #F8FAFC;
   --color-surface: #FFFFFF;
