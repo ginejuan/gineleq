@@ -61,6 +61,7 @@ export interface PatientRow {
     estado_garantia: string;
     procedimiento_garantia: string;
     f_inscripcion: string | null;
+    comentarios: string;
 }
 
 export interface DashboardData {
@@ -113,7 +114,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         .select(
             'rdq, paciente, nhc, diagnostico, procedimiento, t_registro, ' +
             't_anestesia, rdo_preanestesia, priorizable, suspendida, ' +
-            'prioridad, facultativo, estado_garantia, procedimiento_garantia, f_inscripcion'
+            'prioridad, facultativo, estado_garantia, procedimiento_garantia, f_inscripcion, comentarios'
         )
         .eq('estado', 'Activo')
         .order('t_registro', { ascending: false });
@@ -141,6 +142,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         estado_garantia: String(p.estado_garantia ?? ''),
         procedimiento_garantia: String(p.procedimiento_garantia ?? ''),
         f_inscripcion: p.f_inscripcion ? String(p.f_inscripcion) : null,
+        comentarios: String(p.comentarios ?? ''),
     }));
 
     // --- KPIs ---

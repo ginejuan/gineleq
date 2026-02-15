@@ -25,14 +25,14 @@ eException
     : NativeCommandError
  
   Creating an optimized production build ...
-Ô£ô Compiled successfully in 3.6s
+Ô£ô Compiled successfully in 3.2s
   Running TypeScript ...
   Collecting page data using 21 workers ...
   Generating static pages using 21 workers (0/12) ...
   Generating static pages using 21 workers (3/12) 
   Generating static pages using 21 workers (6/12) 
   Generating static pages using 21 workers (9/12) 
-Ô£ô Generating static pages using 21 workers (12/12) in 1013.4ms
+Ô£ô Generating static pages using 21 workers (12/12) in 879.7ms
   Finalizing page optimization ...
 
 Route (app)

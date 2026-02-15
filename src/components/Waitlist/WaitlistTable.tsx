@@ -2,7 +2,9 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback } from 'react';
+import { useState } from 'react';
 import { type WaitlistResponse, type WaitlistRow } from '@/lib/waitlist/waitlist-data';
+import { PatientDetailModal } from './PatientDetailModal';
 import styles from './Waitlist.module.css';
 
 interface WaitlistTableProps {
@@ -10,6 +12,7 @@ interface WaitlistTableProps {
 }
 
 export function WaitlistTable({ data }: WaitlistTableProps) {
+    const [selectedPatient, setSelectedPatient] = useState<WaitlistRow | null>(null);
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -73,7 +76,12 @@ export function WaitlistTable({ data }: WaitlistTableProps) {
                     </thead>
                     <tbody>
                         {data.data.map((row) => (
-                            <tr key={row.rdq} className={getRowClass(row)}>
+                            <tr
+                                key={row.rdq}
+                                className={getRowClass(row)}
+                                onClick={() => setSelectedPatient(row)}
+                                style={{ cursor: 'pointer' }}
+                            >
                                 <td>{row.rdq}</td>
                                 <td>
                                     <div style={{ fontWeight: 500 }}>{row.paciente}</div>
@@ -103,6 +111,14 @@ export function WaitlistTable({ data }: WaitlistTableProps) {
                     </tbody>
                 </table>
             </div>
+
+            {/* Modal */}
+            {selectedPatient && (
+                <PatientDetailModal
+                    patient={selectedPatient}
+                    onClose={() => setSelectedPatient(null)}
+                />
+            )}
 
             {/* Pagination */}
             <div className={styles.pagination}>
