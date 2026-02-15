@@ -12,13 +12,14 @@ interface PatientDetailModalProps {
 
 export function PatientDetailModal({ patient, onClose }: PatientDetailModalProps) {
     const [priorizable, setPriorizable] = useState(patient.priorizable);
+    const [suspendida, setSuspendida] = useState(patient.suspendida);
     const [comentarios, setComentarios] = useState(patient.comentarios || '');
     const [isSaving, setIsSaving] = useState(false);
 
     async function handleSave() {
         setIsSaving(true);
         try {
-            await updatePatientManualFields(patient.rdq, { priorizable, comentarios });
+            await updatePatientManualFields(patient.rdq, { priorizable, comentarios, suspendida });
             onClose();
         } catch (error) {
             console.error(error);
@@ -106,6 +107,20 @@ export function PatientDetailModal({ patient, onClose }: PatientDetailModalProps
                             <label htmlFor="priorizable" style={{ fontWeight: 500, color: '#334155', cursor: 'pointer', userSelect: 'none' }}>
                                 Marcar como Priorizable
                                 <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: '#94a3b8', fontWeight: 400 }}>(Resalta en violeta en el listado)</span>
+                            </label>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <input
+                                type="checkbox"
+                                id="suspendida"
+                                checked={suspendida}
+                                onChange={e => setSuspendida(e.target.checked)}
+                                style={{ width: '1.25rem', height: '1.25rem', borderRadius: '0.25rem', borderColor: '#d1d5db', color: '#ef4444' }}
+                            />
+                            <label htmlFor="suspendida" style={{ fontWeight: 500, color: '#334155', cursor: 'pointer', userSelect: 'none' }}>
+                                Marcar como Suspendida / No Programable
+                                <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: '#94a3b8', fontWeight: 400 }}>(Excluye temporalmente de programación)</span>
                             </label>
                         </div>
 

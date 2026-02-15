@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 
 export async function updatePatientManualFields(
     rdq: number,
-    data: { priorizable: boolean; comentarios: string }
+    data: { priorizable: boolean; comentarios: string; suspendida: boolean }
 ) {
     const supabase = createSupabaseAdminClient();
 
@@ -14,6 +14,7 @@ export async function updatePatientManualFields(
         .update({
             priorizable: data.priorizable,
             comentarios: data.comentarios,
+            suspendida: data.suspendida,
         })
         .eq('rdq', rdq);
 
