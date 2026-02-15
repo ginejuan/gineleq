@@ -1,20 +1,60 @@
-import styles from '../page.module.css';
+import { getWaitlistData, type WaitlistRow } from '@/lib/waitlist/waitlist-data';
+import { WaitlistTable } from '@/components/Waitlist/WaitlistTable';
+import { WaitlistFilters } from '@/components/Waitlist/WaitlistFilters';
+import { SearchInput } from '@/components/Waitlist/SearchInput';
+import styles from '@/components/Waitlist/Waitlist.module.css';
 
-/**
- * Lista de Espera (arquitectura.md §5)
- * Stub: Tabla con filtros y búsqueda se implementará en fases posteriores.
- */
-export default function ListaEsperaPage() {
+export const dynamic = 'force-dynamic';
+
+interface PageProps {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function ListaEsperaPage({ searchParams }: PageProps) {
+    const params = await searchParams;
+
+    const page = Number(params.page) || 1;
+    const pageSize = 50;
+    const sortBy = (params.sortBy as keyof WaitlistRow) || 't_registro';
+    const sortDir = (params.sortDir as 'asc' | 'desc') || 'desc';
+    const search = (params.search as string) || '';
+
+    const filters = {
+        search,
+        priorizable: params.priorizable === 'true',
+        garantia: params.garantia === 'true',
+        onco: params.onco === 'true',
+        anestesia: params.anestesia === 'true',
+        estado: (params.estado as string) || 'Activo',
+    };
+
+    const data = await getWaitlistData({
+        page,
+        pageSize,
+        sortBy,
+        sortDir,
+        filters,
+    });
+
     return (
-        <>
-            <header className={styles.pageHeader}>
-                <h1 className={styles.pageTitle}>Lista de Espera</h1>
-                <p className={styles.pageSubtitle}>Registro completo de intervenciones quirúrgicas pendientes</p>
-            </header>
-            <div className={styles.placeholder}>
-                <span className={styles.placeholderIcon}>📋</span>
-                Tabla de pacientes con filtros, búsqueda por NHC y edición de campos manuales.
+        <div className={styles.pageContainer}>
+            <WaitlistFilters />
+
+            <div className={styles.content}>
+                <header className={styles.header}>
+                    <div>
+                        <h1 className={styles.title}>Lista de Espera</h1>
+                        <p className={styles.subtitle}>
+                            Gestión y seguimiento de pacientes
+                        </p>
+                    </div>
+                    <div style={{ width: '320px' }}>
+                        <SearchInput />
+                    </div>
+                </header>
+
+                <WaitlistTable data={data} />
             </div>
-        </>
+        </div>
     );
 }

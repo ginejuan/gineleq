@@ -99,6 +99,18 @@ export function decrypt(encryptedValue: string): string {
     return decrypted.toString('utf8');
 }
 
+/**
+ * Intenta descifrar, y si falla retorna el valor original.
+ * Útil para migraciones o datos mixtos.
+ */
+export function safeDecrypt(value: string): string {
+    try {
+        return decrypt(value);
+    } catch {
+        return value;
+    }
+}
+
 // --------------------------------------------------------------------------
 // Blind Index (para búsquedas sobre datos cifrados)
 // --------------------------------------------------------------------------
