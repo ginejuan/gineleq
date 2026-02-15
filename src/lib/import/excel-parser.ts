@@ -33,6 +33,39 @@ export function parseExcelBuffer(buffer: ArrayBuffer): ExcelRow[] {
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
 
+    // Tratamiento de celdas combinadas:
+    // Iterar sobre todos los rangos combinados y rellenar las celdas vacías
+    // con el valor de la celda superior izquierda del rango.
+    if (worksheet['!merges']) {
+        worksheet['!merges'].forEach((mergeRange) => {
+            const startCol = mergeRange.s.c;
+            const startRow = mergeRange.s.r;
+            const endCol = mergeRange.e.c;
+            const endRow = mergeRange.e.r;
+
+            // Obtener la celda "madre" (top-left)
+            const masterCellRef = XLSX.utils.encode_cell({ c: startCol, r: startRow });
+            const masterCell = worksheet[masterCellRef];
+            const masterValue = masterCell ? masterCell.v : undefined;
+            const masterType = masterCell ? masterCell.t : undefined;
+            const masterStyle = masterCell ? masterCell.s : undefined; // Si hubiera estilos
+
+            // Rellenar todas las celdas del rango
+            for (let r = startRow; r <= endRow; r++) {
+                for (let c = startCol; c <= endCol; c++) {
+                    const cellRef = XLSX.utils.encode_cell({ c, r });
+                    if (!worksheet[cellRef]) {
+                        worksheet[cellRef] = { t: masterType, v: masterValue, s: masterStyle };
+                    } else if (worksheet[cellRef].v === undefined || worksheet[cellRef].v === '') {
+                        // Si existe pero está vacía (comportamiento habitual de xlsx en merges)
+                        worksheet[cellRef].v = masterValue;
+                        worksheet[cellRef].t = masterType;
+                    }
+                }
+            }
+        });
+    }
+
     // Leer como array de arrays (primera fila = headers)
     const rawData = XLSX.utils.sheet_to_json<unknown[]>(worksheet, {
         header: 1,
