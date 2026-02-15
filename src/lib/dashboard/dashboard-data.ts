@@ -59,6 +59,7 @@ export interface PatientRow {
     prioridad: string;
     facultativo: string;
     estado_garantia: string;
+    procedimiento_garantia: string;
     f_inscripcion: string | null;
 }
 
@@ -112,7 +113,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         .select(
             'rdq, paciente, nhc, diagnostico, procedimiento, t_registro, ' +
             't_anestesia, rdo_preanestesia, priorizable, suspendida, ' +
-            'prioridad, facultativo, estado_garantia, f_inscripcion'
+            'prioridad, facultativo, estado_garantia, procedimiento_garantia, f_inscripcion'
         )
         .eq('estado', 'Activo')
         .order('t_registro', { ascending: false });
@@ -138,6 +139,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         prioridad: String(p.prioridad ?? ''),
         facultativo: String(p.facultativo ?? ''),
         estado_garantia: String(p.estado_garantia ?? ''),
+        procedimiento_garantia: String(p.procedimiento_garantia ?? ''),
         f_inscripcion: p.f_inscripcion ? String(p.f_inscripcion) : null,
     }));
 
@@ -173,18 +175,19 @@ export async function getDashboardData(): Promise<DashboardData> {
         : 0;
 
     // --- Composición (Donut) ---
+    // Garantía = procedimiento_garantia == "Si" y NO oncológica
     const oncoMamaCount = oncoMama;
     const oncoGineCount = oncoGine;
     const garantiaCount = decryptedPatients.filter(
-        p => !isOnco(p.diagnostico) && p.estado_garantia.trim() !== ''
+        p => !isOnco(p.diagnostico) && p.procedimiento_garantia.toUpperCase().trim() === 'SI'
     ).length;
-    const estandarCount = censoTotal - oncoMamaCount - oncoGineCount - garantiaCount;
+    const sinGarantiaCount = censoTotal - oncoMamaCount - oncoGineCount - garantiaCount;
 
     const composicion: ComposicionSegment[] = [
         { name: 'Onco-Mama', value: oncoMamaCount, color: '#EC4899' },
         { name: 'Onco-Gine', value: oncoGineCount, color: '#8B5CF6' },
         { name: 'Garantía', value: garantiaCount, color: '#F59E0B' },
-        { name: 'Estándar', value: estandarCount, color: '#6B7280' },
+        { name: 'Sin garantía', value: sinGarantiaCount, color: '#6B7280' },
     ];
 
     // --- Readiness (Progress) ---
