@@ -90,6 +90,14 @@ export function PatientDetailModal({ patient, onClose }: PatientDetailModalProps
                             <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Procedimiento</label>
                             <div style={{ color: '#334155', fontSize: '0.875rem', backgroundColor: '#f8fafc', padding: '0.5rem', borderRadius: '0.375rem', border: '1px solid #f1f5f9' }}>{patient.procedimiento}</div>
                         </div>
+                        {patient.observaciones && (
+                            <div style={{ gridColumn: 'span 2' }}>
+                                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Observaciones (Excel)</label>
+                                <div style={{ color: '#475569', fontSize: '0.875rem', whiteSpace: 'pre-wrap', backgroundColor: '#fff7ed', padding: '0.75rem', borderRadius: '0.375rem', border: '1px solid #ffedd5' }}>
+                                    {patient.observaciones}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <hr style={{ border: 0, borderTop: '1px solid #f1f5f9', marginBottom: '1.5rem' }} />
@@ -119,8 +127,8 @@ export function PatientDetailModal({ patient, onClose }: PatientDetailModalProps
                                 style={{ width: '1.25rem', height: '1.25rem', borderRadius: '0.25rem', borderColor: '#d1d5db', color: '#ef4444' }}
                             />
                             <label htmlFor="suspendida" style={{ fontWeight: 500, color: '#334155', cursor: 'pointer', userSelect: 'none' }}>
-                                Marcar como Suspendida / No Programable
-                                <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: '#94a3b8', fontWeight: 400 }}>(Excluye temporalmente de programación)</span>
+                                Marcar como Suspendida
+                                <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: '#94a3b8', fontWeight: 400 }}>(Programada y cancelada por falta de tiempo/complicaciones)</span>
                             </label>
                         </div>
 
