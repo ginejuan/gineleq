@@ -67,6 +67,8 @@ export interface EncryptedRow extends Omit<ExcelRow,
     estado: string;
     priorizable: boolean;
     comentarios: string;
+    suspendida: boolean;
+    fecha_suspension: string | null;
 }
 
 // --------------------------------------------------------------------------

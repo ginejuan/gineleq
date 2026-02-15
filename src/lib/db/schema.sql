@@ -73,6 +73,8 @@ CREATE TABLE IF NOT EXISTS lista_espera (
     estado                  TEXT DEFAULT 'Activo',
     priorizable             BOOLEAN DEFAULT FALSE,
     comentarios             TEXT DEFAULT '',
+    suspendida              BOOLEAN DEFAULT FALSE,
+    fecha_suspension        DATE,
 
     -- Timestamps
     created_at              TIMESTAMPTZ DEFAULT now(),

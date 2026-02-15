@@ -4,8 +4,8 @@
  * Recibe el archivo .xlsx, lo parsea, cifra PII,
  * hace upsert por RDQ y pasiviza registros ausentes.
  * 
- * Campos "estado", "priorizable" y "comentarios" NUNCA
- * se sobreescriben durante la importación.
+ * Campos "estado", "priorizable", "comentarios", "suspendida"
+ * y "fecha_suspension" NUNCA se sobreescriben durante la importación.
  * 
  * Principio: La lógica es "ciega" (no sabe cómo se muestra).
  */
@@ -26,7 +26,7 @@ const TABLE_NAME = 'lista_espera';
 const BATCH_SIZE = 50;
 
 // Campos manuales que NO se sobreescriben en el upsert
-const MANUAL_FIELDS = ['estado', 'priorizable', 'comentarios'];
+const MANUAL_FIELDS = ['estado', 'priorizable', 'comentarios', 'suspendida', 'fecha_suspension'];
 
 // --------------------------------------------------------------------------
 // Acción principal
@@ -170,6 +170,8 @@ function encryptRow(row: ExcelRow): EncryptedRow {
     encrypted.estado = 'Activo';
     encrypted.priorizable = false;
     encrypted.comentarios = '';
+    encrypted.suspendida = false;
+    encrypted.fecha_suspension = null;
 
     return encrypted as unknown as EncryptedRow;
 }
