@@ -1,38 +1,27 @@
 ﻿Ôû▓ Next.js 16.1.6 (Turbopack)
 - Environments: .env.local
 
-node.exe : ÔÜá The 
-"middleware" file 
-convention is deprecated. 
-Please use "proxy" instead. 
-Learn more: https://nextjs.o
-rg/docs/messages/middleware-
-to-proxy
+node.exe : ÔÜá The "middleware" file convention is 
+deprecated. Please use "proxy" instead. Learn more: 
+https://nextjs.org/docs/messages/middleware-to-proxy
 En línea: 1 Carácter: 1
-+ & "C:\Program 
-Files\nodejs/node.exe" 
-"C:\Program 
++ & "C:\Program Files\nodejs/node.exe" "C:\Program 
 Files\nodejs/node_mo ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~
-    + CategoryInfo          
-    : NotSpecified: (ÔÜá T  
-  he "middle...leware-to-   
- proxy:String) [], Remot    
-eException
-    + FullyQualifiedErrorId 
-    : NativeCommandError
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ÔÜá The "middle 
+   ...leware-to-proxy:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
  
   Creating an optimized production build ...
-Ô£ô Compiled successfully in 5.0s
+Ô£ô Compiled successfully in 3.8s
   Running TypeScript ...
   Collecting page data using 21 workers ...
   Generating static pages using 21 workers (0/12) ...
   Generating static pages using 21 workers (3/12) 
   Generating static pages using 21 workers (6/12) 
   Generating static pages using 21 workers (9/12) 
-Ô£ô Generating static pages using 21 workers (12/12) in 1138.5ms
+Ô£ô Generating static pages using 21 workers (12/12) in 743.2ms
   Finalizing page optimization ...
 
 Route (app)

@@ -11,10 +11,7 @@ import type { PatientRow } from '@/lib/dashboard/dashboard-data';
 
 export interface WaitlistFilters {
     search?: string;
-    priorizable?: boolean;
-    garantia?: boolean;
-    onco?: boolean;
-    anestesia?: boolean; // If true: requires anesthesia (NOT local/sin)
+    clinical_filter?: string; // 'onco', 'garantia', 'priorizable', 'anestesia', 'local'
     estado?: string; // 'Activo', 'Suspendido', 'Todos'
 }
 
@@ -123,11 +120,29 @@ export async function getWaitlistData(params: WaitlistParams = {}): Promise<Wait
             if (!matches) return false;
         }
 
-        // Checkboxes
-        if (filters.priorizable && !row.priorizable) return false;
-        if (filters.onco && !isOnco(row.diagnostico)) return false;
-        if (filters.garantia && row.procedimiento_garantia.toUpperCase() !== 'SI') return false;
-        if (filters.anestesia && isLocalOrSinAnestesia(row.t_anestesia)) return false; // "Requieren Anestesia" -> exclude local/sin
+        // Clinical Filters (Single Selection)
+        switch (filters.clinical_filter) {
+            case 'onco':
+                if (!isOnco(row.diagnostico)) return false;
+                break;
+            case 'garantia':
+                if (row.procedimiento_garantia.toUpperCase() !== 'SI') return false;
+                break;
+            case 'priorizable':
+                if (!row.priorizable) return false;
+                break;
+            case 'anestesia':
+                // Requieren anestesia -> Exclude Local/Sin
+                if (isLocalOrSinAnestesia(row.t_anestesia)) return false;
+                break;
+            case 'local':
+                // Only Local/Sin
+                if (!isLocalOrSinAnestesia(row.t_anestesia)) return false;
+                break;
+            default:
+                // 'all' or undefined -> No filter
+                break;
+        }
 
         return true;
     });

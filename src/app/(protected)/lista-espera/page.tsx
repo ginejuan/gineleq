@@ -21,10 +21,7 @@ export default async function ListaEsperaPage({ searchParams }: PageProps) {
 
     const filters = {
         search,
-        priorizable: params.priorizable === 'true',
-        garantia: params.garantia === 'true',
-        onco: params.onco === 'true',
-        anestesia: params.anestesia === 'true',
+        clinical_filter: (params.clinical_filter as string) || 'all',
         estado: (params.estado as string) || 'Activo',
     };
 

@@ -19,10 +19,11 @@ export function WaitlistFilters() {
     }
 
     const filters = [
-        { key: 'onco', label: 'Solo Oncológicas', default: false },
-        { key: 'garantia', label: 'Solo Garantía', default: false },
-        { key: 'priorizable', label: 'Priorizables', default: false },
-        { key: 'anestesia', label: 'Requieren Anestesia', default: false },
+        { key: 'onco', label: 'Solo Oncológicas' },
+        { key: 'garantia', label: 'Solo Garantía' },
+        { key: 'priorizable', label: 'Priorizables' },
+        { key: 'anestesia', label: 'Requieren Anestesia (General/Regional)' },
+        { key: 'local', label: 'Local / Sin Anestesia' },
     ];
 
     const currentEstado = searchParams.get('estado') || 'Activo';
@@ -68,20 +69,33 @@ export function WaitlistFilters() {
 
             <div className={styles.filterGroup}>
                 <h3 className={styles.filterTitle}>Filtros Clínicos</h3>
-                {filters.map(f => {
-                    const isActive = searchParams.get(f.key) === 'true';
-                    return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label className={styles.filterOption}>
+                        <input
+                            type="radio"
+                            name="clinical_filter" // Group name ensures single selection natively, but we control state
+                            value="all"
+                            checked={!searchParams.get('clinical_filter') || searchParams.get('clinical_filter') === 'all'}
+                            onChange={() => updateFilter('clinical_filter', 'all')}
+                            className={styles.checkbox}
+                        />
+                        Todos
+                    </label>
+
+                    {filters.map(f => (
                         <label key={f.key} className={styles.filterOption}>
                             <input
-                                type="checkbox"
-                                checked={isActive}
-                                onChange={(e) => updateFilter(f.key, e.target.checked ? 'true' : null)}
+                                type="radio"
+                                name="clinical_filter"
+                                value={f.key}
+                                checked={searchParams.get('clinical_filter') === f.key}
+                                onChange={() => updateFilter('clinical_filter', f.key)}
                                 className={styles.checkbox}
                             />
                             {f.label}
                         </label>
-                    );
-                })}
+                    ))}
+                </div>
             </div>
         </aside>
     );
