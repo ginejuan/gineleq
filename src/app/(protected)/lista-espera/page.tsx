@@ -1,7 +1,6 @@
 import { getWaitlistData, type WaitlistRow } from '@/lib/waitlist/waitlist-data';
 import { WaitlistTable } from '@/components/Waitlist/WaitlistTable';
 import { WaitlistFilters } from '@/components/Waitlist/WaitlistFilters';
-import { SearchInput } from '@/components/Waitlist/SearchInput';
 import styles from '@/components/Waitlist/Waitlist.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -22,7 +21,7 @@ export default async function ListaEsperaPage({ searchParams }: PageProps) {
     const filters = {
         search,
         clinical_filter: (params.clinical_filter as string) || 'all',
-        estado: (params.estado as string) || 'Activo',
+        preanestesia: (params.preanestesia as string) || 'todos',
     };
 
     const data = await getWaitlistData({
@@ -44,9 +43,6 @@ export default async function ListaEsperaPage({ searchParams }: PageProps) {
                         <p className={styles.subtitle}>
                             Gestión y seguimiento de pacientes
                         </p>
-                    </div>
-                    <div style={{ width: '320px' }}>
-                        <SearchInput />
                     </div>
                 </header>
 

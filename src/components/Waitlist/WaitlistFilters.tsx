@@ -26,54 +26,61 @@ export function WaitlistFilters() {
         { key: 'local', label: 'Local / Sin Anestesia' },
     ];
 
-    const currentEstado = searchParams.get('estado') || 'Activo';
+
 
     return (
         <aside className={styles.filters}>
+            {/* 1. Filtro por Paciente (Previously SearchInput, now integrated) */}
             <div className={styles.filterGroup}>
-                <h3 className={styles.filterTitle}>Estado</h3>
+                <h3 className={styles.filterTitle}>Filtro por Paciente</h3>
+                <input
+                    type="text"
+                    placeholder="Buscar por Paciente, NHC o RDQ..."
+                    defaultValue={searchParams.get('search') || ''}
+                    onChange={(e) => {
+                        const val = e.target.value;
+                        setTimeout(() => updateFilter('search', val || null), 500); // Simple debounce
+                    }}
+                    className={styles.searchInput} // Reusing styles if possible, or create standard input style
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: '0.25rem', border: '1px solid #d1d5db' }}
+                />
+            </div>
+
+            {/* 2. Visto Bueno Preanestesia (Replaces Estado) */}
+            <div className={styles.filterGroup}>
+                <h3 className={styles.filterTitle}>Visto Bueno Preanestesia</h3>
                 <label className={styles.filterOption}>
                     <input
                         type="radio"
-                        name="estado"
-                        value="Activo"
-                        checked={currentEstado === 'Activo'}
-                        onChange={() => updateFilter('estado', 'Activo')}
+                        name="preanestesia"
+                        value="apto"
+                        checked={searchParams.get('preanestesia') === 'apto'}
+                        onChange={() => updateFilter('preanestesia', 'apto')}
                         className={styles.checkbox}
                     />
-                    Activo
+                    Con Visto Bueno (Apto)
                 </label>
                 <label className={styles.filterOption}>
                     <input
                         type="radio"
-                        name="estado"
-                        value="Suspendido"
-                        checked={currentEstado === 'Suspendido'}
-                        onChange={() => updateFilter('estado', 'Suspendido')}
+                        name="preanestesia"
+                        value="todos"
+                        checked={!searchParams.get('preanestesia') || searchParams.get('preanestesia') === 'todos'}
+                        onChange={() => updateFilter('preanestesia', 'todos')}
                         className={styles.checkbox}
                     />
-                    Suspendido
-                </label>
-                <label className={styles.filterOption}>
-                    <input
-                        type="radio"
-                        name="estado"
-                        value="Todos"
-                        checked={currentEstado === 'Todos'}
-                        onChange={() => updateFilter('estado', 'Todos')}
-                        className={styles.checkbox}
-                    />
-                    Todos
+                    Todas
                 </label>
             </div>
 
+            {/* 3. Filtros Clínicos */}
             <div className={styles.filterGroup}>
                 <h3 className={styles.filterTitle}>Filtros Clínicos</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <label className={styles.filterOption}>
                         <input
                             type="radio"
-                            name="clinical_filter" // Group name ensures single selection natively, but we control state
+                            name="clinical_filter"
                             value="all"
                             checked={!searchParams.get('clinical_filter') || searchParams.get('clinical_filter') === 'all'}
                             onChange={() => updateFilter('clinical_filter', 'all')}

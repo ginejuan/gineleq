@@ -12,7 +12,7 @@ import type { PatientRow } from '@/lib/dashboard/dashboard-data';
 export interface WaitlistFilters {
     search?: string;
     clinical_filter?: string; // 'onco', 'garantia', 'priorizable', 'anestesia', 'local'
-    estado?: string; // 'Activo', 'Suspendido', 'Todos'
+    preanestesia?: string; // 'apto', 'todos'
 }
 
 // Extends PatientRow if we add more fields later
@@ -105,9 +105,15 @@ export async function getWaitlistData(params: WaitlistParams = {}): Promise<Wait
 
     // 3. Filter in Memory
     let filtered = allRows.filter(row => {
-        // Suspendida flag
-        if (filters.estado === 'Suspendido' && !row.suspendida) return false;
-        if (filters.estado === 'Activo' && row.suspendida) return false;
+        // Preanestesia Filter
+        if (filters.preanestesia === 'apto') {
+            const rdo = (row.rdo_preanestesia || '').toUpperCase();
+            if (rdo !== 'APTO') return false;
+        }
+
+        // Note: We are no longer filtering by 'suspendida' status here, as the user replaced the 'Estado' filter.
+        // This means suspended patients will appear in the list (marked by their status badge/text).
+
 
         // Text Search
         if (filters.search) {
