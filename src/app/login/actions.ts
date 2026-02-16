@@ -8,6 +8,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
@@ -101,8 +102,13 @@ export async function resetPasswordAction(formData: FormData): Promise<AuthResul
     }
 
     const supabase = await createSupabaseServerClient();
+
+    // Get origin dynamically to ensure correct redirect URL in all environments
+    const headersList = await headers();
+    const origin = headersList.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/login`,
+        redirectTo: `${origin}/auth/callback?next=/reset-password`, // Usually we redirect to a callback or a page to handle the hash
     });
 
     if (error) {
@@ -110,6 +116,37 @@ export async function resetPasswordAction(formData: FormData): Promise<AuthResul
     }
 
     return { error: null, success: true };
+}
+
+
+// --------------------------------------------------------------------------
+// Update Password (New)
+// --------------------------------------------------------------------------
+
+export async function updatePasswordAction(formData: FormData): Promise<AuthResult> {
+    const password = formData.get('password') as string;
+    const confirmPassword = formData.get('confirmPassword') as string;
+
+    if (!password || !confirmPassword) {
+        return { error: 'Introduce y confirma la nueva contraseña.' };
+    }
+
+    if (password !== confirmPassword) {
+        return { error: 'Las contraseñas no coinciden.' };
+    }
+
+    if (password.length < 6) {
+        return { error: 'La contraseña debe tener al menos 6 caracteres.' };
+    }
+
+    const supabase = await createSupabaseServerClient();
+    const { error } = await supabase.auth.updateUser({ password });
+
+    if (error) {
+        return { error: `Error al actualizar: ${error.message}` };
+    }
+
+    return { success: true, error: null };
 }
 
 // --------------------------------------------------------------------------
@@ -121,3 +158,4 @@ export async function logoutAction(): Promise<void> {
     await supabase.auth.signOut();
     redirect('/login');
 }
+
