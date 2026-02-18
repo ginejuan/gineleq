@@ -10,7 +10,14 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware-client';
 
-const PUBLIC_ROUTES = ['/login', '/registro', '/recuperar'];
+const PUBLIC_ROUTES = [
+    '/login',
+    '/registro',
+    '/recuperar',
+    '/auth/auth-code-error',
+    '/auth/callback',
+    '/reset-password'
+];
 
 function isPublicRoute(pathname: string): boolean {
     return PUBLIC_ROUTES.some(
@@ -40,14 +47,24 @@ export async function middleware(request: NextRequest) {
     if (!user && !isPublicRoute(pathname)) {
         const loginUrl = request.nextUrl.clone();
         loginUrl.pathname = '/login';
+        // Preserve query params for debugging/redirection context
         return NextResponse.redirect(loginUrl);
     }
 
     // Usuario autenticado en ruta pública → dashboard
     if (user && isPublicRoute(pathname)) {
-        const dashboardUrl = request.nextUrl.clone();
-        dashboardUrl.pathname = '/dashboard';
-        return NextResponse.redirect(dashboardUrl);
+        // Excepcion: Permitir acceso a rutas de auth/reset incluso si hay sesión
+        // (por ejemplo, para cambiar contraseña o verificar email)
+        const isAuthFlow =
+            pathname.startsWith('/auth/') ||
+            pathname === '/reset-password' ||
+            pathname === '/recuperar';
+
+        if (!isAuthFlow) {
+            const dashboardUrl = request.nextUrl.clone();
+            dashboardUrl.pathname = '/dashboard';
+            return NextResponse.redirect(dashboardUrl);
+        }
     }
 
     return supabaseResponse;
