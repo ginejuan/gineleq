@@ -29,6 +29,9 @@ export async function updateSession(request: NextRequest) {
                     }
                 },
             },
+            cookieOptions: {
+                name: 'sb-leqgine-auth-token',
+            },
         }
     );
 

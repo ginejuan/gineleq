@@ -34,7 +34,13 @@ let clientInstance: SupabaseClient | null = null;
 
 function getSupabaseClient(): SupabaseClient {
   if (!clientInstance) {
-    clientInstance = createClient(supabaseUrl, supabaseAnonKey);
+    clientInstance = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        storageKey: 'sb-leqgine-auth-token',
+        persistSession: true,
+        detectSessionInUrl: true,
+      },
+    });
   }
   return clientInstance;
 }
