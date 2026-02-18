@@ -103,12 +103,13 @@ export async function resetPasswordAction(formData: FormData): Promise<AuthResul
 
     const supabase = await createSupabaseServerClient();
 
-    // Get origin dynamically to ensure correct redirect URL in all environments
-    const headersList = await headers();
-    const origin = headersList.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    // Force using the configured public URL to avoid localhost issues behind proxies
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://leqgine.es';
+
+    console.log('Enviando correo de recuperación con redirect a:', `${appUrl}/auth/callback`);
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${origin}/auth/callback?next=/reset-password`, // Usually we redirect to a callback or a page to handle the hash
+        redirectTo: `${appUrl}/auth/callback?next=/reset-password`,
     });
 
     if (error) {
