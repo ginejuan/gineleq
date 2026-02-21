@@ -31,7 +31,13 @@ export default function QuirofanoDropzone({ quirofano, pacientesAsignados }: Qui
                 <span className={styles.dropzoneTitle}>{fechaStr} - {quirofano.turno}</span>
                 <span className={styles.dropzoneSubtitle}>
                     {quirofano.tipo_quirofano || 'Sin especificar'}
-                    {quirofano.quirofano_cirujano && quirofano.quirofano_cirujano.length > 0 && ` • ${quirofano.quirofano_cirujano.length} Fac.`}
+                    {quirofano.quirofano_cirujano && quirofano.quirofano_cirujano.length > 0 && (
+                        <span style={{ display: 'block', marginTop: '4px', fontSize: '0.9em', color: 'var(--text-muted)' }}>
+                            👨‍⚕️ {quirofano.quirofano_cirujano.map(qc =>
+                                `${qc.cirujanos.apellido1} ${qc.cirujanos.apellido2 || ''}, ${qc.cirujanos.nombre}`.trim()
+                            ).join(' • ')}
+                        </span>
+                    )}
                 </span>
             </div>
 
