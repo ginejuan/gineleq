@@ -18,3 +18,7 @@ export async function desasignarPacienteAccion(id_quirofano: string, rdq: number
 export async function actualizarOrdenPacientesAccion(id_quirofano: string, rdqsOrdenados: number[]): Promise<void> {
     return await programacionService.actualizarOrden(id_quirofano, rdqsOrdenados);
 }
+
+export async function getAsignacionesAccion(quirofanoIds: string[]): Promise<Record<string, PacienteSugerido[]>> {
+    return await programacionService.getAsignaciones(quirofanoIds);
+}

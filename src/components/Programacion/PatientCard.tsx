@@ -57,7 +57,7 @@ export default function PatientCard({ paciente }: PatientCardProps) {
 
             <div className={styles.cardFooter}>
                 <span>{paciente.estado}</span>
-                <span title={`Fecha de Registro: ${new Date(paciente.t_registro).toLocaleDateString()}`}>
+                <span title={`Fecha de Registro: ${paciente.t_registro ? new Date(paciente.t_registro).toLocaleDateString() : (paciente.created_at ? new Date(paciente.created_at).toLocaleDateString() : 'Desconocida')}`}>
                     {paciente.scoreDetails.puntosAntiguedad} Días
                 </span>
             </div>

@@ -13,7 +13,7 @@ import {
     useDroppable
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
-import { fetchSugerenciasAccion, asignarPacienteAccion, desasignarPacienteAccion, actualizarOrdenPacientesAccion } from '@/app/(protected)/programacion/actions';
+import { fetchSugerenciasAccion, asignarPacienteAccion, desasignarPacienteAccion, actualizarOrdenPacientesAccion, getAsignacionesAccion } from '@/app/(protected)/programacion/actions';
 import { agendaService } from '@/services/agendaService';
 import { QuirofanoConCirujanos } from '@/types/database';
 import { PacienteSugerido } from '@/services/programacionService';
@@ -58,11 +58,9 @@ export default function ProgramacionBoard() {
             console.log('[DEBUG UI] Quirófanos cargados:', agenda.length);
             setQuirofanosSemana(agenda);
 
-            const inicialAsignaciones: Record<string, PacienteSugerido[]> = {};
-            agenda.forEach(q => {
-                inicialAsignaciones[q.id_quirofano] = [];
-            });
-            setAsignaciones(inicialAsignaciones);
+            const qIds = agenda.map(q => q.id_quirofano);
+            const dataAsignaciones = await getAsignacionesAccion(qIds);
+            setAsignaciones(dataAsignaciones);
 
         } catch (error: any) {
             console.error('Error al cargar datos del tablero:', error);

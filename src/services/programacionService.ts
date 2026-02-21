@@ -61,8 +61,22 @@ export const programacionService = {
         // Aplicar el scoring a los libres
         const sugerencias: PacienteSugerido[] = pacientesLibres.map((paciente: any) => {
             const hoy = new Date();
-            const tRegistro = new Date(paciente.t_registro);
-            const diasEspera = Math.floor((hoy.getTime() - tRegistro.getTime()) / (1000 * 3600 * 24));
+            let diasEspera = 0;
+
+            if (paciente.t_registro) {
+                const tRegistro = new Date(paciente.t_registro);
+                if (!isNaN(tRegistro.getTime())) {
+                    diasEspera = Math.floor((hoy.getTime() - tRegistro.getTime()) / (1000 * 3600 * 24));
+                }
+            } else if (paciente.created_at) {
+                const tRegistro = new Date(paciente.created_at);
+                if (!isNaN(tRegistro.getTime())) {
+                    diasEspera = Math.floor((hoy.getTime() - tRegistro.getTime()) / (1000 * 3600 * 24));
+                }
+            }
+
+            // Prevent negative days if there's any timezone weirdness
+            if (diasEspera < 0) diasEspera = 0;
 
             let pPriorizable = 0;
             let pOncologico = 0;
@@ -129,6 +143,92 @@ export const programacionService = {
             grupoA: pacientesValidos.filter(p => p.grupo === 'A'),
             grupoB: pacientesValidos.filter(p => p.grupo === 'B')
         };
+    },
+
+    /**
+     * Recupera los pacientes asignados a una lista de Quirófanos y los formatea
+     */
+    getAsignaciones: async (quirofanoIds: string[]): Promise<Record<string, PacienteSugerido[]>> => {
+        const supabase = createSupabaseAdminClient();
+
+        const result: Record<string, PacienteSugerido[]> = {};
+        quirofanoIds.forEach(id => result[id] = []);
+
+        if (quirofanoIds.length === 0) return result;
+
+        const { data: asignaciones, error } = await supabase
+            .from('quirofano_intervencion')
+            .select('id_quirofano, rdq, orden')
+            .in('id_quirofano', quirofanoIds)
+            .order('orden', { ascending: true });
+
+        if (error) throw error;
+        if (!asignaciones || asignaciones.length === 0) return result;
+
+        const rdqs = asignaciones.map((a: any) => a.rdq);
+        const { data: pacientes, error: pacError } = await supabase
+            .from('lista_espera')
+            .select('*')
+            .in('rdq', rdqs);
+
+        if (pacError) throw pacError;
+
+        const pacMap = new Map();
+        pacientes?.forEach((p: any) => pacMap.set(p.rdq.toString(), p));
+
+        for (const asig of asignaciones) {
+            const pData = pacMap.get(asig.rdq.toString());
+            if (pData) {
+                const isLocal = pData.t_anestesia?.toLowerCase().includes('local') ||
+                    pData.t_anestesia?.toLowerCase().includes('sin');
+                const grupo = isLocal ? 'B' : 'A';
+
+                const hoy = new Date();
+                let diasEspera = 0;
+
+                if (pData.t_registro) {
+                    const tRegistro = new Date(pData.t_registro);
+                    if (!isNaN(tRegistro.getTime())) {
+                        diasEspera = Math.floor((hoy.getTime() - tRegistro.getTime()) / (1000 * 3600 * 24));
+                    }
+                } else if (pData.created_at) {
+                    const tRegistro = new Date(pData.created_at);
+                    if (!isNaN(tRegistro.getTime())) {
+                        diasEspera = Math.floor((hoy.getTime() - tRegistro.getTime()) / (1000 * 3600 * 24));
+                    }
+                }
+
+                if (diasEspera < 0) diasEspera = 0;
+
+                let pPriorizable = 0;
+                let pOncologico = 0;
+                let pGarantia = 0;
+                let pAntiguedad = diasEspera;
+
+                if (pData.priorizable) pPriorizable = 1000;
+                const isOncologico = pData.diagnostico?.toUpperCase().includes('NEOPLASIA MALIGNA');
+                if (isOncologico && diasEspera >= 23) pOncologico = 300;
+                const limite = pData.plazo_garantia || 365;
+                if (diasEspera > limite) pGarantia = 500;
+
+                const puntosTotales = pPriorizable + pOncologico + pGarantia + pAntiguedad;
+
+                result[asig.id_quirofano].push({
+                    ...pData,
+                    paciente: safeDecrypt(String(pData.paciente ?? '')),
+                    grupo,
+                    scoreDetails: {
+                        puntosPriorizable: pPriorizable,
+                        puntosOncologico: pOncologico,
+                        puntosGarantiaVencida: pGarantia,
+                        puntosAntiguedad: pAntiguedad,
+                        puntosTotales
+                    }
+                });
+            }
+        }
+
+        return result;
     },
 
     /**
