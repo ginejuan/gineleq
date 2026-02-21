@@ -9,7 +9,8 @@ import {
     useSensor,
     useSensors,
     DragEndEvent,
-    DragStartEvent
+    DragStartEvent,
+    useDroppable
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import { fetchSugerenciasAccion, asignarPacienteAccion, desasignarPacienteAccion, actualizarOrdenPacientesAccion } from '@/app/(protected)/programacion/actions';
@@ -26,6 +27,10 @@ export default function ProgramacionBoard() {
     const [quirofanosSemana, setQuirofanosSemana] = useState<QuirofanoConCirujanos[]>([]);
     const [asignaciones, setAsignaciones] = useState<Record<string, PacienteSugerido[]>>({});
     const [loading, setLoading] = useState(true);
+
+    const { setNodeRef: setNodeRefSugerencias } = useDroppable({
+        id: 'sugerencias-panel'
+    });
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -76,21 +81,76 @@ export default function ProgramacionBoard() {
         const pacienteIdStr = String(active.id).replace('paciente-', '');
         let quirofanoIdDestino = String(over.id).replace('quirofano-', '');
         let overPacienteIdStr: string | null = null;
+        let isReturnToSuggestions = over.id === 'sugerencias-panel';
 
         if (String(over.id).startsWith('paciente-')) {
             const overRdq = String(over.id).replace('paciente-', '');
             overPacienteIdStr = overRdq;
-            let found = false;
+
+            if (grupoA.some(p => p.rdq.toString() === overRdq) || grupoB.some(p => p.rdq.toString() === overRdq)) {
+                isReturnToSuggestions = true;
+            } else {
+                let found = false;
+                for (const [qId, pacientesEnQ] of Object.entries(asignaciones)) {
+                    if (pacientesEnQ.some(p => p.rdq.toString() === overRdq)) {
+                        quirofanoIdDestino = qId;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found && !isReturnToSuggestions) return; // Drop inválido (ej: sobre otro paciente en sugerencias)
+            }
+        }
+
+        if (isReturnToSuggestions) {
+            let sourceQuirofanoId: string | null = null;
+            let draggedPatient: PacienteSugerido | null = null;
+
             for (const [qId, pacientesEnQ] of Object.entries(asignaciones)) {
-                if (pacientesEnQ.some(p => p.rdq.toString() === overRdq)) {
-                    quirofanoIdDestino = qId;
-                    found = true;
+                const foundP = pacientesEnQ.find(p => p.rdq.toString() === pacienteIdStr);
+                if (foundP) {
+                    sourceQuirofanoId = qId;
+                    draggedPatient = foundP;
                     break;
                 }
             }
-            if (!found) return; // Drop inválido
+
+            if (draggedPatient && sourceQuirofanoId) {
+                // UI update: Quitar del quirófano
+                const currentArray = asignaciones[sourceQuirofanoId];
+                setAsignaciones(prev => ({
+                    ...prev,
+                    [sourceQuirofanoId!]: currentArray.filter(p => p.rdq.toString() !== pacienteIdStr)
+                }));
+
+                // UI update: Devolver a sugerencias
+                const reAddPatient = (prev: PacienteSugerido[]) => {
+                    return [...prev, draggedPatient!].sort((a, b) => b.scoreDetails.puntosTotales - a.scoreDetails.puntosTotales);
+                };
+                if (draggedPatient.grupo === 'A') setGrupoA(reAddPatient);
+                else setGrupoB(reAddPatient);
+
+                // Persistencia en BD
+                try {
+                    await desasignarPacienteAccion(sourceQuirofanoId, Number(draggedPatient.rdq));
+
+                    const rest = currentArray.filter(p => p.rdq.toString() !== pacienteIdStr);
+                    if (rest.length > 0) {
+                        await actualizarOrdenPacientesAccion(sourceQuirofanoId, rest.map(p => Number(p.rdq)));
+                    }
+                } catch (error) {
+                    console.error("Error unassigning:", error);
+                    alert("Error devolviendo la paciente a la lista. Cambios revertidos.");
+                    // Rollback
+                    setAsignaciones(prev => ({ ...prev, [sourceQuirofanoId!]: currentArray }));
+                    if (draggedPatient.grupo === 'A') setGrupoA(prev => prev.filter(p => p.rdq.toString() !== draggedPatient!.rdq.toString()));
+                    else setGrupoB(prev => prev.filter(p => p.rdq.toString() !== draggedPatient!.rdq.toString()));
+                }
+            }
+            return;
         }
 
+        // 1. Encontrar al paciente en Grupos A o B
         const pEnA = grupoA.find(p => p.rdq.toString() === pacienteIdStr);
         const pEnB = grupoB.find(p => p.rdq.toString() === pacienteIdStr);
         const pacienteObj = pEnA || pEnB;
@@ -189,7 +249,7 @@ export default function ProgramacionBoard() {
         >
             <div className={styles.boardLayout}>
                 {/* PANEL IZQUIERDO: Origen (Sugerencias) */}
-                <div className={styles.suggestionsPanel}>
+                <div ref={setNodeRefSugerencias} className={styles.suggestionsPanel}>
                     <h2 className={styles.panelTitle}>Pacientes Sugeridos</h2>
                     <div className={styles.listsContainer}>
                         <div className={styles.suggestionList}>
