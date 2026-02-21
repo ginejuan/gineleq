@@ -199,7 +199,10 @@ export function CalendarView({ agendaData, onDeleteQuirofano, onEditQuirofano }:
                                                         tabIndex={0}
                                                     >
                                                         <div className={styles.cardHeader} style={{ color: colors.text }}>
-                                                            <span className={styles.cardTitle}>{q.tipo_quirofano || 'IQ'}</span>
+                                                            <span className={styles.cardTitle}>
+                                                                {q.completado && <span title="Quirófano Completado" style={{ marginRight: '4px', color: '#10B981', fontWeight: 'bold' }}>✓</span>}
+                                                                {q.tipo_quirofano || 'IQ'}
+                                                            </span>
                                                             <div style={{ display: 'flex', gap: '4px', alignItems: 'flex-start', flexShrink: 0 }}>
                                                                 <span className={styles.turnoBadge} style={{ color: colors.text }}>
                                                                     {q.turno === 'Continuidad asistencial' ? 'Cont.' : q.turno}
