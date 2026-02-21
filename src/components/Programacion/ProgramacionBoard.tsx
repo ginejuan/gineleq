@@ -84,9 +84,22 @@ export default function ProgramacionBoard() {
         const { active, over } = event;
         if (!over) return;
 
-        // active.id = "paciente-123", over.id = "quirofano-456"
         const pacienteIdStr = String(active.id).replace('paciente-', '');
-        const quirofanoIdDestino = String(over.id).replace('quirofano-', '');
+        let quirofanoIdDestino = String(over.id).replace('quirofano-', '');
+
+        // --- NEW LOGIC: Si soltamos sobre otro paciente que ya está asignado a un quirófano ---
+        if (String(over.id).startsWith('paciente-')) {
+            const overRdq = String(over.id).replace('paciente-', '');
+            let found = false;
+            for (const [qId, pacientesEnQ] of Object.entries(asignaciones)) {
+                if (pacientesEnQ.some(p => p.rdq.toString() === overRdq)) {
+                    quirofanoIdDestino = qId;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) return; // Drop inválido (ej: sobre otro paciente en sugerencias)
+        }
 
         // 1. Encontrar al paciente en Grupos A o B
         const pEnA = grupoA.find(p => p.rdq.toString() === pacienteIdStr);

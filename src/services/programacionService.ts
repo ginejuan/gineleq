@@ -1,5 +1,6 @@
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { Intervencion, QuirofanoIntervencion } from '@/types/database';
+import { decrypt } from '@/lib/encryption';
 
 export interface ScoreDetails {
     puntosPriorizable: number;
@@ -12,6 +13,17 @@ export interface ScoreDetails {
 export interface PacienteSugerido extends Intervencion {
     scoreDetails: ScoreDetails;
     grupo: 'A' | 'B'; // A: Cirugía Mayor con anestesista, B: Cirugía Local/CMA
+    paciente?: string; // Nombre desencriptado para visualización
+}
+
+function safeDecrypt(ciphertext: string): string {
+    if (!ciphertext || ciphertext.trim() === '') return '';
+    try {
+        return decrypt(ciphertext);
+    } catch {
+        // If decryption fails (e.g. not encrypted), return as-is
+        return ciphertext;
+    }
 }
 
 export const programacionService = {
@@ -80,6 +92,7 @@ export const programacionService = {
 
             return {
                 ...paciente,
+                paciente: safeDecrypt(String(paciente.paciente ?? '')),
                 grupo,
                 scoreDetails: {
                     puntosPriorizable: pPriorizable,

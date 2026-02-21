@@ -48,8 +48,11 @@ export default function PatientCard({ paciente }: PatientCardProps) {
                 {paciente.scoreDetails.puntosPriorizable > 0 && <span className={styles.tagPriorizable}>Priorizado</span>}
                 {paciente.scoreDetails.puntosOncologico > 0 && <span className={styles.tagOncologico}>Oncológico</span>}
 
-                <strong>{paciente.diagnostico}</strong>
-                <p>{paciente.intervencion_propuesta}</p>
+                <div style={{ fontSize: '0.9em', fontWeight: 600, color: 'var(--primary)', marginBottom: '4px' }}>
+                    👤 {paciente.paciente}
+                </div>
+                <strong style={{ fontSize: '0.85em' }}>{paciente.diagnostico}</strong>
+                <p style={{ fontSize: '0.85em' }}>{paciente.intervencion_propuesta}</p>
             </div>
 
             <div className={styles.cardFooter}>
