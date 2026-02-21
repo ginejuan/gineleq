@@ -12,9 +12,10 @@ import {
     DragStartEvent
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { programacionService, PacienteSugerido } from '@/services/programacionService';
+import { fetchSugerenciasAccion, asignarPacienteAccion, desasignarPacienteAccion } from '@/app/(protected)/programacion/actions';
 import { agendaService } from '@/services/agendaService';
 import { QuirofanoConCirujanos } from '@/types/database';
+import { PacienteSugerido } from '@/services/programacionService';
 import PatientCard from './PatientCard';
 import QuirofanoDropzone from './QuirofanoDropzone';
 import styles from './Programacion.module.css';
@@ -44,7 +45,10 @@ export default function ProgramacionBoard() {
     const loadBoardData = async () => {
         setLoading(true);
         try {
-            const sugerencias = await programacionService.getSugerencias();
+            console.log('[DEBUG UI] Solicitando sugerencias al programacionService...');
+            const sugerencias = await fetchSugerenciasAccion();
+            console.log('[DEBUG UI] Respuesta del servicio:', sugerencias);
+
             setGrupoA(sugerencias.grupoA);
             setGrupoB(sugerencias.grupoB);
 
@@ -52,6 +56,7 @@ export default function ProgramacionBoard() {
             // Aquí traemos todos los del futuro próximo por simplicidad
             const hoyStr = new Date().toISOString().split('T')[0];
             const agenda = await agendaService.getAgenda(hoyStr, '2099-12-31');
+            console.log('[DEBUG UI] Quirófanos cargados:', agenda.length);
             setQuirofanosSemana(agenda);
 
             // Cargar asignaciones reales desde Supabase si existieran... 
@@ -62,8 +67,9 @@ export default function ProgramacionBoard() {
             });
             setAsignaciones(inicialAsignaciones);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error al cargar datos del tablero:', error);
+            alert(`Error consultando la base de datos: ${error?.message || error}`);
         } finally {
             setLoading(false);
         }
@@ -103,7 +109,7 @@ export default function ProgramacionBoard() {
 
         // 3. Persistencia Real en Base de Datos
         try {
-            await programacionService.asignarPaciente(quirofanoIdDestino, Number(pacienteObj.rdq));
+            await asignarPacienteAccion(quirofanoIdDestino, Number(pacienteObj.rdq));
         } catch (error) {
             console.error("Error asignando en Base de Datos:", error);
             // Revertir UI si falla (rollback)

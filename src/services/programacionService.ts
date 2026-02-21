@@ -1,4 +1,4 @@
-import { db } from '@/lib/supabase/client';
+import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { Intervencion, QuirofanoIntervencion } from '@/types/database';
 
 export interface ScoreDetails {
@@ -21,10 +21,12 @@ export const programacionService = {
      * @returns Array ordenado de Pacientes sugeridos
      */
     getSugerencias: async (): Promise<{ grupoA: PacienteSugerido[], grupoB: PacienteSugerido[] }> => {
+        const supabase = createSupabaseAdminClient();
+
         // En una arquitectura real con cifrado AES-GCM (como dice arquitectura.md), 
         // traeríamos los registros base y el desencapsulado sucedería donde toque.
         // Aquí asumimos una solicitud directa a lista_espera para simular el tablero.
-        const { data: pacientes, error } = await db.raw
+        const { data: pacientes, error } = await supabase
             .from('lista_espera')
             .select('*')
             .eq('estado', 'Activo');
@@ -33,7 +35,7 @@ export const programacionService = {
         if (!pacientes) return { grupoA: [], grupoB: [] };
 
         // Obtener los pacientes que YA están asignados a algún quirófano para no sugerirlos.
-        const { data: asignados, error: errAsign } = await db.raw
+        const { data: asignados, error: errAsign } = await supabase
             .from('quirofano_intervencion')
             .select('rdq');
 
@@ -41,6 +43,8 @@ export const programacionService = {
         const rdqsAsignados = new Set(asignados?.map((a: any) => a.rdq.toString()) || []);
 
         const pacientesLibres = pacientes.filter((p: any) => !rdqsAsignados.has(p.rdq.toString()));
+        console.log(`[DEBUG SCORING] Pacientes Totales Activos: ${pacientes.length}`);
+        console.log(`[DEBUG SCORING] Pacientes Libres: ${pacientesLibres.length}`);
 
         // Aplicar el scoring a los libres
         const sugerencias: PacienteSugerido[] = pacientesLibres.map((paciente: any) => {
@@ -89,15 +93,24 @@ export const programacionService = {
 
         // Filtrado Final por Validación Médica (Anestesia "Apto" en caso del Grupo A)
         // Descartamos los del Grupo A (Mayor) que no tengan el Apto, A MENOS que sean Oncológicos o Priorizables.
-        const pacientesValidos = sugerencias.filter(p => {
+        const pacientesValidos = sugerencias.filter((p: any) => {
             if (p.grupo === 'B') return true; // Local pasa directo
-            if (p.rdo_preanestesia === 'Apto') return true;
+
+            // Check for strict "Apto" equality. 
+            // Also checking if the capitalization is correct "APTO", "Apto", etc
+            if (p.rdo_preanestesia?.toLowerCase() === 'apto') return true;
+
             if (p.scoreDetails.puntosOncologico > 0 || p.scoreDetails.puntosPriorizable > 0) return true; // Excepciones
             return false;
         });
 
+        console.log(`[DEBUG SCORING] Pacientes Válidos Finales: ${pacientesValidos.length}`);
+        if (pacientesValidos.length === 0 && sugerencias.length > 0) {
+            console.log(`[DEBUG SCORING] Ejemplo Grupo A filtrado rdo_preanestesia: "${sugerencias[0]?.rdo_preanestesia}"`);
+        }
+
         // Ordenar de mayor a menor puntuación general
-        pacientesValidos.sort((a, b) => b.scoreDetails.puntosTotales - a.scoreDetails.puntosTotales);
+        pacientesValidos.sort((a: any, b: any) => b.scoreDetails.puntosTotales - a.scoreDetails.puntosTotales);
 
         return {
             grupoA: pacientesValidos.filter(p => p.grupo === 'A'),
@@ -110,7 +123,8 @@ export const programacionService = {
      * Lanza excepción si el paciente ya estaba en otro quirófano.
      */
     asignarPaciente: async (id_quirofano: string, rdq: number, orden: number = 1): Promise<QuirofanoIntervencion> => {
-        const { data, error } = await db.raw
+        const supabase = createSupabaseAdminClient();
+        const { data, error } = await supabase
             .from('quirofano_intervencion')
             .insert([{
                 id_quirofano,
@@ -128,7 +142,8 @@ export const programacionService = {
      * Elimina a un paciente de la sesión de quirófano en DB (lo "saca" a la lista devuelta).
      */
     desasignarPaciente: async (id_quirofano: string, rdq: number): Promise<void> => {
-        const { error } = await db.raw
+        const supabase = createSupabaseAdminClient();
+        const { error } = await supabase
             .from('quirofano_intervencion')
             .delete()
             .match({ id_quirofano, rdq });
