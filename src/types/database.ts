@@ -130,3 +130,43 @@ export interface DashboardKPIs {
         estandar: number;
     };
 }
+
+// --------------------------------------------------------------------------
+// Agenda de Quirófanos y Cirujanos
+// --------------------------------------------------------------------------
+
+export interface Cirujano {
+    id_cirujano: string; // UUID
+    nombre: string;
+    apellido1: string;
+    apellido2: string | null;
+    telefono_movil: string | null;
+    e_mail: string | null;
+    onco_gine: boolean;
+    onco_mama: boolean;
+    created_at: string; // TS
+    updated_at: string; // TS
+}
+
+export interface Quirofano {
+    id_quirofano: string; // UUID
+    fecha: string; // Date
+    turno: 'Mañana' | 'Tarde' | 'Continuidad asistencial' | string;
+    tipo_quirofano: string | null;
+    observaciones: string | null;
+    created_at: string; // TS
+    updated_at: string; // TS
+}
+
+export interface QuirofanoCirujano {
+    id_quirofano: string;
+    id_cirujano: string;
+    created_at: string;
+}
+
+// Tipo extendido para recuperar un quirófano con sus cirujanos adjuntos (JOIN)
+export interface QuirofanoConCirujanos extends Quirofano {
+    quirofano_cirujano?: {
+        cirujanos: Cirujano;
+    }[];
+}

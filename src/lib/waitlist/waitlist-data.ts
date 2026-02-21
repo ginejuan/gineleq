@@ -104,7 +104,7 @@ export async function getWaitlistData(params: WaitlistParams = {}): Promise<Wait
     }));
 
     // 3. Filter in Memory
-    let filtered = allRows.filter(row => {
+    const filtered = allRows.filter(row => {
         // Preanestesia Filter
         if (filters.preanestesia === 'apto') {
             const rdo = (row.rdo_preanestesia || '').toUpperCase();

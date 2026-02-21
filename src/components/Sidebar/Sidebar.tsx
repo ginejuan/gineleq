@@ -30,6 +30,7 @@ const NAV_ITEMS_PRINCIPAL: NavItem[] = [
 
 const NAV_ITEMS_GESTION: NavItem[] = [
     { href: '/agenda', label: 'Agenda Quirófanos', icon: '🗓️' },
+    { href: '/cirujanos', label: 'Facultativos', icon: '👨‍⚕️' },
     { href: '/programacion', label: 'Ayuda Programación', icon: '🎯' },
     { href: '/importacion', label: 'Importación', icon: '📥' },
     { href: '/historial', label: 'Historial', icon: '📜' },
