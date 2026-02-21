@@ -45,8 +45,14 @@ export interface Intervencion {
     /** Intervención quirúrgica propuesta */
     intervencion_propuesta: string;
 
-    /** Fecha de registro en la lista de espera */
-    t_registro: string; // ISO 8601
+    /** Tiempo de registro (días de espera) devuelto como Integer desde Excel */
+    t_registro: number;
+
+    /** Tiempo de garantía (días de garantía consumidos) devuelto como Integer desde Excel */
+    t_garantia: number;
+
+    /** Indica si está sujeto a decreto de garantía (ej. "SI") */
+    procedimiento_garantia: string;
 
     /** Tipo de anestesia requerida */
     t_anestesia: string | null;

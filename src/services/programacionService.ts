@@ -26,6 +26,51 @@ function safeDecrypt(ciphertext: string): string {
     }
 }
 
+export function calcularScoring(paciente: any): PacienteSugerido {
+    const tieneGarantia = paciente.procedimiento_garantia?.trim().toUpperCase() === 'SI';
+    let diasEspera = tieneGarantia ? (Number(paciente.t_garantia) || 0) : (Number(paciente.t_registro) || 0);
+
+    // Prevent negative days just in case
+    if (diasEspera < 0) diasEspera = 0;
+
+    let pPriorizable = 0;
+    let pOncologico = 0;
+    let pGarantia = 0;
+    let pAntiguedad = diasEspera;
+
+    // Reglas Clínicas de puntuación
+    if (paciente.priorizable) pPriorizable = 1000;
+
+    const isOncologico = paciente.diagnostico?.toUpperCase().includes('NEOPLASIA MALIGNA');
+    if (isOncologico && diasEspera >= 23) {
+        pOncologico = 300;
+    }
+
+    const limite = paciente.plazo_garantia || 365;
+    if (diasEspera > limite) {
+        pGarantia = 500;
+    }
+
+    const isLocal = paciente.t_anestesia?.toLowerCase().includes('local') ||
+        paciente.t_anestesia?.toLowerCase().includes('sin');
+    const grupo: 'A' | 'B' = isLocal ? 'B' : 'A';
+
+    const puntosTotales = pPriorizable + pOncologico + pGarantia + pAntiguedad;
+
+    return {
+        ...paciente,
+        paciente: safeDecrypt(String(paciente.paciente ?? '')),
+        grupo,
+        scoreDetails: {
+            puntosPriorizable: pPriorizable,
+            puntosOncologico: pOncologico,
+            puntosGarantiaVencida: pGarantia,
+            puntosAntiguedad: pAntiguedad,
+            puntosTotales
+        }
+    };
+}
+
 export const programacionService = {
     /**
      * Recupera todos los pacientes activos de lista_espera (ya desencriptados por una vista/RPC 
@@ -59,64 +104,7 @@ export const programacionService = {
         console.log(`[DEBUG SCORING] Pacientes Libres: ${pacientesLibres.length}`);
 
         // Aplicar el scoring a los libres
-        const sugerencias: PacienteSugerido[] = pacientesLibres.map((paciente: any) => {
-            const hoy = new Date();
-            let diasEspera = 0;
-
-            if (paciente.t_registro) {
-                const tRegistro = new Date(paciente.t_registro);
-                if (!isNaN(tRegistro.getTime())) {
-                    diasEspera = Math.floor((hoy.getTime() - tRegistro.getTime()) / (1000 * 3600 * 24));
-                }
-            } else if (paciente.created_at) {
-                const tRegistro = new Date(paciente.created_at);
-                if (!isNaN(tRegistro.getTime())) {
-                    diasEspera = Math.floor((hoy.getTime() - tRegistro.getTime()) / (1000 * 3600 * 24));
-                }
-            }
-
-            // Prevent negative days if there's any timezone weirdness
-            if (diasEspera < 0) diasEspera = 0;
-
-            let pPriorizable = 0;
-            let pOncologico = 0;
-            let pGarantia = 0;
-            let pAntiguedad = diasEspera; // 1 punto por día
-
-            // Reglas Clínicas de puntuación
-            if (paciente.priorizable) pPriorizable = 1000;
-
-            const isOncologico = paciente.diagnostico?.toUpperCase().includes('NEOPLASIA MALIGNA');
-            if (isOncologico && diasEspera >= 23) {
-                pOncologico = 300;
-            }
-
-            // Expiración Garantía / Estándar
-            const limite = paciente.plazo_garantia || 365;
-            if (diasEspera > limite) {
-                pGarantia = 500;
-            }
-
-            // Determinar si es Grupo A o B basado en t_anestesia
-            const isLocal = paciente.t_anestesia?.toLowerCase().includes('local') ||
-                paciente.t_anestesia?.toLowerCase().includes('sin');
-            const grupo: 'A' | 'B' = isLocal ? 'B' : 'A';
-
-            const puntosTotales = pPriorizable + pOncologico + pGarantia + pAntiguedad;
-
-            return {
-                ...paciente,
-                paciente: safeDecrypt(String(paciente.paciente ?? '')),
-                grupo,
-                scoreDetails: {
-                    puntosPriorizable: pPriorizable,
-                    puntosOncologico: pOncologico,
-                    puntosGarantiaVencida: pGarantia,
-                    puntosAntiguedad: pAntiguedad,
-                    puntosTotales
-                }
-            };
-        });
+        const sugerencias: PacienteSugerido[] = pacientesLibres.map((paciente: any) => calcularScoring(paciente));
 
         // Filtrado Final por Validación Médica (Anestesia "Apto" en caso del Grupo A)
         // Descartamos los del Grupo A (Mayor) que no tengan el Apto, A MENOS que sean Oncológicos o Priorizables.
@@ -179,52 +167,7 @@ export const programacionService = {
         for (const asig of asignaciones) {
             const pData = pacMap.get(asig.rdq.toString());
             if (pData) {
-                const isLocal = pData.t_anestesia?.toLowerCase().includes('local') ||
-                    pData.t_anestesia?.toLowerCase().includes('sin');
-                const grupo = isLocal ? 'B' : 'A';
-
-                const hoy = new Date();
-                let diasEspera = 0;
-
-                if (pData.t_registro) {
-                    const tRegistro = new Date(pData.t_registro);
-                    if (!isNaN(tRegistro.getTime())) {
-                        diasEspera = Math.floor((hoy.getTime() - tRegistro.getTime()) / (1000 * 3600 * 24));
-                    }
-                } else if (pData.created_at) {
-                    const tRegistro = new Date(pData.created_at);
-                    if (!isNaN(tRegistro.getTime())) {
-                        diasEspera = Math.floor((hoy.getTime() - tRegistro.getTime()) / (1000 * 3600 * 24));
-                    }
-                }
-
-                if (diasEspera < 0) diasEspera = 0;
-
-                let pPriorizable = 0;
-                let pOncologico = 0;
-                let pGarantia = 0;
-                let pAntiguedad = diasEspera;
-
-                if (pData.priorizable) pPriorizable = 1000;
-                const isOncologico = pData.diagnostico?.toUpperCase().includes('NEOPLASIA MALIGNA');
-                if (isOncologico && diasEspera >= 23) pOncologico = 300;
-                const limite = pData.plazo_garantia || 365;
-                if (diasEspera > limite) pGarantia = 500;
-
-                const puntosTotales = pPriorizable + pOncologico + pGarantia + pAntiguedad;
-
-                result[asig.id_quirofano].push({
-                    ...pData,
-                    paciente: safeDecrypt(String(pData.paciente ?? '')),
-                    grupo,
-                    scoreDetails: {
-                        puntosPriorizable: pPriorizable,
-                        puntosOncologico: pOncologico,
-                        puntosGarantiaVencida: pGarantia,
-                        puntosAntiguedad: pAntiguedad,
-                        puntosTotales
-                    }
-                });
+                result[asig.id_quirofano].push(calcularScoring(pData));
             }
         }
 
