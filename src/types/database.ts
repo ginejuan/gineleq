@@ -63,6 +63,10 @@ export interface Intervencion {
     /** Plazo de garantía en días (para pacientes bajo decreto de garantía) */
     plazo_garantia: number | null;
 
+    // --- Campos de Información Extra ---
+    procedimiento?: string;
+    observaciones?: string;
+
     // --- Campos de Gestión Manual (arquitectura.md §3.3) ---
 
     /** Estado del paciente en la lista */

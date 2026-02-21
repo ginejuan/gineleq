@@ -51,8 +51,23 @@ export default function PatientCard({ paciente }: PatientCardProps) {
                 <div style={{ fontSize: '0.9em', fontWeight: 600, color: 'var(--primary)', marginBottom: '4px' }}>
                     👤 {paciente.paciente}
                 </div>
-                <strong style={{ fontSize: '0.85em' }}>{paciente.diagnostico}</strong>
-                <p style={{ fontSize: '0.85em' }}>{paciente.intervencion_propuesta}</p>
+                <strong style={{ fontSize: '0.85em', display: 'block', marginBottom: '2px', lineHeight: '1.2' }}>
+                    {paciente.procedimiento || paciente.intervencion_propuesta}
+                </strong>
+                <span style={{ fontSize: '0.8em', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px', lineHeight: '1.2' }}>
+                    {paciente.diagnostico}
+                </span>
+
+                {(paciente.observaciones || paciente.comentarios) && (
+                    <div style={{ fontSize: '0.75em', marginTop: '6px', paddingTop: '6px', borderTop: '1px dashed var(--border-color)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        {paciente.observaciones && (
+                            <div><strong style={{ color: 'var(--text-color)' }}>Obs:</strong> <span style={{ color: 'var(--text-secondary)' }}>{paciente.observaciones}</span></div>
+                        )}
+                        {paciente.comentarios && (
+                            <div><strong style={{ color: 'var(--text-color)' }}>Médico:</strong> <span style={{ color: 'var(--text-secondary)' }}>{paciente.comentarios}</span></div>
+                        )}
+                    </div>
+                )}
             </div>
 
             <div className={styles.cardFooter}>
