@@ -170,3 +170,15 @@ export interface QuirofanoConCirujanos extends Quirofano {
         cirujanos: Cirujano;
     }[];
 }
+
+// --------------------------------------------------------------------------
+// Quirofano <-> Intervencion (Ayuda Programación)
+// --------------------------------------------------------------------------
+
+export interface QuirofanoIntervencion {
+    id: string; // UUID
+    id_quirofano: string; // UUID
+    rdq: number; // BIGINT (Representado como number en TS por conveniencia o string si es demasiado grande)
+    orden: number;
+    created_at: string; // TS
+}

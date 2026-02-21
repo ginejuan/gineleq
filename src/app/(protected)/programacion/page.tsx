@@ -1,20 +1,18 @@
 import styles from '../page.module.css';
+import ProgramacionBoard from '@/components/Programacion/ProgramacionBoard';
 
 /**
- * Ayuda a la Programación - Selección Inteligente (arquitectura.md §8)
- * Stub: Ranking por urgencia, antigüedad y equipo se implementará en fases posteriores.
+ * Ayuda a la Programación - Selección Inteligente con Drag & Drop
  */
 export default function ProgramacionPage() {
     return (
-        <>
+        <div className={styles.boardContainer}>
             <header className={styles.pageHeader}>
-                <h1 className={styles.pageTitle}>Ayuda a la Programación</h1>
-                <p className={styles.pageSubtitle}>Selección inteligente de pacientes para quirófano</p>
+                <h1 className={styles.pageTitle}>Programación de Quirófanos</h1>
+                <p className={styles.pageSubtitle}>Arrastra pacientes desde las sugerencias hasta el quirófano deseado</p>
             </header>
-            <div className={styles.placeholder}>
-                <span className={styles.placeholderIcon}>🎯</span>
-                Ranking basado en urgencia clínica, antigüedad y validación de equipo médico.
-            </div>
-        </>
+
+            <ProgramacionBoard />
+        </div>
     );
 }

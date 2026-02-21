@@ -1,0 +1,6 @@
+﻿
+C:\Antigravity\gineleq\src\components\Programacion\ProgramacionBoard.tsx
+  73:30  warning  'event' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (0 errors, 1 warning)
+

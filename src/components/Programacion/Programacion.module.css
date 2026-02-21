@@ -1,0 +1,236 @@
+.boardLayout {
+    display: flex;
+    gap: var(--spacing-lg);
+    height: 100vh;
+    padding: var(--spacing-lg);
+    background-color: var(--color-background-soft);
+    box-sizing: border-box;
+}
+
+.panelTitle {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-md);
+}
+
+/* Panel Izquierdo (Sugerencias) */
+.suggestionsPanel {
+    flex: 1;
+    min-width: 350px;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-md);
+    overflow: hidden;
+}
+
+.listsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    overflow-y: auto;
+    flex: 1;
+    padding-right: var(--spacing-xs);
+}
+
+.suggestionList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.suggestionList h3 {
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 2px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    background: var(--color-surface);
+    z-index: 10;
+}
+
+.badge {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    padding: 2px var(--spacing-sm);
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-sm);
+}
+
+/* Tarjeta de Paciente (Draggable) */
+.patientCard {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-md);
+    cursor: grab;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.patientCard:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--color-primary);
+}
+
+.patientCard:active {
+    cursor: grabbing;
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.rdqLabel {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    font-weight: 500;
+}
+
+.scoreBadge {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: var(--border-radius-sm);
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.cardBody {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    line-height: 1.4;
+}
+
+.cardFooter {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-xs);
+    padding-top: var(--spacing-xs);
+    border-top: 1px dotted var(--color-border);
+}
+
+/* Etiquetas Especiales */
+.tagOncologico {
+    background-color: var(--color-danger);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: inline-block;
+}
+
+.tagPriorizable {
+    background-color: var(--color-warning);
+    color: #7B341E;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: inline-block;
+}
+
+/* Panel Derecho (Quirófanos / Dropzones) */
+.agendaPanel {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    background-color: transparent;
+    overflow-y: auto;
+}
+
+.quirofanosGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--spacing-md);
+    align-content: flex-start;
+}
+
+.quirofanoDropzone {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+/* Cuando se arrastra algo por encima */
+.quirofanoDropzone.isOver {
+    background-color: var(--color-primary-light);
+    border: 2px dashed var(--color-primary);
+}
+
+.dropzoneHeader {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+    background-color: var(--color-background-soft);
+    border-top-left-radius: var(--border-radius-lg);
+    border-top-right-radius: var(--border-radius-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dropzoneTitle {
+    font-weight: 600;
+    font-size: var(--font-size-md);
+    color: var(--color-text-primary);
+}
+
+.dropzoneSubtitle {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.dropArea {
+    flex: 1;
+    padding: var(--spacing-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    min-height: 150px;
+}
+
+.emptyDrop {
+    margin: auto;
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-sm);
+    text-align: center;
+    padding: var(--spacing-lg);
+    border: 2px dashed var(--color-border);
+    border-radius: var(--border-radius-md);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.loadingState {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+}
