@@ -226,5 +226,21 @@ export const programacionService = {
                 throw error;
             }
         }
+    },
+
+    /**
+     * Cambia el estado 'completado' de un quirófano
+     */
+    toggleCompletado: async (id_quirofano: string, completado: boolean): Promise<void> => {
+        const supabase = createSupabaseAdminClient();
+        const { error } = await supabase
+            .from('quirofanos')
+            .update({ completado })
+            .eq('id_quirofano', id_quirofano);
+
+        if (error) {
+            console.error(`Error toggling completado for quirofano ${id_quirofano}:`, error);
+            throw error;
+        }
     }
 };

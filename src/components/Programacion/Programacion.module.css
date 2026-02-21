@@ -182,12 +182,51 @@
     border: 2px dashed var(--color-primary);
 }
 
+/* Estado Completado */
+.quirofanoDropzone.completado {
+    background-color: rgba(16, 185, 129, 0.05);
+    /* Verde muy sutil */
+    border-color: rgba(16, 185, 129, 0.4);
+}
+
+.quirofanoDropzone.completado .dropzoneHeader {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-bottom-color: rgba(16, 185, 129, 0.2);
+}
+
+.toggleCompletadoLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.1s;
+}
+
+.toggleCompletadoLabel:hover {
+    color: var(--color-primary);
+}
+
+.toggleCompletadoCheckbox {
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+}
+
 .dropzoneHeader {
     padding: var(--spacing-md);
     border-bottom: 1px solid var(--color-border);
     background-color: var(--color-background-soft);
     border-top-left-radius: var(--border-radius-lg);
     border-top-right-radius: var(--border-radius-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.dropzoneHeaderTitles {
     display: flex;
     flex-direction: column;
     gap: 4px;

@@ -13,7 +13,7 @@ import {
     useDroppable
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
-import { fetchSugerenciasAccion, asignarPacienteAccion, desasignarPacienteAccion, actualizarOrdenPacientesAccion, getAsignacionesAccion } from '@/app/(protected)/programacion/actions';
+import { fetchSugerenciasAccion, asignarPacienteAccion, desasignarPacienteAccion, actualizarOrdenPacientesAccion, getAsignacionesAccion, toggleQuirofanoCompletadoAccion } from '@/app/(protected)/programacion/actions';
 import { agendaService } from '@/services/agendaService';
 import { QuirofanoConCirujanos } from '@/types/database';
 import { PacienteSugerido } from '@/services/programacionService';
@@ -67,6 +67,21 @@ export default function ProgramacionBoard() {
             alert(`Error consultando la base de datos: ${error?.message || error}`);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleToggleCompletado = async (id_quirofano: string, completado: boolean) => {
+        setQuirofanosSemana(prev => prev.map(q =>
+            q.id_quirofano === id_quirofano ? { ...q, completado } : q
+        ));
+        try {
+            await toggleQuirofanoCompletadoAccion(id_quirofano, completado);
+        } catch (err: any) {
+            console.error(err);
+            alert('Error al guardar el estado completado.');
+            setQuirofanosSemana(prev => prev.map(q =>
+                q.id_quirofano === id_quirofano ? { ...q, completado: !completado } : q
+            ));
         }
     };
 
@@ -281,6 +296,7 @@ export default function ProgramacionBoard() {
                                 key={q.id_quirofano}
                                 quirofano={q}
                                 pacientesAsignados={asignaciones[q.id_quirofano] || []}
+                                onToggleCompletado={handleToggleCompletado}
                             />
                         ))}
                     </div>

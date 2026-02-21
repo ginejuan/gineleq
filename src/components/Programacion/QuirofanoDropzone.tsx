@@ -10,9 +10,10 @@ import styles from './Programacion.module.css';
 interface QuirofanoDropzoneProps {
     quirofano: QuirofanoConCirujanos;
     pacientesAsignados: PacienteSugerido[];
+    onToggleCompletado?: (id: string, completado: boolean) => void;
 }
 
-export default function QuirofanoDropzone({ quirofano, pacientesAsignados }: QuirofanoDropzoneProps) {
+export default function QuirofanoDropzone({ quirofano, pacientesAsignados, onToggleCompletado }: QuirofanoDropzoneProps) {
     const { isOver, setNodeRef } = useDroppable({
         id: `quirofano-${quirofano.id_quirofano}`,
         data: {
@@ -20,7 +21,8 @@ export default function QuirofanoDropzone({ quirofano, pacientesAsignados }: Qui
         }
     });
 
-    const dropzoneClass = `${styles.quirofanoDropzone} ${isOver ? styles.isOver : ''}`;
+    const isCompletado = quirofano.completado === true;
+    const dropzoneClass = `${styles.quirofanoDropzone} ${isOver ? styles.isOver : ''} ${isCompletado ? styles.completado : ''}`;
 
     // Extraer y formatear la fecha
     const fechaObj = new Date(quirofano.fecha);
@@ -32,17 +34,30 @@ export default function QuirofanoDropzone({ quirofano, pacientesAsignados }: Qui
     return (
         <div ref={setNodeRef} className={dropzoneClass}>
             <div className={styles.dropzoneHeader}>
-                <span className={styles.dropzoneTitle}>{fechaStr} - {quirofano.turno}</span>
-                <span className={styles.dropzoneSubtitle}>
-                    {quirofano.tipo_quirofano || 'Sin especificar'}
-                    {quirofano.quirofano_cirujano && quirofano.quirofano_cirujano.length > 0 && (
-                        <span style={{ display: 'block', marginTop: '4px', fontSize: '0.9em', color: 'var(--text-muted)' }}>
-                            👨‍⚕️ {quirofano.quirofano_cirujano.map(qc =>
-                                `${qc.cirujanos.apellido1} ${qc.cirujanos.apellido2 || ''}, ${qc.cirujanos.nombre}`.trim()
-                            ).join(' • ')}
-                        </span>
-                    )}
-                </span>
+                <div className={styles.dropzoneHeaderTitles}>
+                    <span className={styles.dropzoneTitle}>{fechaStr} - {quirofano.turno}</span>
+                    <span className={styles.dropzoneSubtitle}>
+                        {quirofano.tipo_quirofano || 'Sin especificar'}
+                        {quirofano.quirofano_cirujano && quirofano.quirofano_cirujano.length > 0 && (
+                            <span style={{ display: 'block', marginTop: '4px', fontSize: '0.9em', color: 'var(--text-muted)' }}>
+                                👨‍⚕️ {quirofano.quirofano_cirujano.map(qc =>
+                                    `${qc.cirujanos.apellido1} ${qc.cirujanos.apellido2 || ''}, ${qc.cirujanos.nombre}`.trim()
+                                ).join(' • ')}
+                            </span>
+                        )}
+                    </span>
+                </div>
+                {onToggleCompletado && (
+                    <label className={styles.toggleCompletadoLabel} title="Marcar Quirófano como cerrado/completado">
+                        <input
+                            type="checkbox"
+                            checked={isCompletado}
+                            onChange={(e) => onToggleCompletado(quirofano.id_quirofano, e.target.checked)}
+                            className={styles.toggleCompletadoCheckbox}
+                        />
+                        Completado
+                    </label>
+                )}
             </div>
 
             <SortableContext items={itemsIds} strategy={verticalListSortingStrategy}>

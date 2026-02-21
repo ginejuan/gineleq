@@ -164,6 +164,7 @@ export interface Quirofano {
     turno: 'Mañana' | 'Tarde' | 'Continuidad asistencial' | string;
     tipo_quirofano: string | null;
     observaciones: string | null;
+    completado?: boolean;
     created_at: string; // TS
     updated_at: string; // TS
 }

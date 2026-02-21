@@ -22,3 +22,7 @@ export async function actualizarOrdenPacientesAccion(id_quirofano: string, rdqsO
 export async function getAsignacionesAccion(quirofanoIds: string[]): Promise<Record<string, PacienteSugerido[]>> {
     return await programacionService.getAsignaciones(quirofanoIds);
 }
+
+export async function toggleQuirofanoCompletadoAccion(id_quirofano: string, completado: boolean): Promise<void> {
+    return await programacionService.toggleCompletado(id_quirofano, completado);
+}
