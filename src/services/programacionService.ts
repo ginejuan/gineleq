@@ -162,5 +162,26 @@ export const programacionService = {
             .match({ id_quirofano, rdq });
 
         if (error) throw error;
+    },
+
+    /**
+     * Actualiza el orden (secuencia) de las intervenciones dentro de un quirófano específico
+     */
+    actualizarOrden: async (id_quirofano: string, rdqsOrdenados: number[]): Promise<void> => {
+        const supabase = createSupabaseAdminClient();
+
+        // Ejecutamos las actualizaciones en serie para asegurar integridad
+        for (let i = 0; i < rdqsOrdenados.length; i++) {
+            const rdq = rdqsOrdenados[i];
+            const { error } = await supabase
+                .from('quirofano_intervencion')
+                .update({ orden: i + 1 })
+                .match({ id_quirofano, rdq });
+
+            if (error) {
+                console.error(`Error actualizando orden para RDQ ${rdq}:`, error);
+                throw error;
+            }
+        }
     }
 };

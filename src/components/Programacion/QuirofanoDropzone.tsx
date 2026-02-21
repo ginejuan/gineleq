@@ -1,6 +1,7 @@
 'use client';
 
 import { useDroppable } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { QuirofanoConCirujanos } from '@/types/database';
 import { PacienteSugerido } from '@/services/programacionService';
 import PatientCard from './PatientCard';
@@ -25,6 +26,9 @@ export default function QuirofanoDropzone({ quirofano, pacientesAsignados }: Qui
     const fechaObj = new Date(quirofano.fecha);
     const fechaStr = fechaObj.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
 
+    // Extraer los IDs para el SortableContext
+    const itemsIds = pacientesAsignados.map(p => `paciente-${p.rdq}`);
+
     return (
         <div ref={setNodeRef} className={dropzoneClass}>
             <div className={styles.dropzoneHeader}>
@@ -41,18 +45,20 @@ export default function QuirofanoDropzone({ quirofano, pacientesAsignados }: Qui
                 </span>
             </div>
 
-            <div className={styles.dropArea}>
-                {pacientesAsignados.length === 0 ? (
-                    <div className={styles.emptyDrop}>
-                        Arrastra pacientes aqu&iacute;
-                        <br /><small>(Q. Central &rarr; Grupo A)</small>
-                    </div>
-                ) : (
-                    pacientesAsignados.map(p => (
-                        <PatientCard key={p.rdq} paciente={p} />
-                    ))
-                )}
-            </div>
+            <SortableContext items={itemsIds} strategy={verticalListSortingStrategy}>
+                <div className={styles.dropArea}>
+                    {pacientesAsignados.length === 0 ? (
+                        <div className={styles.emptyDrop}>
+                            Arrastra pacientes aqu&iacute;
+                            <br /><small>(Q. Central &rarr; Grupo A)</small>
+                        </div>
+                    ) : (
+                        pacientesAsignados.map(p => (
+                            <PatientCard key={p.rdq} paciente={p} />
+                        ))
+                    )}
+                </div>
+            </SortableContext>
         </div>
     );
 }

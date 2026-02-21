@@ -11,8 +11,8 @@ import {
     DragEndEvent,
     DragStartEvent
 } from '@dnd-kit/core';
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { fetchSugerenciasAccion, asignarPacienteAccion, desasignarPacienteAccion } from '@/app/(protected)/programacion/actions';
+import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
+import { fetchSugerenciasAccion, asignarPacienteAccion, desasignarPacienteAccion, actualizarOrdenPacientesAccion } from '@/app/(protected)/programacion/actions';
 import { agendaService } from '@/services/agendaService';
 import { QuirofanoConCirujanos } from '@/types/database';
 import { PacienteSugerido } from '@/services/programacionService';
@@ -21,14 +21,10 @@ import QuirofanoDropzone from './QuirofanoDropzone';
 import styles from './Programacion.module.css';
 
 export default function ProgramacionBoard() {
-    // --- States ---
     const [grupoA, setGrupoA] = useState<PacienteSugerido[]>([]);
     const [grupoB, setGrupoB] = useState<PacienteSugerido[]>([]);
     const [quirofanosSemana, setQuirofanosSemana] = useState<QuirofanoConCirujanos[]>([]);
-
-    // Estado para mapear QuirofanoID -> Pacientes[] asignados en el tablero (local state)
     const [asignaciones, setAsignaciones] = useState<Record<string, PacienteSugerido[]>>({});
-
     const [loading, setLoading] = useState(true);
 
     const sensors = useSensors(
@@ -52,15 +48,11 @@ export default function ProgramacionBoard() {
             setGrupoA(sugerencias.grupoA);
             setGrupoB(sugerencias.grupoB);
 
-            // TODO: Determinar la semana actual y traer quirófanos. 
-            // Aquí traemos todos los del futuro próximo por simplicidad
             const hoyStr = new Date().toISOString().split('T')[0];
             const agenda = await agendaService.getAgenda(hoyStr, '2099-12-31');
             console.log('[DEBUG UI] Quirófanos cargados:', agenda.length);
             setQuirofanosSemana(agenda);
 
-            // Cargar asignaciones reales desde Supabase si existieran... 
-            // Por ahora, inicializamos vacíos.
             const inicialAsignaciones: Record<string, PacienteSugerido[]> = {};
             agenda.forEach(q => {
                 inicialAsignaciones[q.id_quirofano] = [];
@@ -75,21 +67,19 @@ export default function ProgramacionBoard() {
         }
     };
 
-    // --- Drag & Drop Handlers ---
-    const handleDragStart = (/* event: DragStartEvent */) => {
-        // const { active } = event;
-    };
+    const handleDragStart = () => { };
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
-        if (!over) return;
+        if (!over || active.id === over.id) return;
 
         const pacienteIdStr = String(active.id).replace('paciente-', '');
         let quirofanoIdDestino = String(over.id).replace('quirofano-', '');
+        let overPacienteIdStr: string | null = null;
 
-        // --- NEW LOGIC: Si soltamos sobre otro paciente que ya está asignado a un quirófano ---
         if (String(over.id).startsWith('paciente-')) {
             const overRdq = String(over.id).replace('paciente-', '');
+            overPacienteIdStr = overRdq;
             let found = false;
             for (const [qId, pacientesEnQ] of Object.entries(asignaciones)) {
                 if (pacientesEnQ.some(p => p.rdq.toString() === overRdq)) {
@@ -98,41 +88,93 @@ export default function ProgramacionBoard() {
                     break;
                 }
             }
-            if (!found) return; // Drop inválido (ej: sobre otro paciente en sugerencias)
+            if (!found) return; // Drop inválido
         }
 
-        // 1. Encontrar al paciente en Grupos A o B
         const pEnA = grupoA.find(p => p.rdq.toString() === pacienteIdStr);
         const pEnB = grupoB.find(p => p.rdq.toString() === pacienteIdStr);
         const pacienteObj = pEnA || pEnB;
 
-        if (!pacienteObj) return; // Podría estar ya asignado (re-arrastrando entre quirófanos, a implementar en Fase 2)
+        if (!pacienteObj) {
+            // Caso B: Reordenando un paciente ya asignado dentro del mismo quirófano
+            let sourceQuirofanoId: string | null = null;
+            let draggedPatient: PacienteSugerido | null = null;
 
-        // 2. Optimistic UI Update (quitar de la lista, meter en el Quirofano)
+            for (const [qId, pacientesEnQ] of Object.entries(asignaciones)) {
+                const foundP = pacientesEnQ.find(p => p.rdq.toString() === pacienteIdStr);
+                if (foundP) {
+                    sourceQuirofanoId = qId;
+                    draggedPatient = foundP;
+                    break;
+                }
+            }
+
+            if (draggedPatient && sourceQuirofanoId === quirofanoIdDestino && overPacienteIdStr) {
+                // Reordenar internamente
+                const currentArray = asignaciones[sourceQuirofanoId];
+                const oldIndex = currentArray.findIndex(p => p.rdq.toString() === pacienteIdStr);
+                const newIndex = currentArray.findIndex(p => p.rdq.toString() === overPacienteIdStr);
+
+                const newArray = arrayMove(currentArray, oldIndex, newIndex);
+
+                setAsignaciones(prev => ({ ...prev, [sourceQuirofanoId!]: newArray }));
+
+                try {
+                    const rdqs = newArray.map(p => Number(p.rdq));
+                    await actualizarOrdenPacientesAccion(sourceQuirofanoId, rdqs);
+                } catch (error) {
+                    console.error("Error al reordenar:", error);
+                    setAsignaciones(prev => ({ ...prev, [sourceQuirofanoId!]: currentArray }));
+                    alert('Error persistiendo el reorden. Cambios revertidos.');
+                }
+            }
+            return;
+        }
+
+        // Caso A: Asignar un nuevo paciente desde Sugerencias
         if (pEnA) setGrupoA(prev => prev.filter(p => p.rdq !== pacienteObj.rdq));
         if (pEnB) setGrupoB(prev => prev.filter(p => p.rdq !== pacienteObj.rdq));
 
+        let newOrder: PacienteSugerido[] = [];
         setAsignaciones(prev => {
             const current = prev[quirofanoIdDestino] || [];
-            return {
-                ...prev,
-                [quirofanoIdDestino]: [...current, pacienteObj]
-            };
+
+            // Si el drop fue sobre un paciente específico, lo insertamos en su posición
+            if (overPacienteIdStr) {
+                const overIndex = current.findIndex(p => p.rdq.toString() === overPacienteIdStr);
+                if (overIndex >= 0) {
+                    const arrayCopy = [...current];
+                    arrayCopy.splice(overIndex, 0, pacienteObj);
+                    newOrder = arrayCopy;
+                    return { ...prev, [quirofanoIdDestino]: arrayCopy };
+                }
+            }
+
+            newOrder = [...current, pacienteObj];
+            return { ...prev, [quirofanoIdDestino]: newOrder };
         });
 
-        // 3. Persistencia Real en Base de Datos
+        // Persistencia a DB para nuevo paciente
         try {
-            await asignarPacienteAccion(quirofanoIdDestino, Number(pacienteObj.rdq));
+            await asignarPacienteAccion(
+                quirofanoIdDestino,
+                Number(pacienteObj.rdq),
+                newOrder.findIndex(p => p.rdq === pacienteObj.rdq) + 1
+            );
+
+            // Si lo insertamos en el medio, necesitamos reenumerar el resto llamando a update
+            if (overPacienteIdStr) {
+                await actualizarOrdenPacientesAccion(quirofanoIdDestino, newOrder.map(p => Number(p.rdq)));
+            }
         } catch (error) {
-            console.error("Error asignando en Base de Datos:", error);
-            // Revertir UI si falla (rollback)
+            console.error("Error asignando:", error);
             if (pEnA) setGrupoA(prev => [...prev, pacienteObj].sort((a, b) => b.scoreDetails.puntosTotales - a.scoreDetails.puntosTotales));
             if (pEnB) setGrupoB(prev => [...prev, pacienteObj].sort((a, b) => b.scoreDetails.puntosTotales - a.scoreDetails.puntosTotales));
             setAsignaciones(prev => ({
                 ...prev,
                 [quirofanoIdDestino]: prev[quirofanoIdDestino].filter(p => p.rdq !== pacienteObj.rdq)
             }));
-            alert('Error al guardar el paciente en el quirófano. Cambios revertidos.');
+            alert('Error asignando la paciente. Revertido.');
         }
     };
 
