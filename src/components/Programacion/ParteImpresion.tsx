@@ -30,10 +30,13 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
     const handleSendEmail = async (destinatarios: string[], subject: string, message: string) => {
         if (!documentRef.current) throw new Error("Documento no encontrado");
 
+        // Clean subject for filename (remove invalid chars like colons for Windows)
+        const safeFilename = subject.replace(/[:\\/*?"<>|]/g, '-');
+
         // Options for html2pdf
         const opt: any = {
             margin: 15,
-            filename: 'Parte_Quirofano.pdf',
+            filename: `${safeFilename}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2, useCORS: true, letterRendering: true },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
@@ -74,6 +77,7 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
     const fechaObj = new Date(quirofano.fecha);
     const opcionesFecha: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const fechaStr = fechaObj.toLocaleDateString('es-ES', opcionesFecha).toUpperCase();
+    const fechaEmailStr = fechaObj.toLocaleDateString('es-ES', opcionesFecha);
 
     // Formatear Equipo
     const cirujanosStr = quirofano.quirofano_cirujano?.map((qc: any) => {
@@ -91,6 +95,10 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
     })).filter((c: any) => c.email !== '') || [];
 
     const tipoQuirofano = quirofano.tipo_quirofano?.toUpperCase() || 'QUIRÓFANO';
+    const tipoQuirofanoLower = quirofano.tipo_quirofano?.toLowerCase() || 'quirófano';
+
+    const defaultSubject = `Parte de quirófano de ginecología: ${tipoQuirofanoLower} del ${fechaEmailStr}`;
+    const defaultMessage = `Estimados compañeros,\n\nAdjunto remito el parte de quirófano de ginecología correspondiente al ${tipoQuirofanoLower} del ${fechaEmailStr}.\n\nUn abrazo\nJuan Jesús`;
 
     return (
         <div className={styles.printWrapper}>
@@ -187,7 +195,8 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
                 onClose={() => setIsEmailModalOpen(false)}
                 cirujanosMails={cirujanosMailsForModal}
                 onSend={handleSendEmail}
-                fechaParte={fechaStr}
+                defaultSubject={defaultSubject}
+                defaultMessage={defaultMessage}
             />
         </div>
     );

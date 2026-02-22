@@ -10,10 +10,11 @@ interface SendEmailModalProps {
     onClose: () => void;
     cirujanosMails: { nombre: string; email: string }[];
     onSend: (destinatarios: string[], subject: string, message: string) => Promise<void>;
-    fechaParte: string;
+    defaultSubject: string;
+    defaultMessage: string;
 }
 
-export function SendEmailModal({ isOpen, onClose, cirujanosMails, onSend, fechaParte }: SendEmailModalProps) {
+export function SendEmailModal({ isOpen, onClose, cirujanosMails, onSend, defaultSubject, defaultMessage }: SendEmailModalProps) {
     const [listas, setListas] = useState<ListaDistribucion[]>([]);
 
     // Selecciones
@@ -22,8 +23,8 @@ export function SendEmailModal({ isOpen, onClose, cirujanosMails, onSend, fechaP
     const [additionalEmails, setAdditionalEmails] = useState('');
 
     // Form fields
-    const [subject, setSubject] = useState(`Parte de Quirófano - ${fechaParte}`);
-    const [message, setMessage] = useState('Adjunto enviamos el parte quirúrgico definitivo para la sesión indicada.');
+    const [subject, setSubject] = useState(defaultSubject);
+    const [message, setMessage] = useState(defaultMessage);
 
     // Estado UI
     const [isSending, setIsSending] = useState(false);
@@ -44,10 +45,12 @@ export function SendEmailModal({ isOpen, onClose, cirujanosMails, onSend, fechaP
             setSelectedMails(initialSet);
             setSelectedListas(new Set());
             setAdditionalEmails('');
+            setSubject(defaultSubject);
+            setMessage(defaultMessage);
             setError(null);
             setIsSending(false);
         }
-    }, [isOpen, cirujanosMails]);
+    }, [isOpen, cirujanosMails, defaultSubject, defaultMessage]);
 
     if (!isOpen) return null;
 
