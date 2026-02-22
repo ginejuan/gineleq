@@ -14,6 +14,7 @@ export interface PacienteSugerido extends Intervencion {
     scoreDetails: ScoreDetails;
     grupo: 'A' | 'B'; // A: Cirugía Mayor con anestesista, B: Cirugía Local/CMA
     paciente?: string; // Nombre desencriptado para visualización
+    nhc?: string; // NHC desencriptado
 }
 
 function safeDecrypt(ciphertext: string): string {
@@ -60,6 +61,7 @@ export function calcularScoring(paciente: any): PacienteSugerido {
     return {
         ...paciente,
         paciente: safeDecrypt(String(paciente.paciente ?? '')),
+        nhc: safeDecrypt(String(paciente.nhc ?? '')),
         grupo,
         scoreDetails: {
             puntosPriorizable: pPriorizable,

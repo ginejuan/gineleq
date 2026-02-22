@@ -28,6 +28,78 @@
     overflow: hidden;
 }
 
+/* Filtros Clínicos y Búsqueda */
+.filtersSection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.searchBox {
+    display: flex;
+}
+
+.searchInput {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    background-color: var(--color-background-soft);
+    transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.clinicalFiltersBox {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+}
+
+.filterToggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-full);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    background-color: transparent;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.filterToggle input[type="checkbox"] {
+    display: none;
+}
+
+.filterToggle:hover {
+    background-color: var(--color-background-soft);
+}
+
+.filterToggle.activeOnco {
+    background-color: var(--color-danger);
+    color: white;
+    border-color: var(--color-danger);
+}
+
+.filterToggle.activePriorizable {
+    background-color: var(--color-warning);
+    color: #7B341E;
+    border-color: var(--color-warning);
+}
+
 .listsContainer {
     display: flex;
     flex-direction: column;

@@ -28,6 +28,12 @@ export default function ProgramacionBoard() {
     const [asignaciones, setAsignaciones] = useState<Record<string, PacienteSugerido[]>>({});
     const [loading, setLoading] = useState(true);
 
+    // Filters state
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterOncoMama, setFilterOncoMama] = useState(false);
+    const [filterOncoGine, setFilterOncoGine] = useState(false);
+    const [filterPriorizable, setFilterPriorizable] = useState(false);
+
     const { setNodeRef: setNodeRefSugerencias } = useDroppable({
         id: 'sugerencias-panel'
     });
@@ -259,6 +265,41 @@ export default function ProgramacionBoard() {
         }
     };
 
+    // Lógica de filtrado
+    const isPacienteMachingFilters = (p: PacienteSugerido) => {
+        // 1. Búsqueda por texto libre
+        if (searchTerm.trim()) {
+            const terms = searchTerm.toLowerCase().trim().split(' ');
+            const fullName = p.paciente ? p.paciente.toLowerCase() : '';
+            const nhc = p.nhc ? p.nhc.toLowerCase() : '';
+            const rdqStr = p.rdq.toString();
+
+            const searchString = `${fullName} ${nhc} ${rdqStr}`;
+            if (!terms.every(term => searchString.includes(term))) {
+                return false;
+            }
+        }
+
+        // 2. Filtros Clínicos
+        const diag = p.diagnostico?.trim().toUpperCase() || '';
+        const isMama = diag.startsWith('NEOPLASIA MALIGNA MAMA');
+        const isGine = diag.startsWith('NEOPLASIA MALIGNA') && !isMama;
+
+        if (filterOncoMama || filterOncoGine) {
+            let matchesOnco = false;
+            if (filterOncoMama && isMama) matchesOnco = true;
+            if (filterOncoGine && isGine) matchesOnco = true;
+            if (!matchesOnco) return false;
+        }
+
+        if (filterPriorizable && !p.priorizable) return false;
+
+        return true;
+    };
+
+    const filteredGrupoA = grupoA.filter(isPacienteMachingFilters);
+    const filteredGrupoB = grupoB.filter(isPacienteMachingFilters);
+
     if (loading) return <div className={styles.loadingState}>Cargando inteligencia de programación...</div>;
 
     return (
@@ -272,16 +313,44 @@ export default function ProgramacionBoard() {
                 {/* PANEL IZQUIERDO: Origen (Sugerencias) */}
                 <div ref={setNodeRefSugerencias} className={styles.suggestionsPanel}>
                     <h2 className={styles.panelTitle}>Pacientes Sugeridos</h2>
+
+                    {/* Fila de Filtros */}
+                    <div className={styles.filtersSection}>
+                        <div className={styles.searchBox}>
+                            <input
+                                type="text"
+                                placeholder="Buscar por Nombre, NHC o RDQ..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className={styles.searchInput}
+                            />
+                        </div>
+                        <div className={styles.clinicalFiltersBox}>
+                            <label className={`${styles.filterToggle} ${filterOncoMama ? styles.activeOnco : ''}`}>
+                                <input type="checkbox" checked={filterOncoMama} onChange={e => setFilterOncoMama(e.target.checked)} />
+                                Onco Mama
+                            </label>
+                            <label className={`${styles.filterToggle} ${filterOncoGine ? styles.activeOnco : ''}`}>
+                                <input type="checkbox" checked={filterOncoGine} onChange={e => setFilterOncoGine(e.target.checked)} />
+                                Onco Gine
+                            </label>
+                            <label className={`${styles.filterToggle} ${filterPriorizable ? styles.activePriorizable : ''}`}>
+                                <input type="checkbox" checked={filterPriorizable} onChange={e => setFilterPriorizable(e.target.checked)} />
+                                Priorizables
+                            </label>
+                        </div>
+                    </div>
+
                     <div className={styles.listsContainer}>
                         <div className={styles.suggestionList}>
-                            <h3>Grupo A (Con anestesista) <span className={styles.badge}>{grupoA.length}</span></h3>
-                            {grupoA.map(p => (
+                            <h3>Grupo A (Con anestesista) <span className={styles.badge}>{filteredGrupoA.length}</span></h3>
+                            {filteredGrupoA.map(p => (
                                 <PatientCard key={p.rdq} paciente={p} />
                             ))}
                         </div>
                         <div className={styles.suggestionList}>
-                            <h3>Grupo B (Anestesia local) <span className={styles.badge}>{grupoB.length}</span></h3>
-                            {grupoB.map(p => (
+                            <h3>Grupo B (Anestesia local) <span className={styles.badge}>{filteredGrupoB.length}</span></h3>
+                            {filteredGrupoB.map(p => (
                                 <PatientCard key={p.rdq} paciente={p} />
                             ))}
                         </div>
