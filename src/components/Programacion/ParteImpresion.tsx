@@ -35,24 +35,14 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
 
         // Options for html2pdf
         const opt: any = {
-            margin: 15, // 15mm (1.5cm) en los cuatro bordes
+            margin: [15, 15, 10, 10], // [top, left, bottom, right] en milímetros
             filename: `${safeFilename}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
                 scale: 2,
                 useCORS: true,
                 letterRendering: true,
-                onclone: (clonedDoc: Document) => {
-                    // Magia negra: Al clonar el DOM invisiblemente para el PDF, le quitamos todo el padding 
-                    // que usa visualmente en la pantalla para que no se sume al "margin" de arriba, 
-                    // y forzamos su ancho al disponible real en A4 para evitar que se corte por la derecha.
-                    const container = clonedDoc.querySelector(`.${styles.a4DocumentContainer}`) as HTMLElement;
-                    if (container) {
-                        container.style.padding = '0';
-                        container.style.boxShadow = 'none';
-                        container.style.width = '267mm'; // 297mm (A4) - 15mm (izq) - 15mm (der) = 267mm
-                    }
-                }
+                windowWidth: 1200
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
             pagebreak: { mode: ['css', 'legacy'], avoid: 'tr' }
@@ -130,99 +120,103 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
                 </div>
             </div>
 
-            {/* Documento A4 */}
-            <div className={styles.a4DocumentContainer} ref={documentRef}>
+            {/* Documento A4 Visual (Sombra y padding en pantalla pero que no va al PDF) */}
+            <div className={styles.a4VisualContainer}>
 
-                {/* Cabecera con Logo y Textos */}
-                <div className={styles.headerSection}>
-                    <img
-                        src="/logo-sas.png"
-                        alt="Logo SAS"
-                        className={styles.logoSas}
-                        onError={(e) => {
-                            // Si el usuario aún no ha subido el logo, esto lo oculta
-                            (e.target as HTMLImageElement).style.display = 'none';
-                        }}
-                    />
-                    <div className={styles.headerTexts}>
-                        <div
-                            className={styles.hospitalName}
-                            contentEditable
-                            suppressContentEditableWarning
-                        >
-                            Hospital Universitario Puerto Real
-                        </div>
-                        <div
-                            className={styles.headerGlobal}
-                            contentEditable
-                            suppressContentEditableWarning
-                        >
-                            Servicio de Obstetricia y Ginecología. Dr. Fernández Alba
+                {/* Este div es el que realmente se captura y NO tiene padding visual, el padding se añade con la configuración "margin" de html2pdf */}
+                <div className={styles.a4PDFContent} ref={documentRef}>
+
+                    {/* Cabecera con Logo y Textos */}
+                    <div className={styles.headerSection}>
+                        <img
+                            src="/logo-sas.png"
+                            alt="Logo SAS"
+                            className={styles.logoSas}
+                            onError={(e) => {
+                                // Si el usuario aún no ha subido el logo, esto lo oculta
+                                (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                        />
+                        <div className={styles.headerTexts}>
+                            <div
+                                className={styles.hospitalName}
+                                contentEditable
+                                suppressContentEditableWarning
+                            >
+                                Hospital Universitario Puerto Real
+                            </div>
+                            <div
+                                className={styles.headerGlobal}
+                                contentEditable
+                                suppressContentEditableWarning
+                            >
+                                Servicio de Obstetricia y Ginecología. Dr. Fernández Alba
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div
-                    className={styles.documentTitle}
-                    contentEditable
-                    suppressContentEditableWarning
-                >
-                    Parte de Quirófano <strong>({tipoQuirofano})</strong> {fechaStr}
-                </div>
+                    <div
+                        className={styles.documentTitle}
+                        contentEditable
+                        suppressContentEditableWarning
+                    >
+                        Parte de Quirófano <strong>({tipoQuirofano})</strong> {fechaStr}
+                    </div>
 
-                {/* Tabla Editable */}
-                <table className={styles.documentTable}>
-                    <thead>
-                        <tr>
-                            <th style={{ width: '22%' }}>PACIENTE</th>
-                            <th style={{ width: '18%' }}>DIAGNÓSTICO</th>
-                            <th style={{ width: '25%' }}>INTERVENCIÓN</th>
-                            <th style={{ width: '15%' }}>EQUIPO</th>
-                            <th style={{ width: '20%' }}>OBSERVACIONES</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {pacientes.length === 0 ? (
+                    {/* Tabla Editable */}
+                    <table className={styles.documentTable}>
+                        <thead>
                             <tr>
-                                <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }} contentEditable suppressContentEditableWarning>
-                                    No hay pacientes asignados a este quirófano.
-                                </td>
+                                <th style={{ width: '22%' }}>PACIENTE</th>
+                                <th style={{ width: '18%' }}>DIAGNÓSTICO</th>
+                                <th style={{ width: '25%' }}>INTERVENCIÓN</th>
+                                <th style={{ width: '15%' }}>EQUIPO</th>
+                                <th style={{ width: '20%' }}>OBSERVACIONES</th>
                             </tr>
-                        ) : (
-                            pacientes.map((p, index) => (
-                                <tr key={p.rdq || index}>
-                                    <td contentEditable suppressContentEditableWarning className={styles.editableCell}>
-                                        <div style={{ fontWeight: 600 }}>{p.paciente?.toUpperCase()}</div>
-                                        {p.nhc && <div>NHC: {p.nhc}</div>}
-                                        {p.rdq && <div>RDQ: {p.rdq}</div>}
-                                        {p.telefonos && <div>Tfno: {p.telefonos}</div>}
-                                    </td>
-                                    <td contentEditable suppressContentEditableWarning className={styles.editableCell}>
-                                        {p.diagnostico}
-                                    </td>
-                                    <td contentEditable suppressContentEditableWarning className={styles.editableCell}>
-                                        {p.procedimiento || p.intervencion_propuesta}
-                                    </td>
-                                    <td contentEditable suppressContentEditableWarning className={styles.editableCell}>
-                                        {cirujanosStr.map((c: string, i: number) => (
-                                            <div key={i}>{c}</div>
-                                        ))}
-                                    </td>
-                                    <td contentEditable suppressContentEditableWarning className={styles.editableCell}>
-                                        {p.observaciones || p.comentarios ? (
-                                            <>
-                                                {p.observaciones && <div>{p.observaciones}</div>}
-                                                {p.comentarios && <div style={{ marginTop: '4px' }}>{p.comentarios}</div>}
-                                            </>
-                                        ) : (
-                                            <div style={{ color: '#999', fontStyle: 'italic' }}>Clic para añadir observaciones...</div>
-                                        )}
+                        </thead>
+                        <tbody>
+                            {pacientes.length === 0 ? (
+                                <tr>
+                                    <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }} contentEditable suppressContentEditableWarning>
+                                        No hay pacientes asignados a este quirófano.
                                     </td>
                                 </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                            ) : (
+                                pacientes.map((p, index) => (
+                                    <tr key={p.rdq || index}>
+                                        <td contentEditable suppressContentEditableWarning className={styles.editableCell}>
+                                            <div style={{ fontWeight: 600 }}>{p.paciente?.toUpperCase()}</div>
+                                            {p.nhc && <div>NHC: {p.nhc}</div>}
+                                            {p.rdq && <div>RDQ: {p.rdq}</div>}
+                                            {p.telefonos && <div>Tfno: {p.telefonos}</div>}
+                                        </td>
+                                        <td contentEditable suppressContentEditableWarning className={styles.editableCell}>
+                                            {p.diagnostico}
+                                        </td>
+                                        <td contentEditable suppressContentEditableWarning className={styles.editableCell}>
+                                            {p.procedimiento || p.intervencion_propuesta}
+                                        </td>
+                                        <td contentEditable suppressContentEditableWarning className={styles.editableCell}>
+                                            {cirujanosStr.map((c: string, i: number) => (
+                                                <div key={i}>{c}</div>
+                                            ))}
+                                        </td>
+                                        <td contentEditable suppressContentEditableWarning className={styles.editableCell}>
+                                            {p.observaciones || p.comentarios ? (
+                                                <>
+                                                    {p.observaciones && <div>{p.observaciones}</div>}
+                                                    {p.comentarios && <div style={{ marginTop: '4px' }}>{p.comentarios}</div>}
+                                                </>
+                                            ) : (
+                                                <div style={{ color: '#999', fontStyle: 'italic' }}>Clic para añadir observaciones...</div>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <SendEmailModal

@@ -59,15 +59,25 @@
 }
 
 /* El documento modelo A4 apaisado en pantalla */
-.a4DocumentContainer {
+.a4VisualContainer {
     width: 297mm;
     /* Ancho A4 Landscape */
     min-height: 210mm;
     /* Alto A4 Landscape */
     background: white;
     padding: 20mm;
-    /* Márgenes típicos de Word */
+    /* Márgenes típicos de Word SOLO VISUALES */
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+/* El contenido que va capturar html2pdf */
+.a4PDFContent {
+    width: 100%;
+    /* Ocupa el 100% del visualContainer */
+    background: white;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -206,7 +216,8 @@
         margin: 0;
     }
 
-    .a4DocumentContainer {
+    .a4VisualContainer,
+    .a4PDFContent {
         width: 100%;
         min-height: auto;
         padding: 0;
