@@ -10,8 +10,9 @@ import { notFound } from "next/navigation";
 // El ParteImpresion.module.css ya tiene position flex con 100vh y background blanco, lo que 
 // debería sobreponerse si lo diseñamos para ocupar el 100% fijo, pero lo integraremos de forma limpia.
 
-export default async function PartePage({ params }: { params: { id: string } }) {
+export default async function PartePage(props: { params: Promise<{ id: string }> }) {
     try {
+        const params = await props.params;
         const { quirofano, pacientes } = await programacionService.getQuirofanoCompleto(params.id);
 
         if (!quirofano) {
