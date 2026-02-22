@@ -15,6 +15,7 @@ export interface PacienteSugerido extends Intervencion {
     grupo: 'A' | 'B'; // A: Cirugía Mayor con anestesista, B: Cirugía Local/CMA
     paciente?: string; // Nombre desencriptado para visualización
     nhc?: string; // NHC desencriptado
+    telefonos?: string; // Teléfonos desencriptados
 }
 
 function safeDecrypt(ciphertext: string): string {
@@ -62,6 +63,7 @@ export function calcularScoring(paciente: any): PacienteSugerido {
         ...paciente,
         paciente: safeDecrypt(String(paciente.paciente ?? '')),
         nhc: safeDecrypt(String(paciente.nhc ?? '')),
+        telefonos: safeDecrypt(String(paciente.telefonos_contacto ?? '')),
         grupo,
         scoreDetails: {
             puntosPriorizable: pPriorizable,
@@ -244,5 +246,35 @@ export const programacionService = {
             console.error(`Error toggling completado for quirofano ${id_quirofano}:`, error);
             throw error;
         }
+    },
+
+    /**
+     * Obtiene un quirófano específico con sus cirujanos y los pacientes asignados en el orden correcto
+     */
+    getQuirofanoCompleto: async (id_quirofano: string): Promise<{ quirofano: any, pacientes: PacienteSugerido[] }> => {
+        const supabase = createSupabaseAdminClient();
+
+        // 1. Obtener datos del quirófano y cirujanos
+        const { data: quirofanoData, error: qError } = await supabase
+            .from('quirofanos')
+            .select(`
+                *,
+                quirofano_cirujano (
+                    cirujanos (*)
+                )
+            `)
+            .eq('id_quirofano', id_quirofano)
+            .single();
+
+        if (qError) throw new Error(`Error fetching quirofano: ${qError.message}`);
+
+        // 2. Obtener asignaciones (solo los de este quirófano)
+        const asignacionesMap = await programacionService.getAsignaciones([id_quirofano]);
+        const pacientesAsignados = asignacionesMap[id_quirofano] || [];
+
+        return {
+            quirofano: quirofanoData,
+            pacientes: pacientesAsignados
+        };
     }
 };

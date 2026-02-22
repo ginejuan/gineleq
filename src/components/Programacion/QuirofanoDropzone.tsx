@@ -47,17 +47,28 @@ export default function QuirofanoDropzone({ quirofano, pacientesAsignados, onTog
                         )}
                     </span>
                 </div>
-                {onToggleCompletado && (
-                    <label className={styles.toggleCompletadoLabel} title="Marcar Quirófano como cerrado/completado">
-                        <input
-                            type="checkbox"
-                            checked={isCompletado}
-                            onChange={(e) => onToggleCompletado(quirofano.id_quirofano, e.target.checked)}
-                            className={styles.toggleCompletadoCheckbox}
-                        />
-                        Completado
-                    </label>
-                )}
+                <div className={styles.dropzoneHeaderControls}>
+                    <a
+                        href={`/programacion/parte/${quirofano.id_quirofano}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.printButton}
+                        title="Imprimir Parte de Quirófano"
+                    >
+                        🖨️
+                    </a>
+                    {onToggleCompletado && (
+                        <label className={styles.toggleCompletadoLabel} title="Marcar Quirófano como cerrado/completado">
+                            <input
+                                type="checkbox"
+                                checked={isCompletado}
+                                onChange={(e) => onToggleCompletado(quirofano.id_quirofano, e.target.checked)}
+                                className={styles.toggleCompletadoCheckbox}
+                            />
+                            Completado
+                        </label>
+                    )}
+                </div>
             </div>
 
             <SortableContext items={itemsIds} strategy={verticalListSortingStrategy}>

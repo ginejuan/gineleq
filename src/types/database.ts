@@ -42,6 +42,10 @@ export interface Intervencion {
     /** Diagnóstico (texto libre, no cifrado) */
     diagnostico: string;
 
+    /** Teléfonos de contacto (cifrado) */
+    telefonos_contacto: string;
+    telefonos_bdu?: string;
+
     /** Intervención quirúrgica propuesta */
     intervencion_propuesta: string;
 
