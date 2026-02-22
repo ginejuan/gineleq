@@ -189,11 +189,14 @@ export function CalendarView({ agendaData, onDeleteQuirofano, onEditQuirofano }:
                                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                             {qs.map(q => {
                                                 const colors = getColorByTurno(q.turno);
+                                                const cardBg = q.completado ? 'rgba(16, 185, 129, 0.1)' : colors.bg;
+                                                const cardBorder = q.completado ? 'rgba(16, 185, 129, 0.4)' : colors.border;
+
                                                 return (
                                                     <div
                                                         key={q.id_quirofano}
                                                         className={styles.quirofanoCard}
-                                                        style={{ backgroundColor: colors.bg, borderColor: colors.border }}
+                                                        style={{ backgroundColor: cardBg, borderColor: cardBorder }}
                                                         onClick={() => onEditQuirofano && onEditQuirofano(q)}
                                                         role="button"
                                                         tabIndex={0}
