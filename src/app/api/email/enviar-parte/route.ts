@@ -40,7 +40,14 @@ export async function POST(request: Request) {
             host,
             port,
             secure: port === 465, // true for 465, false for other ports
-            auth: { user, pass }
+            auth: { user, pass },
+            tls: {
+                // Do not fail on invalid certs for academic networks
+                rejectUnauthorized: false
+            },
+            connectionTimeout: 10000, // 10 seconds to connect
+            greetingTimeout: 10000,
+            socketTimeout: 10000
         });
 
         // Enviar Correo

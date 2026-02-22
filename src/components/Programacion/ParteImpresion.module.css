@@ -139,6 +139,11 @@
     line-height: 1.3;
 }
 
+.documentTable tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
 /* ========================================================================
    REGLAS PARA CUANDO SE MANDA A IMPRIMIR (PDF / PAPEL)
    ======================================================================== */

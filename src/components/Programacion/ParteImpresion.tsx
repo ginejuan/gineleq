@@ -3,9 +3,6 @@
 import { useEffect, useState, useRef } from 'react';
 import styles from './ParteImpresion.module.css';
 import { SendEmailModal } from './SendEmailModal';
-// Importamos html2pdf dinámicamente o normal (requiere require si falla en server-side)
-// Como es un componente de cliente ('use client'), funcionará.
-import html2pdf from 'html2pdf.js';
 
 interface PrintPageProps {
     quirofano: any;
@@ -34,13 +31,17 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
         if (!documentRef.current) throw new Error("Documento no encontrado");
 
         // Options for html2pdf
-        const opt = {
+        const opt: any = {
             margin: 15,
             filename: 'Parte_Quirofano.pdf',
-            image: { type: 'jpeg' as const, quality: 0.98 },
+            image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' as const }
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+            pagebreak: { mode: ['css', 'legacy'], avoid: 'tr' }
         };
+
+        // Cargar html2pdf dinámicamente solo en el cliente para evitar el error "self is not defined" en SSR
+        const html2pdf = (await import('html2pdf.js')).default;
 
         // Generar Blob (archivo binario) en lugar de descargar
         const pdfBlob = await html2pdf()
