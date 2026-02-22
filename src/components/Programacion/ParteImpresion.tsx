@@ -102,7 +102,6 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
                                     </td>
                                     <td contentEditable suppressContentEditableWarning className={styles.editableCell}>
                                         {p.procedimiento || p.intervencion_propuesta}
-                                        {p.t_anestesia && <div style={{ marginTop: '4px', fontSize: '0.9em' }}>(Anestesia: {p.t_anestesia})</div>}
                                     </td>
                                     <td contentEditable suppressContentEditableWarning className={styles.editableCell}>
                                         {cirujanosStr.map((c: string, i: number) => (
