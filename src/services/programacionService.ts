@@ -41,7 +41,7 @@ export function calcularScoring(paciente: any): PacienteSugerido {
     // Reglas Clínicas de puntuación
     if (paciente.priorizable) pPriorizable = 1000;
 
-    const isOncologico = paciente.diagnostico?.toUpperCase().includes('NEOPLASIA MALIGNA');
+    const isOncologico = paciente.diagnostico?.trim().toUpperCase().startsWith('NEOPLASIA MALIGNA');
     if (isOncologico && diasEspera >= 23) {
         pOncologico = 300;
     }
