@@ -94,6 +94,7 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
                                     <td contentEditable suppressContentEditableWarning className={styles.editableCell}>
                                         <div style={{ fontWeight: 600 }}>{p.paciente?.toUpperCase()}</div>
                                         {p.nhc && <div>NHC: {p.nhc}</div>}
+                                        {p.rdq && <div>RDQ: {p.rdq}</div>}
                                         {p.telefonos && <div>Tfno: {p.telefonos}</div>}
                                     </td>
                                     <td contentEditable suppressContentEditableWarning className={styles.editableCell}>

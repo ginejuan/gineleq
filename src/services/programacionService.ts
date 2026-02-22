@@ -59,11 +59,15 @@ export function calcularScoring(paciente: any): PacienteSugerido {
 
     const puntosTotales = pPriorizable + pOncologico + pGarantia + pAntiguedad;
 
+    const tContacto = safeDecrypt(String(paciente.telefonos_contacto ?? ''));
+    const tBdu = safeDecrypt(String(paciente.telefonos_bdu ?? ''));
+    const telefonos = [tContacto, tBdu].filter(t => t.trim() !== '').join(' / ');
+
     return {
         ...paciente,
         paciente: safeDecrypt(String(paciente.paciente ?? '')),
         nhc: safeDecrypt(String(paciente.nhc ?? '')),
-        telefonos: safeDecrypt(String(paciente.telefonos_contacto ?? '')),
+        telefonos,
         grupo,
         scoreDetails: {
             puntosPriorizable: pPriorizable,

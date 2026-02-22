@@ -1,0 +1,32 @@
+[
+  {
+    "rdq": 33798358,
+    "paciente": "8edd11bb6b58d2e440ea1642:6316ff41c55896c93396819cdbdbb473f5616efe8e7b9fa7397ded:746b9ef6d43fe41a9f5b0f4cd624136c",
+    "telefonos_contacto": "",
+    "telefonos_bdu": "2b33bc0d90fde96e6129ff54:d0f91337cb84c12c29:990db0ef862d13dea654d3d1805ab604"
+  },
+  {
+    "rdq": 33841434,
+    "paciente": "d29b905f7c3feb04835b8ea1:5fd9f0991a469d2a0521abf62705acb4453f3d5a93:b867a6827b07c040961ee269549c3c5c",
+    "telefonos_contacto": "",
+    "telefonos_bdu": "e25378a488ecf70952ea4724:ef0fd7c6c7e438ad299220988f0b3ac7fc2b227684:7120b768cfdca92d523f0b0a16c62578"
+  },
+  {
+    "rdq": 33889784,
+    "paciente": "1f66e19b234ef3da5501558d:ea23f5b692d8d1582b18d06cf8424882466e01d557e1dbf080704a2d3652d8c2a0:245d29743068eff03ca403e3f706b8f4",
+    "telefonos_contacto": "",
+    "telefonos_bdu": "b3865f0efffb843d29778e0d:5fa4499e998c842841ff14d3d77d35d1a0d68e3395:37ae3c32fb587f1df60613e0f761eb45"
+  },
+  {
+    "rdq": 33900428,
+    "paciente": "0e605267f54984a020c446ce:eaadb4c4230bc5c3994d66499e1a494dd58e83ceddf96b7b9b97:c8565e81d5be05510104921d29b16967",
+    "telefonos_contacto": "",
+    "telefonos_bdu": "0e94b953a5a7eed3548138a8:935f09424e4e283dfd4a3b8559d093ae57400aeaed:6ff2ca30816a01b3b6948a3d0fa8794d"
+  },
+  {
+    "rdq": 33910429,
+    "paciente": "2cda13aacb8fbfbce3ef1060:28fc7601e4dd4c0caf22824bda5d245d135d7149f0:013f53b9d27a98d17e6de22fd361dbc7",
+    "telefonos_contacto": "",
+    "telefonos_bdu": "5e37d6eceabc0bab894364ee:83c640cf71d51e9f7a67795d6c8b6d521ace695ff1:ba37ff9b11f4ddbf5bf67b56f1a400c5"
+  }
+]
