@@ -42,3 +42,9 @@
     text-overflow: ellipsis;
     max-width: 300px;
 }
+
+@media print {
+    .userHeader {
+        display: none !important;
+    }
+}

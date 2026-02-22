@@ -142,9 +142,21 @@ body {
   transition: margin-left var(--transition-base);
 }
 
+@media print {
+  .app-content {
+    margin-left: 0 !important;
+  }
+}
+
 .app-main {
   flex: 1;
   padding: var(--spacing-xl);
+}
+
+@media print {
+  .app-main {
+    padding: 0 !important;
+  }
 }
 
 /* --- Utilidades de texto --- */

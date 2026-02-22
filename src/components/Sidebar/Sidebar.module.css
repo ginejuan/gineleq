@@ -146,3 +146,9 @@
     text-align: center;
     display: block;
 }
+
+@media print {
+    .sidebar {
+        display: none !important;
+    }
+}
