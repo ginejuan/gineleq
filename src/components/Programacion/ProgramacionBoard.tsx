@@ -274,13 +274,13 @@ export default function ProgramacionBoard() {
                     <h2 className={styles.panelTitle}>Pacientes Sugeridos</h2>
                     <div className={styles.listsContainer}>
                         <div className={styles.suggestionList}>
-                            <h3>Grupo A (Mayor / Central) <span className={styles.badge}>{grupoA.length}</span></h3>
+                            <h3>Grupo A (Con anestesista) <span className={styles.badge}>{grupoA.length}</span></h3>
                             {grupoA.map(p => (
                                 <PatientCard key={p.rdq} paciente={p} />
                             ))}
                         </div>
                         <div className={styles.suggestionList}>
-                            <h3>Grupo B (Local / CMA) <span className={styles.badge}>{grupoB.length}</span></h3>
+                            <h3>Grupo B (Anestesia local) <span className={styles.badge}>{grupoB.length}</span></h3>
                             {grupoB.map(p => (
                                 <PatientCard key={p.rdq} paciente={p} />
                             ))}
