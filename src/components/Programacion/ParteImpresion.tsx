@@ -1,7 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import styles from './ParteImpresion.module.css';
+import { SendEmailModal } from './SendEmailModal';
+// Importamos html2pdf dinámicamente o normal (requiere require si falla en server-side)
+// Como es un componente de cliente ('use client'), funcionará.
+import html2pdf from 'html2pdf.js';
 
 interface PrintPageProps {
     quirofano: any;
@@ -9,6 +13,8 @@ interface PrintPageProps {
 }
 
 export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps) {
+    const documentRef = useRef<HTMLDivElement>(null);
+    const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
     // Auto trigger print dialog if requested (optional)
     useEffect(() => {
@@ -18,6 +24,49 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
 
     const handlePrint = () => {
         window.print();
+    };
+
+    const handleEmail = () => {
+        setIsEmailModalOpen(true);
+    };
+
+    const handleSendEmail = async (destinatarios: string[], subject: string, message: string) => {
+        if (!documentRef.current) throw new Error("Documento no encontrado");
+
+        // Options for html2pdf
+        const opt = {
+            margin: 15,
+            filename: 'Parte_Quirofano.pdf',
+            image: { type: 'jpeg' as const, quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' as const }
+        };
+
+        // Generar Blob (archivo binario) en lugar de descargar
+        const pdfBlob = await html2pdf()
+            .set(opt)
+            .from(documentRef.current)
+            .output('blob');
+
+        // Construir form-data para enviar al servidor
+        const formData = new FormData();
+        formData.append('pdf', pdfBlob, opt.filename);
+        formData.append('to', destinatarios.join(','));
+        formData.append('subject', subject);
+        formData.append('text', message);
+
+        // Llamar a nuestra API Route
+        const res = await fetch('/api/email/enviar-parte', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.error || 'Error enviando correo.');
+        }
+
+        alert(`Correo enviado con éxito a ${destinatarios.length} destinatarios. 🎉`);
     };
 
     // Formatear Fecha
@@ -35,12 +84,20 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
         return `${tratamiento} ${nombre} ${apellido}`;
     }) || [];
 
+    const cirujanosMailsForModal = quirofano.quirofano_cirujano?.map((qc: any) => ({
+        nombre: `${qc.cirujanos.nombre} ${qc.cirujanos.apellido1}`,
+        email: qc.cirujanos.e_mail || ''
+    })).filter((c: any) => c.email !== '') || [];
+
     const tipoQuirofano = quirofano.tipo_quirofano?.toUpperCase() || 'QUIRÓFANO';
 
     return (
         <div className={styles.printWrapper}>
-            {/* Botón Flotante para Imprimir (No se imprime por CSS) */}
+            {/* Botones Flotantes (No se imprimen por CSS) */}
             <div className={styles.floatingControls}>
+                <button onClick={handleEmail} className={styles.exportButton} style={{ backgroundColor: '#10B981', marginBottom: '8px' }}>
+                    ✉️ Enviar por Email
+                </button>
                 <button onClick={handlePrint} className={styles.exportButton}>
                     🖨️ Exportar / Imprimir
                 </button>
@@ -50,7 +107,7 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
             </div>
 
             {/* Documento A4 */}
-            <div className={styles.a4DocumentContainer}>
+            <div className={styles.a4DocumentContainer} ref={documentRef}>
 
                 {/* Encabezado estático */}
                 <div
@@ -123,6 +180,14 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
                     </tbody>
                 </table>
             </div>
+
+            <SendEmailModal
+                isOpen={isEmailModalOpen}
+                onClose={() => setIsEmailModalOpen(false)}
+                cirujanosMails={cirujanosMailsForModal}
+                onSend={handleSendEmail}
+                fechaParte={fechaStr}
+            />
         </div>
     );
 }
