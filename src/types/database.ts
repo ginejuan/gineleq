@@ -198,3 +198,16 @@ export interface QuirofanoIntervencion {
     orden: number;
     created_at: string; // TS
 }
+
+// --------------------------------------------------------------------------
+// Listas de Distribución de Correo
+// --------------------------------------------------------------------------
+
+export interface ListaDistribucion {
+    id: string; // UUID
+    nombre: string;
+    descripcion: string | null;
+    correos: string[]; // Array of strings explicitly
+    created_at: string;
+    updated_at: string;
+}

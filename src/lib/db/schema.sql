@@ -112,3 +112,27 @@ CREATE POLICY "Authenticated users full access" ON lista_espera
     FOR ALL
     USING (auth.role() = 'authenticated')
     WITH CHECK (auth.role() = 'authenticated');
+
+-- ============================================
+-- Listas de Distribución de Correo
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.listas_distribucion (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre TEXT NOT NULL,
+    descripcion TEXT,
+    correos TEXT[] DEFAULT '{}',
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TRIGGER tr_listas_distribucion_updated_at
+    BEFORE UPDATE ON public.listas_distribucion
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+ALTER TABLE public.listas_distribucion ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Authenticated users full access on listas_distribucion" ON public.listas_distribucion
+    FOR ALL
+    USING (auth.role() = 'authenticated')
+    WITH CHECK (auth.role() = 'authenticated');
