@@ -39,9 +39,17 @@ export default function ProgramacionBoard() {
         })
     );
 
+    // Fechas de filtro predeterminadas: Hoy a Hoy + 7 días
+    const [fechaInicio, setFechaInicio] = useState<string>(() => new Date().toISOString().split('T')[0]);
+    const [fechaFin, setFechaFin] = useState<string>(() => {
+        const f = new Date();
+        f.setDate(f.getDate() + 7);
+        return f.toISOString().split('T')[0];
+    });
+
     useEffect(() => {
         loadBoardData();
-    }, []);
+    }, [fechaInicio, fechaFin]);
 
     const loadBoardData = async () => {
         setLoading(true);
@@ -53,8 +61,8 @@ export default function ProgramacionBoard() {
             setGrupoA(sugerencias.grupoA);
             setGrupoB(sugerencias.grupoB);
 
-            const hoyStr = new Date().toISOString().split('T')[0];
-            const agenda = await agendaService.getAgenda(hoyStr, '2099-12-31');
+            // Using the selected date range instead of hardcoded 'today onwards'
+            const agenda = await agendaService.getAgenda(fechaInicio, fechaFin);
             console.log('[DEBUG UI] Quirófanos cargados:', agenda.length);
             setQuirofanosSemana(agenda);
 
@@ -282,7 +290,24 @@ export default function ProgramacionBoard() {
 
                 {/* PANEL DERECHO: Destino (Quirófanos montados) */}
                 <div className={styles.agendaPanel}>
-                    <h2 className={styles.panelTitle}>Quirófanos Disponibles (Semana)</h2>
+                    <div className={styles.agendaPanelHeader}>
+                        <h2 className={styles.panelTitle}>Quirófanos Disponibles</h2>
+                        <div className={styles.dateFilterContainer}>
+                            <input
+                                type="date"
+                                value={fechaInicio}
+                                onChange={(e) => setFechaInicio(e.target.value)}
+                                className={styles.dateFilterInput}
+                            />
+                            <span>a</span>
+                            <input
+                                type="date"
+                                value={fechaFin}
+                                onChange={(e) => setFechaFin(e.target.value)}
+                                className={styles.dateFilterInput}
+                            />
+                        </div>
+                    </div>
 
                     {quirofanosSemana.length === 0 && (
                         <div className={styles.loadingState} style={{ height: '20vh' }}>
