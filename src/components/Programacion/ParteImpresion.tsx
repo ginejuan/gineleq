@@ -35,14 +35,24 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
 
         // Options for html2pdf
         const opt: any = {
-            margin: [15, 15, 10, 10], // [top, left, bottom, right] en milímetros (1.5cm arriba e izq, 1cm abajo y der)
+            margin: 15, // 15mm (1.5cm) en los cuatro bordes
             filename: `${safeFilename}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
                 scale: 2,
                 useCORS: true,
                 letterRendering: true,
-                windowWidth: 1200 // Workaround clave: Forza a html2canvas a renderizar a 1200px de ancho evitando que se corte en portátiles
+                onclone: (clonedDoc: Document) => {
+                    // Magia negra: Al clonar el DOM invisiblemente para el PDF, le quitamos todo el padding 
+                    // que usa visualmente en la pantalla para que no se sume al "margin" de arriba, 
+                    // y forzamos su ancho al disponible real en A4 para evitar que se corte por la derecha.
+                    const container = clonedDoc.querySelector(`.${styles.a4DocumentContainer}`) as HTMLElement;
+                    if (container) {
+                        container.style.padding = '0';
+                        container.style.boxShadow = 'none';
+                        container.style.width = '267mm'; // 297mm (A4) - 15mm (izq) - 15mm (der) = 267mm
+                    }
+                }
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
             pagebreak: { mode: ['css', 'legacy'], avoid: 'tr' }
