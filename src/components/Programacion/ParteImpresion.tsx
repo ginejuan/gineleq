@@ -30,10 +30,9 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
         const c = qc.cirujanos;
         const nombre = c.nombre;
         const apellido = c.apellido1;
-        // Basic heuristic for Dr./Dra. Based on typical spanish names, it's hard to guess perfectly but usually D. / Dra.
-        // We'll leave the title manual editing if they want, or a generic Dr. / Dra. 
-        // A generic approach:
-        return `Dr./Dra. ${c.nombre} ${c.apellido1}`;
+        const tratamiento = c.tratamiento || 'Dr.'; // Default to Dr. as backup
+
+        return `${tratamiento} ${nombre} ${apellido}`;
     }) || [];
 
     const tipoQuirofano = quirofano.tipo_quirofano?.toUpperCase() || 'QUIRÓFANO';

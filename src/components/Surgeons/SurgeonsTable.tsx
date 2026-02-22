@@ -46,7 +46,7 @@ export function SurgeonsTable({ cirujanos, isLoading, onEdit, onDelete }: Surgeo
                     </thead>
                     <tbody>
                         {cirujanos.map((cirujano) => {
-                            const fullName = `${cirujano.nombre} ${cirujano.apellido1} ${cirujano.apellido2 || ''}`.trim();
+                            const fullName = `${cirujano.tratamiento || 'Dr.'} ${cirujano.nombre} ${cirujano.apellido1} ${cirujano.apellido2 || ''}`.trim();
 
                             return (
                                 <tr key={cirujano.id_cirujano}>

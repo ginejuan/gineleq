@@ -12,6 +12,7 @@ interface SurgeonsModalProps {
 }
 
 export function SurgeonsModal({ isOpen, onClose, onSave, cirujanoToEdit }: SurgeonsModalProps) {
+    const [tratamiento, setTratamiento] = useState('Dr.');
     const [nombre, setNombre] = useState('');
     const [apellido1, setApellido1] = useState('');
     const [apellido2, setApellido2] = useState('');
@@ -25,6 +26,7 @@ export function SurgeonsModal({ isOpen, onClose, onSave, cirujanoToEdit }: Surge
     useEffect(() => {
         if (isOpen) {
             if (cirujanoToEdit) {
+                setTratamiento(cirujanoToEdit.tratamiento || 'Dr.');
                 setNombre(cirujanoToEdit.nombre);
                 setApellido1(cirujanoToEdit.apellido1);
                 setApellido2(cirujanoToEdit.apellido2 || '');
@@ -34,6 +36,7 @@ export function SurgeonsModal({ isOpen, onClose, onSave, cirujanoToEdit }: Surge
                 setOncoMama(cirujanoToEdit.onco_mama);
             } else {
                 // Reset form
+                setTratamiento('Dr.');
                 setNombre('');
                 setApellido1('');
                 setApellido2('');
@@ -59,6 +62,7 @@ export function SurgeonsModal({ isOpen, onClose, onSave, cirujanoToEdit }: Surge
             setIsSubmitting(true);
             setError(null);
             await onSave({
+                tratamiento: tratamiento.trim() || null,
                 nombre: nombre.trim(),
                 apellido1: apellido1.trim(),
                 apellido2: apellido2.trim() || null,
@@ -97,17 +101,34 @@ export function SurgeonsModal({ isOpen, onClose, onSave, cirujanoToEdit }: Surge
                 )}
 
                 <form onSubmit={handleSubmit}>
-                    <div className={styles.formGroup}>
-                        <label className={styles.label} htmlFor="nombre">Nombre *</label>
-                        <input
-                            id="nombre"
-                            type="text"
-                            className={styles.input}
-                            value={nombre}
-                            onChange={(e) => setNombre(e.target.value)}
-                            placeholder="Ej. María"
-                            required
-                        />
+                    <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
+                        <div className={styles.formGroup} style={{ flex: '0 0 100px' }}>
+                            <label className={styles.label} htmlFor="tratamiento">Tratamiento *</label>
+                            <select
+                                id="tratamiento"
+                                className={styles.input}
+                                value={tratamiento}
+                                onChange={(e) => setTratamiento(e.target.value)}
+                                required
+                            >
+                                <option value="Dr.">Dr.</option>
+                                <option value="Dra.">Dra.</option>
+                                <option value="Prof.">Prof.</option>
+                                <option value="Profa.">Profa.</option>
+                            </select>
+                        </div>
+                        <div className={styles.formGroup} style={{ flex: 1 }}>
+                            <label className={styles.label} htmlFor="nombre">Nombre *</label>
+                            <input
+                                id="nombre"
+                                type="text"
+                                className={styles.input}
+                                value={nombre}
+                                onChange={(e) => setNombre(e.target.value)}
+                                placeholder="Ej. María"
+                                required
+                            />
+                        </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>

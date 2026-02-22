@@ -151,6 +151,7 @@ export interface DashboardKPIs {
 
 export interface Cirujano {
     id_cirujano: string; // UUID
+    tratamiento: string | null; // e.g. "Dr.", "Dra."
     nombre: string;
     apellido1: string;
     apellido2: string | null;
