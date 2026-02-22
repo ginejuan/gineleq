@@ -35,7 +35,7 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
 
         // Options for html2pdf
         const opt: any = {
-            margin: [10, 10, 10, 10], // 10mm top, right, bottom, left to give more horizontal breathing room
+            margin: [15, 15, 10, 10], // [top, left, bottom, right] en milímetros (1.5cm arriba e izq, 1cm abajo y der)
             filename: `${safeFilename}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {

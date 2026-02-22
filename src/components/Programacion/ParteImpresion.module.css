@@ -187,7 +187,8 @@
     /* Ajustar la página al estándar y obligar a imprimir fondos (colores de filas) */
     @page {
         size: A4 landscape;
-        margin: 15mm;
+        margin: 15mm 10mm 10mm 15mm;
+        /* arriba, derecha, abajo, izquierda */
     }
 
     body {
