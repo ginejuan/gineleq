@@ -123,13 +123,33 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
             {/* Documento A4 */}
             <div className={styles.a4DocumentContainer} ref={documentRef}>
 
-                {/* Encabezado estático */}
-                <div
-                    className={styles.headerGlobal}
-                    contentEditable
-                    suppressContentEditableWarning
-                >
-                    SERVICIO DE OBSTETRICIA Y GINECOLOGÍA. DR. FERNÁNDEZ ALBA
+                {/* Cabecera con Logo y Textos */}
+                <div className={styles.headerSection}>
+                    <img
+                        src="/logo-sas.png"
+                        alt="Logo SAS"
+                        className={styles.logoSas}
+                        onError={(e) => {
+                            // Si el usuario aún no ha subido el logo, esto lo oculta
+                            (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                    />
+                    <div className={styles.headerTexts}>
+                        <div
+                            className={styles.hospitalName}
+                            contentEditable
+                            suppressContentEditableWarning
+                        >
+                            Hospital Universitario Puerto Real
+                        </div>
+                        <div
+                            className={styles.headerGlobal}
+                            contentEditable
+                            suppressContentEditableWarning
+                        >
+                            Servicio de Obstetricia y Ginecología. Dr. Fernández Alba
+                        </div>
+                    </div>
                 </div>
 
                 <div
@@ -137,7 +157,7 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
                     contentEditable
                     suppressContentEditableWarning
                 >
-                    Parte de Quirófano ({tipoQuirofano}) {fechaStr}
+                    Parte de Quirófano <strong>({tipoQuirofano})</strong> {fechaStr}
                 </div>
 
                 {/* Tabla Editable */}

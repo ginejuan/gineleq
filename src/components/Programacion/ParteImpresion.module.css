@@ -12,7 +12,7 @@
     flex-direction: column;
     align-items: center;
     padding: 2rem 0;
-    font-family: 'Times New Roman', Times, serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* Botones flotantes (solo visibles en pantalla) */
@@ -73,13 +73,37 @@
     flex-direction: column;
 }
 
-/* Estilos del contenido editable (parecerse a Word) */
-.headerGlobal {
-    font-size: 14pt;
-    color: #888888;
+.headerSection {
+    display: flex;
+    flex-direction: column;
     margin-bottom: 25px;
-    text-transform: uppercase;
-    font-family: 'Times New Roman', Times, serif;
+    gap: 15px;
+}
+
+.logoSas {
+    width: 350px;
+    height: auto;
+    object-fit: contain;
+}
+
+.headerTexts {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.hospitalName {
+    font-size: 14pt;
+    font-weight: bold;
+    color: #374151;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    outline: none;
+}
+
+.headerGlobal {
+    font-size: 12pt;
+    color: #6b7280;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     outline: none;
 }
 
@@ -92,19 +116,18 @@
 }
 
 .documentTitle {
-    font-size: 12pt;
-    color: #4a6fa5;
-    /* Tono azulado de los títulos del Word de ejemplo */
-    margin-bottom: 10px;
-    font-family: 'Times New Roman', Times, serif;
+    font-size: 13pt;
+    color: #2563eb;
+    margin-bottom: 15px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     outline: none;
 }
 
 .documentTable {
     width: 100%;
     border-collapse: collapse;
-    font-size: 11pt;
-    font-family: 'Times New Roman', Times, serif;
+    font-size: 10.5pt;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 .documentTable th {
