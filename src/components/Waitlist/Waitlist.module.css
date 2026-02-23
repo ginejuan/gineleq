@@ -233,12 +233,12 @@
 }
 
 .rowScheduled {
-    background-color: #d1fae5;
-    /* Light green */
+    background-color: #86efac;
+    /* Verde más oscuro para distinguirlo de APTO */
 }
 
 .rowScheduled td {
-    border-bottom: 1px solid #a7f3d0 !important;
+    border-bottom: 1px solid #4ade80 !important;
 }
 
 .rowNotProgrammable {
