@@ -44,7 +44,7 @@
 
 .table th {
     background-color: var(--color-bg);
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-md);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
     text-transform: uppercase;
@@ -54,18 +54,39 @@
 }
 
 .table td {
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-md);
     border-bottom: 1px solid var(--color-border);
     font-size: var(--font-size-sm);
     color: var(--color-text-primary);
     vertical-align: top;
 }
 
+.table th:last-child,
+.table td:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 1;
+}
+
+.table th:last-child {
+    background-color: var(--color-bg);
+    box-shadow: -4px 0 8px -4px rgba(0, 0, 0, 0.1);
+}
+
+.table td:last-child {
+    background-color: var(--color-surface);
+    box-shadow: -4px 0 8px -4px rgba(0, 0, 0, 0.1);
+}
+
 .table tbody tr:last-child td {
     border-bottom: none;
 }
 
-.table tbody tr:hover {
+.table tbody tr:hover td {
+    background-color: var(--color-primary-surface);
+}
+
+.table tbody tr:hover td:last-child {
     background-color: var(--color-primary-surface);
 }
 
