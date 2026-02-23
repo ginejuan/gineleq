@@ -30,9 +30,11 @@ export default function ProgramacionBoard() {
 
     // Filters state
     const [searchTerm, setSearchTerm] = useState('');
+    const [filterProcedimiento, setFilterProcedimiento] = useState('');
     const [filterOncoMama, setFilterOncoMama] = useState(false);
     const [filterOncoGine, setFilterOncoGine] = useState(false);
     const [filterPriorizable, setFilterPriorizable] = useState(false);
+    const [filterAnestesiaLocal, setFilterAnestesiaLocal] = useState(false);
 
     const { setNodeRef: setNodeRefSugerencias } = useDroppable({
         id: 'sugerencias-panel'
@@ -294,6 +296,21 @@ export default function ProgramacionBoard() {
 
         if (filterPriorizable && !p.priorizable) return false;
 
+        if (filterAnestesiaLocal) {
+            const anestesia = p.t_anestesia?.toLowerCase() || '';
+            if (!anestesia.includes('local') && !anestesia.includes('sin')) {
+                return false;
+            }
+        }
+
+        if (filterProcedimiento.trim()) {
+            const searchProc = filterProcedimiento.toLowerCase().trim();
+            const pProc = (p.procedimiento || p.intervencion_propuesta || '').toLowerCase();
+            if (!pProc.includes(searchProc)) {
+                return false;
+            }
+        }
+
         return true;
     };
 
@@ -319,9 +336,16 @@ export default function ProgramacionBoard() {
                         <div className={styles.searchBox}>
                             <input
                                 type="text"
-                                placeholder="Buscar por Nombre, NHC o RDQ..."
+                                placeholder="Buscar Nombre, NHC, RDQ..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
+                                className={styles.searchInput}
+                            />
+                            <input
+                                type="text"
+                                placeholder="Filtrar por Procedimiento..."
+                                value={filterProcedimiento}
+                                onChange={(e) => setFilterProcedimiento(e.target.value)}
                                 className={styles.searchInput}
                             />
                         </div>
@@ -337,6 +361,10 @@ export default function ProgramacionBoard() {
                             <label className={`${styles.filterToggle} ${filterPriorizable ? styles.activePriorizable : ''}`}>
                                 <input type="checkbox" checked={filterPriorizable} onChange={e => setFilterPriorizable(e.target.checked)} />
                                 Priorizables
+                            </label>
+                            <label className={`${styles.filterToggle} ${filterAnestesiaLocal ? styles.activeLocal : ''}`}>
+                                <input type="checkbox" checked={filterAnestesiaLocal} onChange={e => setFilterAnestesiaLocal(e.target.checked)} />
+                                A. Local / Sin
                             </label>
                         </div>
                     </div>
