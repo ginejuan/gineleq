@@ -2,7 +2,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { ListaDistribucion } from '@/types/database';
-import { listasService } from '@/services/listasService';
+import {
+    getListasAction,
+    crearListaAction,
+    actualizarListaAction,
+    eliminarListaAction
+} from './actions';
 import { ListasTable } from '@/components/Listas/ListasTable';
 import { ListasModal } from '@/components/Listas/ListasModal';
 import styles from '@/components/Listas/Listas.module.css';
@@ -19,7 +24,7 @@ export default function ListasPage() {
         setIsLoading(true);
         setError(null);
         try {
-            const data = await listasService.getListas();
+            const data = await getListasAction();
             setListas(data);
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Error al cargar las listas de distribución.');
@@ -49,7 +54,7 @@ export default function ListasPage() {
         }
 
         try {
-            await listasService.eliminarLista(id);
+            await eliminarListaAction(id);
             setListas(listas.filter(l => l.id !== id));
         } catch (err: unknown) {
             alert(err instanceof Error ? err.message : 'Error al eliminar la lista de distribución.');
@@ -57,12 +62,17 @@ export default function ListasPage() {
     };
 
     const handleSaveLista = async (listaData: Omit<ListaDistribucion, 'id' | 'created_at' | 'updated_at'>) => {
-        if (listaToEdit) {
-            const updated = await listasService.actualizarLista(listaToEdit.id, listaData);
-            setListas(listas.map(l => l.id === updated.id ? updated : l));
-        } else {
-            const created = await listasService.crearLista(listaData);
-            setListas([...listas, created].sort((a, b) => a.nombre.localeCompare(b.nombre)));
+        try {
+            if (listaToEdit) {
+                const updated = await actualizarListaAction(listaToEdit.id, listaData);
+                setListas(listas.map(l => l.id === updated.id ? updated : l));
+            } else {
+                const created = await crearListaAction(listaData);
+                setListas([...listas, created].sort((a, b) => a.nombre.localeCompare(b.nombre)));
+            }
+            setIsModalOpen(false);
+        } catch (err: unknown) {
+            throw err; // Propagate to modal to show in its error area
         }
     };
 
