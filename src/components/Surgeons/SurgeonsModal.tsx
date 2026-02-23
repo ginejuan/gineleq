@@ -157,51 +157,55 @@ export function SurgeonsModal({ isOpen, onClose, onSave, cirujanoToEdit }: Surge
                         </div>
                     </div>
 
-                    <div className={styles.formGroup}>
-                        <label className={styles.label} htmlFor="email">Email</label>
-                        <input
-                            id="email"
-                            type="email"
-                            className={styles.input}
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="correo@hospital.es"
-                        />
-                    </div>
+                    <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
+                        <div className={styles.formGroup} style={{ flex: 1 }}>
+                            <label className={styles.label} htmlFor="email">Email</label>
+                            <input
+                                id="email"
+                                type="email"
+                                className={styles.input}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="correo@hospital.es"
+                            />
+                        </div>
 
-                    <div className={styles.formGroup}>
-                        <label className={styles.label} htmlFor="telefono">Teléfono</label>
-                        <input
-                            id="telefono"
-                            type="tel"
-                            className={styles.input}
-                            value={telefonoMovil}
-                            onChange={(e) => setTelefonoMovil(e.target.value)}
-                            placeholder="Ej. 600123456"
-                        />
+                        <div className={styles.formGroup} style={{ flex: 1 }}>
+                            <label className={styles.label} htmlFor="telefono">Teléfono</label>
+                            <input
+                                id="telefono"
+                                type="tel"
+                                className={styles.input}
+                                value={telefonoMovil}
+                                onChange={(e) => setTelefonoMovil(e.target.value)}
+                                placeholder="Ej. 600123456"
+                            />
+                        </div>
                     </div>
 
                     <div className={styles.formGroup}>
                         <label className={styles.label}>Subespecialidades</label>
-                        <div className={styles.checkboxGroup}>
-                            <input
-                                id="oncoGine"
-                                type="checkbox"
-                                className={styles.checkbox}
-                                checked={oncoGine}
-                                onChange={(e) => setOncoGine(e.target.checked)}
-                            />
-                            <label htmlFor="oncoGine" className={styles.checkboxLabel}>Oncología Ginecológica</label>
-                        </div>
-                        <div className={styles.checkboxGroup}>
-                            <input
-                                id="oncoMama"
-                                type="checkbox"
-                                className={styles.checkbox}
-                                checked={oncoMama}
-                                onChange={(e) => setOncoMama(e.target.checked)}
-                            />
-                            <label htmlFor="oncoMama" className={styles.checkboxLabel}>Oncología de Mama</label>
+                        <div className={styles.checkboxRow}>
+                            <div className={styles.checkboxGroup}>
+                                <input
+                                    id="oncoGine"
+                                    type="checkbox"
+                                    className={styles.checkbox}
+                                    checked={oncoGine}
+                                    onChange={(e) => setOncoGine(e.target.checked)}
+                                />
+                                <label htmlFor="oncoGine" className={styles.checkboxLabel}>Oncología Ginecológica</label>
+                            </div>
+                            <div className={styles.checkboxGroup}>
+                                <input
+                                    id="oncoMama"
+                                    type="checkbox"
+                                    className={styles.checkbox}
+                                    checked={oncoMama}
+                                    onChange={(e) => setOncoMama(e.target.checked)}
+                                />
+                                <label htmlFor="oncoMama" className={styles.checkboxLabel}>Oncología de Mama</label>
+                            </div>
                         </div>
                     </div>
 
