@@ -178,9 +178,13 @@
 /* Pagination */
 .pagination {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    /* Allow wrapping if space is tight */
+    justify-content: center;
+    /* Center the entire pagination block */
+    gap: var(--spacing-4);
     align-items: center;
-    padding: var(--spacing-3) var(--spacing-4);
+    padding: var(--spacing-4);
     border-top: 1px solid var(--color-gray-200);
     background: var(--color-gray-50);
 }

@@ -133,11 +133,15 @@ export function WaitlistTable({ data }: WaitlistTableProps) {
 
             {/* Pagination */}
             <div className={styles.pagination}>
-                <div className={styles.pageInfo}>
-                    Mostrando <strong>{data.data.length}</strong> de <strong>{data.total}</strong> pacientes
-                    (Página {data.page} de {data.totalPages})
-                </div>
                 <div className={styles.pageButtons}>
+                    <button
+                        className={styles.pageButton}
+                        disabled={data.page <= 1}
+                        onClick={() => updateParam('page', '1')}
+                        title="Ir al inicio"
+                    >
+                        &laquo; Inicio
+                    </button>
                     <button
                         className={styles.pageButton}
                         disabled={data.page <= 1}
@@ -145,12 +149,27 @@ export function WaitlistTable({ data }: WaitlistTableProps) {
                     >
                         Anterior
                     </button>
+
+                    <div className={styles.pageInfo} style={{ margin: '0 1rem' }}>
+                        Mostrando <strong>{data.data.length}</strong> de <strong>{data.total}</strong> pacientes
+                        <br />
+                        <span style={{ fontSize: '0.9em' }}>(Página {data.page} de {data.totalPages})</span>
+                    </div>
+
                     <button
                         className={styles.pageButton}
                         disabled={data.page >= data.totalPages}
                         onClick={() => updateParam('page', String(data.page + 1))}
                     >
                         Siguiente
+                    </button>
+                    <button
+                        className={styles.pageButton}
+                        disabled={data.page >= data.totalPages}
+                        onClick={() => updateParam('page', String(data.totalPages))}
+                        title="Ir al final"
+                    >
+                        Final &raquo;
                     </button>
                 </div>
             </div>
