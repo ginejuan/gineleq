@@ -27,7 +27,7 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
         setIsEmailModalOpen(true);
     };
 
-    const handleSendEmail = async (destinatarios: string[], subject: string, message: string) => {
+    const handleSendEmail = async (to: string[], cc: string[], subject: string, message: string) => {
         if (!documentRef.current) throw new Error("Documento no encontrado");
 
         // Clean subject for filename (remove invalid chars like colons for Windows)
@@ -60,7 +60,8 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
         // Construir form-data para enviar al servidor
         const formData = new FormData();
         formData.append('pdf', pdfBlob, opt.filename);
-        formData.append('to', destinatarios.join(','));
+        if (to.length > 0) formData.append('to', to.join(','));
+        if (cc.length > 0) formData.append('cc', cc.join(','));
         formData.append('subject', subject);
         formData.append('text', message);
 
@@ -75,7 +76,8 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
             throw new Error(errData.error || 'Error enviando correo.');
         }
 
-        alert(`Correo enviado con éxito a ${destinatarios.length} destinatarios. 🎉`);
+        const totalEnviados = to.length + cc.length;
+        alert(`Correo procesado con éxito para ${totalEnviados} destinatario(s). 🎉`);
     };
 
     // Formatear Fecha

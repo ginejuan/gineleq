@@ -9,7 +9,7 @@ interface SendEmailModalProps {
     isOpen: boolean;
     onClose: () => void;
     cirujanosMails: { nombre: string; email: string }[];
-    onSend: (destinatarios: string[], subject: string, message: string) => Promise<void>;
+    onSend: (to: string[], cc: string[], subject: string, message: string) => Promise<void>;
     defaultSubject: string;
     defaultMessage: string;
 }
@@ -34,7 +34,15 @@ export function SendEmailModal({ isOpen, onClose, cirujanosMails, onSend, defaul
         if (isOpen) {
             // Load listas on open
             listasService.getListas()
-                .then(data => setListas(data))
+                .then(data => {
+                    setListas(data);
+                    // Pre-seleccionar listas con envio_automatico
+                    const autoListas = new Set<string>();
+                    data.forEach(l => {
+                        if (l.envio_automatico) autoListas.add(l.id);
+                    });
+                    setSelectedListas(autoListas);
+                })
                 .catch(err => console.error("Error fetching listas", err));
 
             // Default select all surgeons with mails
@@ -43,7 +51,6 @@ export function SendEmailModal({ isOpen, onClose, cirujanosMails, onSend, defaul
                 if (c.email) initialSet.add(c.email);
             });
             setSelectedMails(initialSet);
-            setSelectedListas(new Set());
             setAdditionalEmails('');
             setSubject(defaultSubject);
             setMessage(defaultMessage);
@@ -72,32 +79,37 @@ export function SendEmailModal({ isOpen, onClose, cirujanosMails, onSend, defaul
         setIsSending(true);
         setError(null);
 
-        // Gather all emails
-        const finalDestinations = new Set<string>(selectedMails);
+        const toDestinations = new Set<string>();
+        const ccDestinations = new Set<string>(selectedMails); // Cirujanos siempre CC
 
         // Add all emails from selected listas
         selectedListas.forEach(listaId => {
             const lista = listas.find(l => l.id === listaId);
             if (lista && lista.correos) {
-                lista.correos.forEach(c => finalDestinations.add(c));
+                if (lista.tipo_destinatario === 'Copia') {
+                    lista.correos.forEach(c => ccDestinations.add(c));
+                } else {
+                    // Default a Principal / TO
+                    lista.correos.forEach(c => toDestinations.add(c));
+                }
             }
         });
 
-        // Add extra emails
+        // Add extra emails a TO
         const extraList = additionalEmails.split(',')
             .map(e => e.trim())
             .filter(e => e !== '');
 
-        extraList.forEach(e => finalDestinations.add(e));
+        extraList.forEach(e => toDestinations.add(e));
 
-        if (finalDestinations.size === 0) {
+        if (toDestinations.size === 0 && ccDestinations.size === 0) {
             setError('Debes seleccionar al menos un destinatario.');
             setIsSending(false);
             return;
         }
 
         try {
-            await onSend(Array.from(finalDestinations), subject, message);
+            await onSend(Array.from(toDestinations), Array.from(ccDestinations), subject, message);
             onClose();
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Error inesperado al enviar el correo.');
@@ -145,7 +157,10 @@ export function SendEmailModal({ isOpen, onClose, cirujanosMails, onSend, defaul
                                                 onChange={() => toggleMail(c.email)}
                                                 disabled={isSending}
                                             />
-                                            <span>{c.nombre} <small className={styles.textMuted}>({c.email})</small></span>
+                                            <span>
+                                                <span style={{ fontSize: '10px', backgroundColor: '#e2e8f0', padding: '1px 4px', borderRadius: '4px', marginRight: '6px', color: '#475569', fontWeight: 600 }}>CC</span>
+                                                {c.nombre} <small className={styles.textMuted}>({c.email})</small>
+                                            </span>
                                         </label>
                                     ))
                                 )}
@@ -166,6 +181,11 @@ export function SendEmailModal({ isOpen, onClose, cirujanosMails, onSend, defaul
                                                 disabled={isSending}
                                             />
                                             <span>
+                                                {l.tipo_destinatario === 'Copia' ? (
+                                                    <span style={{ fontSize: '10px', backgroundColor: '#e2e8f0', padding: '1px 4px', borderRadius: '4px', marginRight: '6px', color: '#475569', fontWeight: 600 }}>CC</span>
+                                                ) : (
+                                                    <span style={{ fontSize: '10px', backgroundColor: '#dbeafe', padding: '1px 4px', borderRadius: '4px', marginRight: '6px', color: '#1e40af', fontWeight: 600 }}>Para</span>
+                                                )}
                                                 {l.nombre} <small className={styles.textMuted}>({l.correos?.length || 0} emails)</small>
                                             </span>
                                         </label>

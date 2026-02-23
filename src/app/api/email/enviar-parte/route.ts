@@ -6,12 +6,14 @@ export async function POST(request: Request) {
         const formData = await request.formData();
         const pdfFile = formData.get('pdf') as File;
         const to = formData.get('to') as string; // Comma separated emails
+        const cc = formData.get('cc') as string | null;
         const subject = formData.get('subject') as string;
         const text = formData.get('text') as string;
 
-        if (!pdfFile || !to) {
+        // Validar que al menos haya un destinatario (to o cc)
+        if (!pdfFile || (!to && !cc)) {
             return NextResponse.json(
-                { error: 'Faltan parámetros requeridos (pdf, to)' },
+                { error: 'Faltan parámetros requeridos (pdf) o no hay destinatarios' },
                 { status: 400 }
             );
         }
@@ -50,10 +52,12 @@ export async function POST(request: Request) {
             socketTimeout: 10000
         });
 
-        // Enviar Correo
-        const info = await transporter.sendMail({
+        // Configurar MailOptions
+        const mailOptions: any = {
             from,
-            to,
+            // Si no hay "to", nos enviamos el correo a nosotros mismos como principal
+            // para que pasen los filtros anti-spam, y el resto va todo en CC.
+            to: (to && to.trim() !== '') ? to : from,
             subject: subject || 'Parte de Quirófano - GineLeq',
             text: text || 'Adjunto se envía el Parte de Quirófano generado desde GineLeq.',
             attachments: [
@@ -62,7 +66,14 @@ export async function POST(request: Request) {
                     content: buffer
                 }
             ]
-        });
+        };
+
+        if (cc && cc.trim() !== '') {
+            mailOptions.cc = cc;
+        }
+
+        // Enviar Correo
+        const info = await transporter.sendMail(mailOptions);
 
         console.log('[SMTP] Ccorreo enviado: %s', info.messageId);
 
