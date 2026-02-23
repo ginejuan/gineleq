@@ -46,7 +46,8 @@ export default function PatientCard({ paciente }: PatientCardProps) {
 
             <div className={styles.cardBody}>
                 {paciente.scoreDetails.puntosPriorizable > 0 && <span className={styles.tagPriorizable}>Priorizado</span>}
-                {paciente.scoreDetails.puntosOncologico > 0 && <span className={styles.tagOncologico}>Oncológico</span>}
+                {paciente.prioridad?.trim().toUpperCase() === 'PREFERENTE' && <span className={styles.tagPreferente}>Preferente</span>}
+                {paciente.scoreDetails.puntosOncologico > 0 && <span className={styles.tagOncologico} style={{ marginLeft: paciente.scoreDetails.puntosPriorizable > 0 || paciente.prioridad?.trim().toUpperCase() === 'PREFERENTE' ? '4px' : '0' }}>Oncológico</span>}
 
                 <div style={{ fontSize: '0.9em', fontWeight: 600, color: 'var(--primary)', marginBottom: '4px' }}>
                     👤 {paciente.paciente}

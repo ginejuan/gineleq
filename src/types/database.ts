@@ -82,6 +82,9 @@ export interface Intervencion {
     /** Marcador de priorización manual */
     priorizable: boolean;
 
+    /** Prioridad del registro ('Normal', 'Preferente', etc.) */
+    prioridad?: string;
+
     // --- Metadatos ---
 
     /** Timestamp de creación del registro */

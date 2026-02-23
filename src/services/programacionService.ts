@@ -43,6 +43,16 @@ export function calcularScoring(paciente: any): PacienteSugerido {
     // Reglas Clínicas de puntuación
     if (paciente.priorizable) pPriorizable = 1000;
 
+    // Puntos por "Prioridad Preferente" (añadido al puntaje del priorizable para agruparlo o se puede contar separado)
+    // Se decide otorgar 200 puntos fijos si es Preferente, bajo la bolsa de "priorizable" o como un puntaje separado.
+    // Lo más limpio es sumarlo también a pPriorizable para no modificar las interfaces a menos que queramos desglose nuevo.
+    // Aunque, lo mejor es crear un campo separado en el futuro. Por ahora usamos pPriorizable.
+    let extraPreferente = 0;
+    if (paciente.prioridad?.trim().toUpperCase() === 'PREFERENTE') {
+        extraPreferente = 200;
+        pPriorizable += extraPreferente;
+    }
+
     const isOncologico = paciente.diagnostico?.trim().toUpperCase().startsWith('NEOPLASIA MALIGNA');
     if (isOncologico && diasEspera >= 23) {
         pOncologico = 300;

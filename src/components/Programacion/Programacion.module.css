@@ -221,6 +221,20 @@
     display: inline-block;
 }
 
+.tagPreferente {
+    background-color: #fde047;
+    /* Yellow */
+    color: #854d0e;
+    /* Dark Yellow/Brown */
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    margin-left: 4px;
+    display: inline-block;
+}
+
 /* Panel Derecho (Quirófanos / Dropzones) */
 .agendaPanel {
     flex: 3;
