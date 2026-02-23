@@ -15,6 +15,8 @@ export function ListasModal({ isOpen, onClose, onSave, listaToEdit }: ListasModa
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
     const [correos, setCorreos] = useState<string[]>(['']);
+    const [tipoDestinatario, setTipoDestinatario] = useState<'Principal' | 'Copia'>('Principal');
+    const [envioAutomatico, setEnvioAutomatico] = useState<boolean>(true);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -25,10 +27,14 @@ export function ListasModal({ isOpen, onClose, onSave, listaToEdit }: ListasModa
                 setNombre(listaToEdit.nombre);
                 setDescripcion(listaToEdit.descripcion || '');
                 setCorreos(listaToEdit.correos && listaToEdit.correos.length > 0 ? listaToEdit.correos : ['']);
+                setTipoDestinatario(listaToEdit.tipo_destinatario as 'Principal' | 'Copia' || 'Principal');
+                setEnvioAutomatico(listaToEdit.envio_automatico ?? true);
             } else {
                 setNombre('');
                 setDescripcion('');
                 setCorreos(['']);
+                setTipoDestinatario('Principal');
+                setEnvioAutomatico(true);
             }
             setError(null);
         }
@@ -81,6 +87,8 @@ export function ListasModal({ isOpen, onClose, onSave, listaToEdit }: ListasModa
                 nombre: nombre.trim(),
                 descripcion: descripcion.trim() || null,
                 correos: validEmails,
+                tipo_destinatario: tipoDestinatario,
+                envio_automatico: envioAutomatico,
             });
             onClose();
         } catch (err: unknown) {
@@ -136,6 +144,34 @@ export function ListasModal({ isOpen, onClose, onSave, listaToEdit }: ListasModa
                                 placeholder="Breve descipción de esta lista..."
                                 rows={2}
                             />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-md)' }}>
+                            <div className={styles.formGroup} style={{ flex: 1, marginBottom: 0 }}>
+                                <label className={styles.label} htmlFor="tipoDestinatario">Tipo de Destinatario</label>
+                                <select
+                                    id="tipoDestinatario"
+                                    className={styles.input}
+                                    value={tipoDestinatario}
+                                    onChange={(e) => setTipoDestinatario(e.target.value as 'Principal' | 'Copia')}
+                                >
+                                    <option value="Principal">Destinatario Principal (Para)</option>
+                                    <option value="Copia">En Copia (CC)</option>
+                                </select>
+                            </div>
+
+                            <div className={styles.formGroup} style={{ flex: 1, marginBottom: 0 }}>
+                                <label className={styles.label} htmlFor="envioAutomatico">Condición de Envío</label>
+                                <select
+                                    id="envioAutomatico"
+                                    className={styles.input}
+                                    value={envioAutomatico ? 'true' : 'false'}
+                                    onChange={(e) => setEnvioAutomatico(e.target.value === 'true')}
+                                >
+                                    <option value="true">Envío automático siempre</option>
+                                    <option value="false">Elegir manualmente al enviar</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div className={styles.formGroup}>

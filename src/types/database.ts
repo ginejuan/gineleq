@@ -208,6 +208,8 @@ export interface ListaDistribucion {
     nombre: string;
     descripcion: string | null;
     correos: string[]; // Array of strings explicitly
+    tipo_destinatario: 'Principal' | 'Copia' | string;
+    envio_automatico: boolean;
     created_at: string;
     updated_at: string;
 }

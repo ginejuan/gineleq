@@ -40,6 +40,7 @@ export function ListasTable({ listas, isLoading, onEdit, onDelete }: ListasTable
                         <tr>
                             <th>Nombre de la Lista</th>
                             <th>Descripción</th>
+                            <th>Configuración</th>
                             <th>Destinatarios</th>
                             <th style={{ textAlign: 'right' }}>Acciones</th>
                         </tr>
@@ -50,6 +51,16 @@ export function ListasTable({ listas, isLoading, onEdit, onDelete }: ListasTable
                                 <td style={{ fontWeight: 500 }}>{lista.nombre}</td>
                                 <td style={{ color: 'var(--color-text-secondary)' }}>
                                     {lista.descripcion || <span style={{ fontStyle: 'italic', opacity: 0.5 }}>Sin descripción</span>}
+                                </td>
+                                <td>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 500, color: lista.tipo_destinatario === 'Principal' ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}>
+                                            {lista.tipo_destinatario === 'Principal' ? '👤 Destinatario Principal' : '👥 En Copia (CC)'}
+                                        </span>
+                                        <span style={{ fontSize: 'var(--font-size-xs)', color: lista.envio_automatico ? 'var(--color-success)' : 'var(--color-warning)' }}>
+                                            {lista.envio_automatico ? '⚡ Automático siempre' : '✋ Opcional manual'}
+                                        </span>
+                                    </div>
                                 </td>
                                 <td>
                                     <div className={styles.badgesContainer}>

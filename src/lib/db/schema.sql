@@ -121,6 +121,8 @@ CREATE TABLE IF NOT EXISTS public.listas_distribucion (
     nombre TEXT NOT NULL,
     descripcion TEXT,
     correos TEXT[] DEFAULT '{}',
+    tipo_destinatario TEXT DEFAULT 'Principal',
+    envio_automatico BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT now(),
     updated_at TIMESTAMPTZ DEFAULT now()
 );
