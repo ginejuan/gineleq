@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ListaDistribucion } from '@/types/database';
-import { listasService } from '@/services/listasService';
+import { getListasAction } from '@/app/(protected)/listas/actions';
 import styles from './SendEmailModal.module.css';
 
 interface SendEmailModalProps {
@@ -32,8 +32,8 @@ export function SendEmailModal({ isOpen, onClose, cirujanosMails, onSend, defaul
 
     useEffect(() => {
         if (isOpen) {
-            // Load listas on open
-            listasService.getListas()
+            // Load listas on open using Server Action to bypass RLS issues
+            getListasAction()
                 .then(data => {
                     setListas(data);
                     // Pre-seleccionar listas con envio_automatico
