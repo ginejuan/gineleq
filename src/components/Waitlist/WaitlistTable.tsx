@@ -48,6 +48,17 @@ export function WaitlistTable({ data }: WaitlistTableProps) {
     };
 
     const getRowClass = (row: WaitlistRow) => {
+        // 1. Rojo muy claro si es "transitoriamente no programable"
+        if (row.est_programacion === 'Paciente transitoriamente no programable') {
+            return styles.rowNotProgrammable;
+        }
+
+        // 2. Verde claro si tiene fecha prevista de intervención
+        if (row.f_prev_intervencion && row.f_prev_intervencion.trim() !== '') {
+            return styles.rowScheduled;
+        }
+
+        // Reglas anteriores (actúan como fallback si no se cumplen las de arriba)
         if (row.suspendida) return styles.rowSuspended;
         if (row.priorizable) return styles.rowPriority;
         if (row.rdo_preanestesia.toUpperCase().trim() === 'APTO') return styles.rowApto;

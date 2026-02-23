@@ -68,7 +68,8 @@ export async function getWaitlistData(params: WaitlistParams = {}): Promise<Wait
         .select(
             'rdq, paciente, nhc, diagnostico, procedimiento, t_registro, ' +
             't_anestesia, rdo_preanestesia, priorizable, suspendida, ' +
-            'prioridad, facultativo, estado_garantia, procedimiento_garantia, f_inscripcion, estado, comentarios, observaciones'
+            'prioridad, facultativo, estado_garantia, procedimiento_garantia, f_inscripcion, estado, comentarios, observaciones, ' +
+            'f_prev_intervencion, est_programacion'
         );
 
     // Filter by DB status. 'Activo' is the default in the DB for patients in list.
@@ -101,6 +102,8 @@ export async function getWaitlistData(params: WaitlistParams = {}): Promise<Wait
         f_inscripcion: p.f_inscripcion ? String(p.f_inscripcion) : null,
         comentarios: String(p.comentarios ?? ''),
         observaciones: String(p.observaciones ?? ''),
+        f_prev_intervencion: p.f_prev_intervencion ? String(p.f_prev_intervencion) : null,
+        est_programacion: String(p.est_programacion ?? ''),
     }));
 
     // 3. Filter in Memory

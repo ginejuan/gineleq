@@ -231,3 +231,21 @@
 .rowLocal {
     background-color: var(--color-local-bg);
 }
+
+.rowScheduled {
+    background-color: #d1fae5;
+    /* Light green */
+}
+
+.rowScheduled td {
+    border-bottom: 1px solid #a7f3d0 !important;
+}
+
+.rowNotProgrammable {
+    background-color: #fee2e2;
+    /* Light red */
+}
+
+.rowNotProgrammable td {
+    border-bottom: 1px solid #fecaca !important;
+}
