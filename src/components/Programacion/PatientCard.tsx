@@ -72,7 +72,14 @@ export default function PatientCard({ paciente }: PatientCardProps) {
             </div>
 
             <div className={styles.cardFooter}>
-                <span>{paciente.estado}</span>
+                <span>
+                    {paciente.estado}
+                    {paciente.rdo_preanestesia?.toLowerCase() !== 'apto' && (
+                        <span style={{ color: 'var(--color-danger)', marginLeft: '6px', fontWeight: 600 }}>
+                            Sin Vº Bº anestesia
+                        </span>
+                    )}
+                </span>
                 <span title={paciente.procedimiento_garantia?.toUpperCase() === 'SI' ? 'Días basados en Tiempo de Garantía' : 'Días basados en Tiempo de Registro'}>
                     {paciente.scoreDetails.puntosAntiguedad} Días
                 </span>
