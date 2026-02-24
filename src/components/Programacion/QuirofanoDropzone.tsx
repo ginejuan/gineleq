@@ -49,9 +49,9 @@ export default function QuirofanoDropzone({ quirofano, pacientesAsignados, onTog
                 </div>
                 <div className={styles.dropzoneHeaderControls}>
                     {quirofano.email_enviado && (
-                        <span title={`Enviado el ${quirofano.f_email_enviado ? new Date(quirofano.f_email_enviado).toLocaleDateString('es-ES') : ''}`} style={{ fontSize: '1.2rem', cursor: 'help' }}>
-                            ✅
-                        </span>
+                        <div style={{ fontSize: '0.75rem', color: '#059669', textAlign: 'center', fontWeight: 600, paddingRight: '12px' }}>
+                            ✓ Enviado {quirofano.f_email_enviado ? `el ${new Date(quirofano.f_email_enviado).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''}
+                        </div>
                     )}
                     <a
                         href={`/programacion/parte/${quirofano.id_quirofano}`}
