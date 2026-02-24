@@ -204,6 +204,11 @@ export function CalendarView({ agendaData, onDeleteQuirofano, onEditQuirofano }:
                                                         <div className={styles.cardHeader} style={{ color: colors.text }}>
                                                             <span className={styles.cardTitle}>
                                                                 {q.completado && <span title="Quirófano Completado" style={{ marginRight: '4px', color: '#10B981', fontWeight: 'bold' }}>✓</span>}
+                                                                {q.email_enviado && (
+                                                                    <span title={`Email enviado el ${q.f_email_enviado ? new Date(q.f_email_enviado).toLocaleDateString('es-ES') : ''}`} style={{ marginRight: '4px', cursor: 'help' }}>
+                                                                        ✉️
+                                                                    </span>
+                                                                )}
                                                                 {q.tipo_quirofano || 'IQ'}
                                                             </span>
                                                             <div style={{ display: 'flex', gap: '4px', alignItems: 'flex-start', flexShrink: 0 }}>
