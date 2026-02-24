@@ -138,3 +138,10 @@ CREATE POLICY "Authenticated users full access on listas_distribucion" ON public
     FOR ALL
     USING (auth.role() = 'authenticated')
     WITH CHECK (auth.role() = 'authenticated');
+
+-- --------------------------------------------------------------------------
+-- MIGRATION: Registro de Envío de Email para Quirófanos
+-- --------------------------------------------------------------------------
+-- Ejecutar estas sentencias en Supabase SQL Editor para añadir los campos de seguimiento
+-- ALTER TABLE public.quirofanos ADD COLUMN email_enviado BOOLEAN DEFAULT false;
+-- ALTER TABLE public.quirofanos ADD COLUMN f_email_enviado TIMESTAMPTZ;

@@ -173,6 +173,8 @@ export interface Quirofano {
     tipo_quirofano: string | null;
     observaciones: string | null;
     completado?: boolean;
+    email_enviado?: boolean;
+    f_email_enviado?: string | null;
     created_at: string; // TS
     updated_at: string; // TS
 }

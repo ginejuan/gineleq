@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import styles from './ParteImpresion.module.css';
 import { SendEmailModal } from './SendEmailModal';
+import { marcarEmailEnviadoAccion } from '@/app/(protected)/programacion/actions';
 
 interface PrintPageProps {
     quirofano: any;
@@ -76,6 +77,14 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
             throw new Error(errData.error || 'Error enviando correo.');
         }
 
+        // Marcar en la BD que este parte fue enviado
+        try {
+            await marcarEmailEnviadoAccion(quirofano.id_quirofano);
+        } catch (dbErr) {
+            console.error('Email enviado pero falló el guardado del estado en Quirofanos:', dbErr);
+            // Optamos por no bloquear al usuario si el correo sí salió, pero registramos el error interno.
+        }
+
         const totalEnviados = to.length + cc.length;
         alert(`Correo procesado con éxito para ${totalEnviados} destinatario(s). 🎉`);
     };
@@ -111,9 +120,16 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
         <div className={styles.printWrapper}>
             {/* Botones Flotantes (No se imprimen por CSS) */}
             <div className={styles.floatingControls}>
-                <button onClick={handleEmail} className={styles.exportButton} style={{ backgroundColor: '#10B981', marginBottom: '8px' }}>
-                    ✉️ Enviar por Email
-                </button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '8px' }}>
+                    <button onClick={handleEmail} className={styles.exportButton} style={{ backgroundColor: '#10B981', margin: 0 }}>
+                        ✉️ Enviar por Email
+                    </button>
+                    {quirofano.email_enviado && (
+                        <div style={{ fontSize: '0.75rem', color: '#059669', textAlign: 'center', fontWeight: 600 }}>
+                            ✓ Enviado {quirofano.f_email_enviado ? `el ${new Date(quirofano.f_email_enviado).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''}
+                        </div>
+                    )}
+                </div>
                 <button onClick={handlePrint} className={styles.exportButton}>
                     🖨️ Exportar / Imprimir
                 </button>

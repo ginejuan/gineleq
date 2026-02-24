@@ -26,3 +26,8 @@ export async function getAsignacionesAccion(quirofanoIds: string[]): Promise<Rec
 export async function toggleQuirofanoCompletadoAccion(id_quirofano: string, completado: boolean): Promise<void> {
     return await programacionService.toggleCompletado(id_quirofano, completado);
 }
+
+export async function marcarEmailEnviadoAccion(id_quirofano: string): Promise<void> {
+    const { agendaService } = await import('@/services/agendaService');
+    return await agendaService.marcarEmailEnviado(id_quirofano);
+}

@@ -142,4 +142,22 @@ export const agendaService = {
             throw new Error(`Error al eliminar el quirófano: ${error.message}`);
         }
     },
+
+    /**
+     * Marca un quirófano como enviado por email, guardando la fecha y hora actual.
+     */
+    async marcarEmailEnviado(id: string): Promise<void> {
+        const { error } = await db.raw
+            .from('quirofanos')
+            .update({
+                email_enviado: true,
+                f_email_enviado: new Date().toISOString()
+            })
+            .eq('id_quirofano', id);
+
+        if (error) {
+            console.error('[AgendaService] Error marking email as sent:', error);
+            throw new Error(`Error al marcar el email como enviado: ${error.message}`);
+        }
+    }
 };
