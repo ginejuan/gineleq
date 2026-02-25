@@ -19,6 +19,8 @@ import { QuirofanoConCirujanos } from '@/types/database';
 import { PacienteSugerido } from '@/services/programacionService';
 import PatientCard from './PatientCard';
 import QuirofanoDropzone from './QuirofanoDropzone';
+import { PatientDetailModal } from '../Waitlist/PatientDetailModal';
+import { WaitlistRow } from '@/lib/waitlist/waitlist-data';
 import styles from './Programacion.module.css';
 
 export default function ProgramacionBoard() {
@@ -27,6 +29,7 @@ export default function ProgramacionBoard() {
     const [quirofanosSemana, setQuirofanosSemana] = useState<QuirofanoConCirujanos[]>([]);
     const [asignaciones, setAsignaciones] = useState<Record<string, PacienteSugerido[]>>({});
     const [loading, setLoading] = useState(true);
+    const [selectedPatient, setSelectedPatient] = useState<PacienteSugerido | null>(null);
 
     // Filters state
     const [searchTerm, setSearchTerm] = useState('');
@@ -99,6 +102,16 @@ export default function ProgramacionBoard() {
                 q.id_quirofano === id_quirofano ? { ...q, completado: !completado } : q
             ));
         }
+    };
+
+    const handlePatientDoubleClick = (paciente: PacienteSugerido) => {
+        setSelectedPatient(paciente);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedPatient(null);
+        // Recargar datos por si hubo cambios (ej. prioridad, comentarios)
+        loadBoardData();
     };
 
     const handleDragStart = () => { };
@@ -373,13 +386,13 @@ export default function ProgramacionBoard() {
                         <div className={styles.suggestionList}>
                             <h3>Grupo A (Con anestesista) <span className={styles.badge}>{filteredGrupoA.length}</span></h3>
                             {filteredGrupoA.map(p => (
-                                <PatientCard key={p.rdq} paciente={p} />
+                                <PatientCard key={p.rdq} paciente={p} onDoubleClick={handlePatientDoubleClick} />
                             ))}
                         </div>
                         <div className={styles.suggestionList}>
                             <h3>Grupo B (Anestesia local) <span className={styles.badge}>{filteredGrupoB.length}</span></h3>
                             {filteredGrupoB.map(p => (
-                                <PatientCard key={p.rdq} paciente={p} />
+                                <PatientCard key={p.rdq} paciente={p} onDoubleClick={handlePatientDoubleClick} />
                             ))}
                         </div>
                     </div>
@@ -419,11 +432,20 @@ export default function ProgramacionBoard() {
                                 quirofano={q}
                                 pacientesAsignados={asignaciones[q.id_quirofano] || []}
                                 onToggleCompletado={handleToggleCompletado}
+                                onPatientDoubleClick={handlePatientDoubleClick}
                             />
                         ))}
                     </div>
                 </div>
             </div>
+
+            {/* Modal de Detalle de Paciente */}
+            {selectedPatient && (
+                <PatientDetailModal
+                    patient={selectedPatient as unknown as WaitlistRow}
+                    onClose={handleCloseModal}
+                />
+            )}
         </DndContext>
     );
 }

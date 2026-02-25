@@ -11,9 +11,10 @@ interface QuirofanoDropzoneProps {
     quirofano: QuirofanoConCirujanos;
     pacientesAsignados: PacienteSugerido[];
     onToggleCompletado?: (id: string, completado: boolean) => void;
+    onPatientDoubleClick?: (paciente: PacienteSugerido) => void;
 }
 
-export default function QuirofanoDropzone({ quirofano, pacientesAsignados, onToggleCompletado }: QuirofanoDropzoneProps) {
+export default function QuirofanoDropzone({ quirofano, pacientesAsignados, onToggleCompletado, onPatientDoubleClick }: QuirofanoDropzoneProps) {
     const { isOver, setNodeRef } = useDroppable({
         id: `quirofano-${quirofano.id_quirofano}`,
         data: {
@@ -85,7 +86,7 @@ export default function QuirofanoDropzone({ quirofano, pacientesAsignados, onTog
                         </div>
                     ) : (
                         pacientesAsignados.map(p => (
-                            <PatientCard key={p.rdq} paciente={p} />
+                            <PatientCard key={p.rdq} paciente={p} onDoubleClick={onPatientDoubleClick} />
                         ))
                     )}
                 </div>

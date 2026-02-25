@@ -7,9 +7,10 @@ import { PacienteSugerido } from '@/services/programacionService';
 
 interface PatientCardProps {
     paciente: PacienteSugerido;
+    onDoubleClick?: (paciente: PacienteSugerido) => void;
 }
 
-export default function PatientCard({ paciente }: PatientCardProps) {
+export default function PatientCard({ paciente, onDoubleClick }: PatientCardProps) {
     const {
         attributes,
         listeners,
@@ -34,6 +35,12 @@ export default function PatientCard({ paciente }: PatientCardProps) {
             ref={setNodeRef}
             style={style}
             className={styles.patientCard}
+            onDoubleClick={(e) => {
+                // Prevent drag logic when double clicking
+                e.preventDefault();
+                e.stopPropagation();
+                if (onDoubleClick) onDoubleClick(paciente);
+            }}
             {...attributes}
             {...listeners}
         >
