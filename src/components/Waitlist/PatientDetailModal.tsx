@@ -96,6 +96,14 @@ export function PatientDetailModal({ patient, onClose }: PatientDetailModalProps
                                 {patient.f_preanestesia ? new Date(patient.f_preanestesia).toLocaleDateString('es-ES', { timeZone: 'UTC' }) : 'No asignada'}
                             </div>
                         </div>
+                        {patient.f_prev_intervencion && (
+                            <div>
+                                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Fecha Prevista Intervención</label>
+                                <div style={{ color: '#1e40af', fontWeight: 600, fontSize: '0.875rem', backgroundColor: '#eff6ff', padding: '0.5rem', borderRadius: '0.375rem', border: '1px solid #dbeafe' }}>
+                                    📅 {new Date(patient.f_prev_intervencion).toLocaleDateString('es-ES', { timeZone: 'UTC' })}
+                                </div>
+                            </div>
+                        )}
                         <div>
                             <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Resultado Anestesia</label>
                             <div style={{
