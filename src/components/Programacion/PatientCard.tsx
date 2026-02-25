@@ -38,7 +38,12 @@ export default function PatientCard({ paciente }: PatientCardProps) {
             {...listeners}
         >
             <div className={styles.cardHeader}>
-                <span className={styles.rdqLabel}>RDQ: {paciente.rdq}</span>
+                <div className={styles.headerLeft}>
+                    <span className={styles.rdqLabel}>RDQ: {paciente.rdq}</span>
+                    {paciente.centro && (
+                        <span className={styles.centroLabel}>{paciente.centro}</span>
+                    )}
+                </div>
                 <span className={styles.scoreBadge} title="Puntos de Escala Médica">
                     {paciente.scoreDetails.puntosTotales} pts
                 </span>

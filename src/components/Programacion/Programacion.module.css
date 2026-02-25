@@ -175,10 +175,26 @@
     align-items: flex-start;
 }
 
+.headerLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
 .rdqLabel {
     font-size: var(--font-size-xs);
     color: var(--color-text-tertiary);
     font-weight: 500;
+}
+
+.centroLabel {
+    font-size: 10px;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .scoreBadge {

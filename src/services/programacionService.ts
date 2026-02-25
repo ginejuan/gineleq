@@ -16,6 +16,7 @@ export interface PacienteSugerido extends Intervencion {
     paciente?: string; // Nombre desencriptado para visualización
     nhc?: string; // NHC desencriptado
     telefonos?: string; // Teléfonos desencriptados
+    centro?: string; // Centro de procedencia
 }
 
 function safeDecrypt(ciphertext: string): string {
