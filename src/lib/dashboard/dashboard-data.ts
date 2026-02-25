@@ -64,6 +64,7 @@ export interface PatientRow {
     comentarios: string;
     observaciones: string;
     f_prev_intervencion: string | null;
+    f_preanestesia: string | null;
     est_programacion: string;
 }
 
@@ -118,7 +119,7 @@ export async function getDashboardData(): Promise<DashboardData> {
             'rdq, paciente, nhc, diagnostico, procedimiento, t_registro, ' +
             't_anestesia, rdo_preanestesia, priorizable, suspendida, ' +
             'prioridad, facultativo, estado_garantia, procedimiento_garantia, f_inscripcion, comentarios, observaciones, ' +
-            'f_prev_intervencion, est_programacion'
+            'f_prev_intervencion, f_preanestesia, est_programacion'
         )
         .eq('estado', 'Activo')
         .order('t_registro', { ascending: false });
@@ -149,6 +150,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         comentarios: String(p.comentarios ?? ''),
         observaciones: String(p.observaciones ?? ''),
         f_prev_intervencion: p.f_prev_intervencion ? String(p.f_prev_intervencion) : null,
+        f_preanestesia: p.f_preanestesia ? String(p.f_preanestesia) : null,
         est_programacion: String(p.est_programacion ?? ''),
     }));
 

@@ -90,6 +90,26 @@ export function PatientDetailModal({ patient, onClose }: PatientDetailModalProps
                             <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Procedimiento</label>
                             <div style={{ color: '#334155', fontSize: '0.875rem', backgroundColor: '#f8fafc', padding: '0.5rem', borderRadius: '0.375rem', border: '1px solid #f1f5f9' }}>{patient.procedimiento}</div>
                         </div>
+                        <div>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Fecha Preanestesia</label>
+                            <div style={{ color: '#334155', fontSize: '0.875rem', backgroundColor: '#f0f9ff', padding: '0.5rem', borderRadius: '0.375rem', border: '1px solid #e0f2fe' }}>
+                                {patient.f_preanestesia ? new Date(patient.f_preanestesia).toLocaleDateString('es-ES', { timeZone: 'UTC' }) : 'No asignada'}
+                            </div>
+                        </div>
+                        <div>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Resultado Anestesia</label>
+                            <div style={{
+                                color: patient.rdo_preanestesia?.toUpperCase() === 'APTO' ? '#166534' : '#991b1b',
+                                fontWeight: 600,
+                                fontSize: '0.875rem',
+                                backgroundColor: patient.rdo_preanestesia?.toUpperCase() === 'APTO' ? '#f0fdf4' : '#fef2f2',
+                                padding: '0.5rem',
+                                borderRadius: '0.375rem',
+                                border: `1px solid ${patient.rdo_preanestesia?.toUpperCase() === 'APTO' ? '#dcfce7' : '#fee2e2'}`
+                            }}>
+                                {patient.rdo_preanestesia || 'Pendiente'}
+                            </div>
+                        </div>
                         {patient.observaciones && (
                             <div style={{ gridColumn: 'span 2' }}>
                                 <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Observaciones (Excel)</label>
