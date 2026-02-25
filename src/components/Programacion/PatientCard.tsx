@@ -48,7 +48,11 @@ export default function PatientCard({ paciente }: PatientCardProps) {
                 {paciente.scoreDetails.puntosPriorizable > 0 && <span className={styles.tagPriorizable}>Priorizado</span>}
                 {paciente.prioridad?.trim().toUpperCase() === 'PREFERENTE' && <span className={styles.tagPreferente}>Preferente</span>}
                 {paciente.scoreDetails.puntosOncologico > 0 && <span className={styles.tagOncologico} style={{ marginLeft: paciente.scoreDetails.puntosPriorizable > 0 || paciente.prioridad?.trim().toUpperCase() === 'PREFERENTE' ? '4px' : '0' }}>Oncológico</span>}
-
+                {paciente.f_prev_intervencion && (
+                    <span className={styles.tagFechaPrevista} style={{ marginLeft: paciente.scoreDetails.puntosPriorizable > 0 || paciente.prioridad?.trim().toUpperCase() === 'PREFERENTE' || paciente.scoreDetails.puntosOncologico > 0 ? '4px' : '0' }}>
+                        📅 {new Date(paciente.f_prev_intervencion).toLocaleDateString('es-ES', { timeZone: 'UTC' })}
+                    </span>
+                )}
                 <div style={{ fontSize: '0.9em', fontWeight: 600, color: 'var(--primary)', marginBottom: '4px' }}>
                     👤 {paciente.paciente}
                 </div>

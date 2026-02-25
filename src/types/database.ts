@@ -70,6 +70,7 @@ export interface Intervencion {
     // --- Campos de Información Extra ---
     procedimiento?: string;
     observaciones?: string;
+    f_prev_intervencion?: string | null;
 
     // --- Campos de Gestión Manual (arquitectura.md §3.3) ---
 

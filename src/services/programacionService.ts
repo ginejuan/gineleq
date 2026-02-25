@@ -198,6 +198,17 @@ export const programacionService = {
      */
     asignarPaciente: async (id_quirofano: string, rdq: number, orden: number = 1): Promise<QuirofanoIntervencion> => {
         const supabase = createSupabaseAdminClient();
+
+        // 1. Obtener la fecha del quirófano
+        const { data: quirofano, error: qError } = await supabase
+            .from('quirofanos')
+            .select('fecha')
+            .eq('id_quirofano', id_quirofano)
+            .single();
+
+        if (qError) throw qError;
+
+        // 2. Asignar paciente al quirófano
         const { data, error } = await supabase
             .from('quirofano_intervencion')
             .insert([{
@@ -209,20 +220,42 @@ export const programacionService = {
             .single();
 
         if (error) throw error;
+
+        // 3. Actualizar f_prev_intervencion en lista_espera
+        if (quirofano?.fecha) {
+            const { error: updateError } = await supabase
+                .from('lista_espera')
+                .update({ f_prev_intervencion: quirofano.fecha })
+                .eq('rdq', rdq);
+
+            if (updateError) {
+                console.error(`Error actualizando f_prev_intervencion para RDQ ${rdq}:`, updateError);
+            }
+        }
+
         return data as QuirofanoIntervencion;
     },
 
-    /**
-     * Elimina a un paciente de la sesión de quirófano en DB (lo "saca" a la lista devuelta).
-     */
     desasignarPaciente: async (id_quirofano: string, rdq: number): Promise<void> => {
         const supabase = createSupabaseAdminClient();
+
+        // 1. Quitar paciente del quirófano
         const { error } = await supabase
             .from('quirofano_intervencion')
             .delete()
             .match({ id_quirofano, rdq });
 
         if (error) throw error;
+
+        // 2. Limpiar f_prev_intervencion en lista_espera
+        const { error: updateError } = await supabase
+            .from('lista_espera')
+            .update({ f_prev_intervencion: null })
+            .eq('rdq', rdq);
+
+        if (updateError) {
+            console.error(`Error limpiando f_prev_intervencion para RDQ ${rdq}:`, updateError);
+        }
     },
 
     /**
