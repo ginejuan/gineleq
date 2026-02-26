@@ -13,6 +13,7 @@ export interface WaitlistFilters {
     search?: string;
     clinical_filter?: string; // 'onco', 'garantia', 'priorizable', 'anestesia', 'local'
     preanestesia?: string; // 'apto', 'todos'
+    alert_filter?: string; // 'preanestesia_caducada', 'todos'
 }
 
 // Extends PatientRow if we add more fields later
@@ -45,6 +46,24 @@ function isOnco(diagnostico: string): boolean {
 function isLocalOrSinAnestesia(tAnestesia: string): boolean {
     const t = tAnestesia.toUpperCase();
     return t.includes('LOCAL') || t.includes('SIN ANESTESIA');
+}
+
+function isPreanestesiaCaducada(row: WaitlistRow): boolean {
+    // 1. Check if Rdo_preanestesia is "Apto"
+    const rdo = (row.rdo_preanestesia || '').toUpperCase();
+    if (rdo !== 'APTO') return false;
+
+    // 2. Check if f_preanestesia is > 180 days ago
+    if (!row.f_preanestesia) return false;
+
+    const fechaCon = new Date(row.f_preanestesia);
+    const today = new Date();
+
+    // Calcula diff in milliseconds
+    const diffMs = today.getTime() - fechaCon.getTime();
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+    return diffDays > 180;
 }
 
 // --------------------------------------------------------------------------
@@ -109,6 +128,11 @@ export async function getWaitlistData(params: WaitlistParams = {}): Promise<Wait
 
     // 3. Filter in Memory
     const filtered = allRows.filter(row => {
+        // Alertas Filter (Primary for Alerts view)
+        if (filters.alert_filter === 'preanestesia_caducada') {
+            if (!isPreanestesiaCaducada(row)) return false;
+        }
+
         // Preanestesia Filter
         if (filters.preanestesia === 'apto') {
             const rdo = (row.rdo_preanestesia || '').toUpperCase();
