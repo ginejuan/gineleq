@@ -160,6 +160,8 @@ export function QuirofanoModal({ isOpen, onClose, onSave, onDelete, cirujanosDis
                             <option value="central">Central</option>
                             <option value="HDQ_con_anestesista">HDQ con Anestesista</option>
                             <option value="HDQ_sin_anestesista">HDQ sin Anestesista</option>
+                            <option value="Hosp. La Janda An. General">Hosp. La Janda An. General</option>
+                            <option value="Hosp. La Janda An. Local">Hosp. La Janda An. Local</option>
                         </select>
                     </div>
 
