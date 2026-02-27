@@ -68,14 +68,24 @@ export async function importExcelAction(formData: FormData): Promise<ImportResul
         }
 
         // 3. Obtener RDQs existentes (para distinguir insert vs update)
+        //    También recuperamos f_prev_intervencion para aplicar la regla:
+        //    solo sobreescribir si la fecha del Excel es POSTERIOR a la almacenada.
         const supabase = createSupabaseAdminClient();
         const { data: existingRows } = await supabase
             .from(TABLE_NAME)
-            .select('rdq')
+            .select('rdq, f_prev_intervencion')
             .eq('estado', 'Activo');
 
         const existingRdqs = new Set(
             (existingRows ?? []).map((r: { rdq: number }) => r.rdq)
+        );
+
+        // Map rdq → fecha prevista almacenada en BD (puede ser null)
+        const storedFPrevMap = new Map<number, string | null>(
+            (existingRows ?? []).map(
+                (r: { rdq: number; f_prev_intervencion: string | null }) =>
+                    [r.rdq, r.f_prev_intervencion]
+            )
         );
 
         // 4. Cifrar y preparar los registros
@@ -86,7 +96,10 @@ export async function importExcelAction(formData: FormData): Promise<ImportResul
         for (let i = 0; i < encryptedRows.length; i += BATCH_SIZE) {
             const batch = encryptedRows.slice(i, i + BATCH_SIZE);
 
-            // Construir datos de upsert SIN los campos manuales
+            // Construir datos de upsert SIN los campos manuales.
+            // Regla especial para f_prev_intervencion:
+            //   - Si la BD ya tiene una fecha >= a la del Excel → conservar la de BD.
+            //   - Si la BD tiene null o la fecha del Excel es posterior → usar la del Excel.
             const upsertData = batch.map(row => {
                 const data: Record<string, unknown> = {};
                 for (const [key, value] of Object.entries(row)) {
@@ -94,6 +107,20 @@ export async function importExcelAction(formData: FormData): Promise<ImportResul
                         data[key] = value;
                     }
                 }
+
+                // Lógica de comparación de fechas para f_prev_intervencion
+                const storedDate = storedFPrevMap.get(row.rdq) ?? null;
+                const excelDate = row.f_prev_intervencion ?? null;
+
+                if (storedDate !== null && excelDate !== null) {
+                    // Ambas fechas existen: solo actualizamos si Excel > BD
+                    const isExcelLater = new Date(excelDate) > new Date(storedDate);
+                    data.f_prev_intervencion = isExcelLater ? excelDate : storedDate;
+                } else {
+                    // BD es null → el valor del Excel prevalece (aunque sea null)
+                    data.f_prev_intervencion = excelDate;
+                }
+
                 data.updated_at = new Date().toISOString();
                 return data;
             });
