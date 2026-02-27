@@ -38,30 +38,43 @@ export default async function DashboardPage() {
                     icon="🏥"
                     label="Censo Total"
                     value={data.kpis.censoTotal}
+                    scheduledCount={data.kpis.conFechaPrev.censoTotal}
                 />
                 <KpiCard
                     icon="⚡"
                     label="Priorizables"
                     value={data.kpis.priorizables}
                     accent="#8B5CF6"
+                    scheduledCount={data.kpis.conFechaPrev.priorizables}
                 />
                 <KpiCard
                     icon="⏸️"
                     label="Suspendidas"
                     value={data.kpis.suspendidas}
                     accent="#64748B"
+                    scheduledCount={data.kpis.conFechaPrev.suspendidas}
                 />
                 <KpiCard
                     icon="🎀"
                     label="Onco-Mama"
                     value={data.kpis.oncoMama}
                     accent="#EC4899"
+                    scheduledCount={data.kpis.conFechaPrev.oncoMama}
                 />
                 <KpiCard
                     icon="🔬"
                     label="Onco-Gine"
                     value={data.kpis.oncoGine}
                     accent="#8B5CF6"
+                    scheduledCount={data.kpis.conFechaPrev.oncoGine}
+                />
+                <KpiCard
+                    icon="📋"
+                    label="Garantía Quirúrgica"
+                    value={data.kpis.garantiaQuirurgica}
+                    subtitle="Decreto de garantía"
+                    accent="#F59E0B"
+                    scheduledCount={data.kpis.conFechaPrev.garantiaQuirurgica}
                 />
                 <KpiCard
                     icon="✅"
@@ -69,6 +82,7 @@ export default async function DashboardPage() {
                     value={data.kpis.vistoBuenoAnestesia}
                     subtitle={`${data.kpis.pctAnestesiaApto}% de ${data.kpis.requierenAnestesia} que requieren`}
                     accent="#10B981"
+                    scheduledCount={data.kpis.conFechaPrev.vistoBuenoAnestesia}
                 />
                 <KpiCard
                     icon="💉"
@@ -76,6 +90,7 @@ export default async function DashboardPage() {
                     value={data.kpis.cirugiaLocalSin}
                     subtitle="Listas sin preanestesia"
                     accent="#0EA5E9"
+                    scheduledCount={data.kpis.conFechaPrev.cirugiaLocalSin}
                 />
             </section>
 

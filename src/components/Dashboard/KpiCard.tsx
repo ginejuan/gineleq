@@ -15,9 +15,10 @@ interface KpiCardProps {
     value: number | string;
     subtitle?: string;
     accent?: string; // CSS color override
+    scheduledCount?: number; // Pacientes con f_prev_intervencion
 }
 
-export function KpiCard({ icon, label, value, subtitle, accent }: KpiCardProps) {
+export function KpiCard({ icon, label, value, subtitle, accent, scheduledCount }: KpiCardProps) {
     return (
         <div className={styles.kpiCard}>
             <div className={styles.kpiIcon}>{icon}</div>
@@ -31,6 +32,11 @@ export function KpiCard({ icon, label, value, subtitle, accent }: KpiCardProps) 
                 <span className={styles.kpiLabel}>{label}</span>
                 {subtitle && (
                     <span className={styles.kpiSubtitle}>{subtitle}</span>
+                )}
+                {scheduledCount !== undefined && scheduledCount > 0 && (
+                    <span className={styles.kpiScheduled}>
+                        📅 {scheduledCount} con fecha prevista
+                    </span>
                 )}
             </div>
         </div>

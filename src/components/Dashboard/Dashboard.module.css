@@ -59,6 +59,16 @@
     margin-top: 2px;
 }
 
+.kpiScheduled {
+    font-size: var(--font-size-xs);
+    color: #0EA5E9;
+    font-weight: var(--font-weight-medium);
+    margin-top: var(--spacing-xs);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 /* --- Demora Media --- */
 .demoraGrid {
     display: grid;

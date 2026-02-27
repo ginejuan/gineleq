@@ -15,6 +15,18 @@ import { decrypt } from '@/lib/encryption';
 // Types
 // --------------------------------------------------------------------------
 
+/** Contadores de pacientes con f_prev_intervencion por cada KPI */
+export interface ConFechaPrev {
+    censoTotal: number;
+    priorizables: number;
+    suspendidas: number;
+    oncoMama: number;
+    oncoGine: number;
+    vistoBuenoAnestesia: number;
+    cirugiaLocalSin: number;
+    garantiaQuirurgica: number;
+}
+
 export interface DashboardKpis {
     censoTotal: number;
     priorizables: number;
@@ -25,6 +37,8 @@ export interface DashboardKpis {
     requierenAnestesia: number;
     pctAnestesiaApto: number;
     cirugiaLocalSin: number;
+    garantiaQuirurgica: number;
+    conFechaPrev: ConFechaPrev;
 }
 
 export interface DemoraMedia {
@@ -155,11 +169,15 @@ export async function getDashboardData(): Promise<DashboardData> {
     }));
 
     // --- KPIs ---
+    const hasFechaPrev = (p: PatientRow) => p.f_prev_intervencion !== null && p.f_prev_intervencion.trim() !== '';
+    const isGarantia = (p: PatientRow) => p.procedimiento_garantia.toUpperCase().trim() === 'SI';
+
     const censoTotal = decryptedPatients.length;
     const priorizables = decryptedPatients.filter(p => p.priorizable).length;
     const suspendidas = decryptedPatients.filter(p => p.suspendida).length;
     const oncoMama = decryptedPatients.filter(p => isOncoMama(p.diagnostico)).length;
     const oncoGine = decryptedPatients.filter(p => isOncoGine(p.diagnostico)).length;
+    const garantiaQuirurgica = decryptedPatients.filter(p => isGarantia(p)).length;
 
     const requireAnesthesia = decryptedPatients.filter(
         p => !isLocalOrSinAnestesia(p.t_anestesia)
@@ -174,6 +192,18 @@ export async function getDashboardData(): Promise<DashboardData> {
     const cirugiaLocalSin = decryptedPatients.filter(
         p => isLocalOrSinAnestesia(p.t_anestesia)
     ).length;
+
+    // Contadores de pacientes con fecha prevista de intervención por KPI
+    const conFechaPrev: ConFechaPrev = {
+        censoTotal: decryptedPatients.filter(hasFechaPrev).length,
+        priorizables: decryptedPatients.filter(p => p.priorizable && hasFechaPrev(p)).length,
+        suspendidas: decryptedPatients.filter(p => p.suspendida && hasFechaPrev(p)).length,
+        oncoMama: decryptedPatients.filter(p => isOncoMama(p.diagnostico) && hasFechaPrev(p)).length,
+        oncoGine: decryptedPatients.filter(p => isOncoGine(p.diagnostico) && hasFechaPrev(p)).length,
+        vistoBuenoAnestesia: requireAnesthesia.filter(p => isApto(p.rdo_preanestesia) && hasFechaPrev(p)).length,
+        cirugiaLocalSin: decryptedPatients.filter(p => isLocalOrSinAnestesia(p.t_anestesia) && hasFechaPrev(p)).length,
+        garantiaQuirurgica: decryptedPatients.filter(p => isGarantia(p) && hasFechaPrev(p)).length,
+    };
 
     // --- Demora Media ---
     const registros = decryptedPatients.map(p => p.t_registro);
@@ -234,6 +264,8 @@ export async function getDashboardData(): Promise<DashboardData> {
             requierenAnestesia: requireAnesthesia.length,
             pctAnestesiaApto,
             cirugiaLocalSin,
+            garantiaQuirurgica,
+            conFechaPrev,
         },
         demora: {
             global: avg(registros),
