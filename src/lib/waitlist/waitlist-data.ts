@@ -14,6 +14,8 @@ export interface WaitlistFilters {
     clinical_filter?: string; // 'onco', 'garantia', 'priorizable', 'anestesia', 'local'
     preanestesia?: string; // 'apto', 'todos'
     alert_filter?: string; // 'preanestesia_caducada', 'todos'
+    diagnostico?: string; // Filtro por diagnóstico exacto
+    procedimiento?: string; // Filtro por procedimiento exacto
 }
 
 // Extends PatientRow if we add more fields later
@@ -178,6 +180,16 @@ export async function getWaitlistData(params: WaitlistParams = {}): Promise<Wait
                 break;
         }
 
+        // Diagnostico filter
+        if (filters.diagnostico && filters.diagnostico !== 'todos') {
+            if (row.diagnostico !== filters.diagnostico) return false;
+        }
+
+        // Procedimiento filter
+        if (filters.procedimiento && filters.procedimiento !== 'todos') {
+            if (row.procedimiento !== filters.procedimiento) return false;
+        }
+
         return true;
     });
 
@@ -208,5 +220,46 @@ export async function getWaitlistData(params: WaitlistParams = {}): Promise<Wait
         page,
         pageSize,
         totalPages
+    };
+}
+
+// --------------------------------------------------------------------------
+// Filter Options (valores únicos para dropdowns)
+// --------------------------------------------------------------------------
+
+export interface WaitlistFilterOptions {
+    diagnosticos: string[];
+    procedimientos: string[];
+}
+
+/**
+ * Obtiene los valores únicos de diagnóstico y procedimiento
+ * para poblar los selects de filtrado en la UI.
+ */
+export async function getWaitlistFilterOptions(): Promise<WaitlistFilterOptions> {
+    const supabase = createSupabaseAdminClient();
+
+    const { data: rows, error } = await supabase
+        .from('lista_espera')
+        .select('diagnostico, procedimiento')
+        .eq('estado', 'Activo');
+
+    if (error) {
+        throw new Error(`Error fetching filter options: ${error.message}`);
+    }
+
+    const diagnosticoSet = new Set<string>();
+    const procedimientoSet = new Set<string>();
+
+    for (const row of rows ?? []) {
+        const diag = String(row.diagnostico ?? '').trim();
+        const proc = String(row.procedimiento ?? '').trim();
+        if (diag) diagnosticoSet.add(diag);
+        if (proc) procedimientoSet.add(proc);
+    }
+
+    return {
+        diagnosticos: [...diagnosticoSet].sort((a, b) => a.localeCompare(b, 'es')),
+        procedimientos: [...procedimientoSet].sort((a, b) => a.localeCompare(b, 'es')),
     };
 }

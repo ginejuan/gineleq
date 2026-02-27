@@ -68,6 +68,24 @@
     color: var(--color-primary-600);
 }
 
+.filterSelect {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-gray-300);
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-700);
+    background-color: white;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.filterSelect:focus {
+    outline: none;
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 3px var(--color-primary-100);
+}
+
 /* Main Content */
 .content {
     display: flex;

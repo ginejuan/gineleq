@@ -3,7 +3,12 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './Waitlist.module.css';
 
-export function WaitlistFilters() {
+interface WaitlistFiltersProps {
+    diagnosticos: string[];
+    procedimientos: string[];
+}
+
+export function WaitlistFilters({ diagnosticos, procedimientos }: WaitlistFiltersProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -26,11 +31,9 @@ export function WaitlistFilters() {
         { key: 'local', label: 'Local / Sin Anestesia' },
     ];
 
-
-
     return (
         <aside className={styles.filters}>
-            {/* 1. Filtro por Paciente (Previously SearchInput, now integrated) */}
+            {/* 1. Filtro por Paciente */}
             <div className={styles.filterGroup}>
                 <h3 className={styles.filterTitle}>Filtro por Paciente</h3>
                 <input
@@ -39,14 +42,14 @@ export function WaitlistFilters() {
                     defaultValue={searchParams.get('search') || ''}
                     onChange={(e) => {
                         const val = e.target.value;
-                        setTimeout(() => updateFilter('search', val || null), 500); // Simple debounce
+                        setTimeout(() => updateFilter('search', val || null), 500);
                     }}
-                    className={styles.searchInput} // Reusing styles if possible, or create standard input style
+                    className={styles.searchInput}
                     style={{ width: '100%', padding: '0.5rem', borderRadius: '0.25rem', border: '1px solid #d1d5db' }}
                 />
             </div>
 
-            {/* 2. Visto Bueno Preanestesia (Replaces Estado) */}
+            {/* 2. Visto Bueno Preanestesia */}
             <div className={styles.filterGroup}>
                 <h3 className={styles.filterTitle}>Visto Bueno Preanestesia</h3>
                 <label className={styles.filterOption}>
@@ -103,6 +106,36 @@ export function WaitlistFilters() {
                         </label>
                     ))}
                 </div>
+            </div>
+
+            {/* 4. Filtro por Diagnóstico */}
+            <div className={styles.filterGroup}>
+                <h3 className={styles.filterTitle}>Diagnóstico</h3>
+                <select
+                    className={styles.filterSelect}
+                    value={searchParams.get('diagnostico') || 'todos'}
+                    onChange={(e) => updateFilter('diagnostico', e.target.value === 'todos' ? null : e.target.value)}
+                >
+                    <option value="todos">Todos los diagnósticos</option>
+                    {diagnosticos.map(d => (
+                        <option key={d} value={d}>{d}</option>
+                    ))}
+                </select>
+            </div>
+
+            {/* 5. Filtro por Procedimiento */}
+            <div className={styles.filterGroup}>
+                <h3 className={styles.filterTitle}>Procedimiento</h3>
+                <select
+                    className={styles.filterSelect}
+                    value={searchParams.get('procedimiento') || 'todos'}
+                    onChange={(e) => updateFilter('procedimiento', e.target.value === 'todos' ? null : e.target.value)}
+                >
+                    <option value="todos">Todos los procedimientos</option>
+                    {procedimientos.map(p => (
+                        <option key={p} value={p}>{p}</option>
+                    ))}
+                </select>
             </div>
         </aside>
     );

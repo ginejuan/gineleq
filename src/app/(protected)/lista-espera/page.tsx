@@ -1,4 +1,4 @@
-import { getWaitlistData, type WaitlistRow } from '@/lib/waitlist/waitlist-data';
+import { getWaitlistData, getWaitlistFilterOptions, type WaitlistRow } from '@/lib/waitlist/waitlist-data';
 import { WaitlistTable } from '@/components/Waitlist/WaitlistTable';
 import { WaitlistFilters } from '@/components/Waitlist/WaitlistFilters';
 import styles from '@/components/Waitlist/Waitlist.module.css';
@@ -22,19 +22,21 @@ export default async function ListaEsperaPage({ searchParams }: PageProps) {
         search,
         clinical_filter: (params.clinical_filter as string) || 'all',
         preanestesia: (params.preanestesia as string) || 'todos',
+        diagnostico: (params.diagnostico as string) || 'todos',
+        procedimiento: (params.procedimiento as string) || 'todos',
     };
 
-    const data = await getWaitlistData({
-        page,
-        pageSize,
-        sortBy,
-        sortDir,
-        filters,
-    });
+    const [data, filterOptions] = await Promise.all([
+        getWaitlistData({ page, pageSize, sortBy, sortDir, filters }),
+        getWaitlistFilterOptions(),
+    ]);
 
     return (
         <div className={styles.pageContainer}>
-            <WaitlistFilters />
+            <WaitlistFilters
+                diagnosticos={filterOptions.diagnosticos}
+                procedimientos={filterOptions.procedimientos}
+            />
 
             <div className={styles.content}>
                 <header className={styles.header}>
