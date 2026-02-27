@@ -24,6 +24,7 @@ export default async function ListaEsperaPage({ searchParams }: PageProps) {
         preanestesia: (params.preanestesia as string) || 'todos',
         diagnostico: (params.diagnostico as string) || 'todos',
         procedimiento: (params.procedimiento as string) || 'todos',
+        prioridad: (params.prioridad as string) || 'todos',
     };
 
     const [data, filterOptions] = await Promise.all([

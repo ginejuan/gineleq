@@ -108,7 +108,45 @@ export function WaitlistFilters({ diagnosticos, procedimientos }: WaitlistFilter
                 </div>
             </div>
 
-            {/* 4. Filtro por Diagnóstico */}
+            {/* 4. Filtro por Prioridad */}
+            <div className={styles.filterGroup}>
+                <h3 className={styles.filterTitle}>Prioridad</h3>
+                <label className={styles.filterOption}>
+                    <input
+                        type="radio"
+                        name="prioridad"
+                        value="todos"
+                        checked={!searchParams.get('prioridad') || searchParams.get('prioridad') === 'todos'}
+                        onChange={() => updateFilter('prioridad', 'todos')}
+                        className={styles.checkbox}
+                    />
+                    Todas
+                </label>
+                <label className={styles.filterOption}>
+                    <input
+                        type="radio"
+                        name="prioridad"
+                        value="normal"
+                        checked={searchParams.get('prioridad') === 'normal'}
+                        onChange={() => updateFilter('prioridad', 'normal')}
+                        className={styles.checkbox}
+                    />
+                    Normal
+                </label>
+                <label className={styles.filterOption}>
+                    <input
+                        type="radio"
+                        name="prioridad"
+                        value="preferente"
+                        checked={searchParams.get('prioridad') === 'preferente'}
+                        onChange={() => updateFilter('prioridad', 'preferente')}
+                        className={styles.checkbox}
+                    />
+                    Preferente
+                </label>
+            </div>
+
+            {/* 5. Filtro por Diagnóstico */}
             <div className={styles.filterGroup}>
                 <h3 className={styles.filterTitle}>Diagnóstico</h3>
                 <select

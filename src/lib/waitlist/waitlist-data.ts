@@ -16,6 +16,7 @@ export interface WaitlistFilters {
     alert_filter?: string; // 'preanestesia_caducada', 'todos'
     diagnostico?: string; // Filtro por diagnóstico exacto
     procedimiento?: string; // Filtro por procedimiento exacto
+    prioridad?: string; // 'normal', 'preferente', 'todos'
 }
 
 // Extends PatientRow if we add more fields later
@@ -188,6 +189,13 @@ export async function getWaitlistData(params: WaitlistParams = {}): Promise<Wait
         // Procedimiento filter
         if (filters.procedimiento && filters.procedimiento !== 'todos') {
             if (row.procedimiento !== filters.procedimiento) return false;
+        }
+
+        // Prioridad filter
+        if (filters.prioridad && filters.prioridad !== 'todos') {
+            const rowPrioridad = row.prioridad.toUpperCase().trim();
+            if (filters.prioridad === 'preferente' && rowPrioridad !== 'PREFERENTE') return false;
+            if (filters.prioridad === 'normal' && rowPrioridad !== 'NORMAL') return false;
         }
 
         return true;
