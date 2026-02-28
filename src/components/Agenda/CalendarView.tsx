@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { QuirofanoConCirujanos } from '@/types/database';
 import styles from './Agenda.module.css';
 
@@ -13,6 +13,47 @@ interface CalendarViewProps {
 export function CalendarView({ agendaData, onDeleteQuirofano, onEditQuirofano }: CalendarViewProps) {
     const [viewMode, setViewMode] = useState<'mes' | 'semana' | 'dia'>('mes');
     const [currentDate, setCurrentDate] = useState(new Date());
+
+    // Context menu state
+    interface ContextMenuState {
+        quirofano: QuirofanoConCirujanos;
+        x: number;
+        y: number;
+    }
+    const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
+    const contextMenuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleOutsideClick = (e: MouseEvent) => {
+            if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
+                setContextMenu(null);
+            }
+        };
+        if (contextMenu) {
+            document.addEventListener('mousedown', handleOutsideClick);
+        }
+        return () => document.removeEventListener('mousedown', handleOutsideClick);
+    }, [contextMenu]);
+
+    const handleCardClick = (e: React.MouseEvent, q: QuirofanoConCirujanos) => {
+        e.stopPropagation();
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        setContextMenu({ quirofano: q, x: rect.left, y: rect.bottom + 4 });
+    };
+
+    const handleMenuEditar = () => {
+        if (contextMenu && onEditQuirofano) {
+            onEditQuirofano(contextMenu.quirofano);
+        }
+        setContextMenu(null);
+    };
+
+    const handleMenuVerParte = () => {
+        if (contextMenu) {
+            window.open(`/programacion/parte/${contextMenu.quirofano.id_quirofano}`, '_blank');
+        }
+        setContextMenu(null);
+    };
 
     // Funciones de navegación (Mes a Mes)
     const handlePrev = () => {
@@ -197,7 +238,7 @@ export function CalendarView({ agendaData, onDeleteQuirofano, onEditQuirofano }:
                                                         key={q.id_quirofano}
                                                         className={styles.quirofanoCard}
                                                         style={{ backgroundColor: cardBg, borderColor: cardBorder }}
-                                                        onClick={() => onEditQuirofano && onEditQuirofano(q)}
+                                                        onClick={(e) => handleCardClick(e, q)}
                                                         role="button"
                                                         tabIndex={0}
                                                     >
@@ -245,6 +286,22 @@ export function CalendarView({ agendaData, onDeleteQuirofano, onEditQuirofano }:
                     ))}
                 </div>
             </div>
+
+            {/* Menú contextual de quirófano */}
+            {contextMenu && (
+                <div
+                    ref={contextMenuRef}
+                    className={styles.contextMenu}
+                    style={{ top: contextMenu.y, left: contextMenu.x }}
+                >
+                    <button className={styles.contextMenuItem} onClick={handleMenuEditar}>
+                        ✏️ Editar
+                    </button>
+                    <button className={styles.contextMenuItem} onClick={handleMenuVerParte}>
+                        🖨️ Ver parte
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
