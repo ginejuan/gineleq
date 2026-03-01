@@ -1,14 +1,13 @@
 /**
  * UserHeader — Barra superior con info del usuario
- * 
- * Muestra el nombre del usuario autenticado en la esquina
- * superior derecha de todas las páginas protegidas.
- * 
- * Server Component: lee la sesión directamente en el servidor.
+ *
+ * Server Component: lee la sesión y pasa los datos al
+ * UserMenu (Client Component) que gestiona el dropdown.
  */
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import styles from './UserHeader.module.css';
+import UserMenu from './UserMenu';
 
 interface UserMetadata {
     first_name?: string;
@@ -24,15 +23,12 @@ export default async function UserHeader() {
     const metadata = user.user_metadata as UserMetadata;
     const firstName = metadata?.first_name ?? '';
     const lastName = metadata?.last_name ?? '';
-    const displayName = [firstName, lastName].filter(Boolean).join(' ') || user.email;
+    const displayName = [firstName, lastName].filter(Boolean).join(' ') || user.email || '';
     const initials = getInitials(firstName, lastName, user.email);
 
     return (
         <header className={styles.userHeader}>
-            <div className={styles.userInfo}>
-                <span className={styles.avatar}>{initials}</span>
-                <span className={styles.name}>{displayName}</span>
-            </div>
+            <UserMenu displayName={displayName} email={user.email ?? ''} initials={initials} />
         </header>
     );
 }
@@ -51,3 +47,4 @@ function getInitials(
     }
     return email?.[0]?.toUpperCase() ?? '?';
 }
+
