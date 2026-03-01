@@ -93,8 +93,6 @@ export default function LoginPage() {
 
                 <div className={styles.authFooter}>
                     <Link href="/recuperar">¿Olvidaste tu contraseña?</Link>
-                    <span className={styles.authDivider}>|</span>
-                    <Link href="/registro">Crear cuenta</Link>
                 </div>
             </div>
         </div>

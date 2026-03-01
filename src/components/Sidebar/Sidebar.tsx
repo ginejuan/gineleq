@@ -2,19 +2,19 @@
 
 /**
  * Sidebar - Componente de navegación principal
- * 
- * Menú lateral con los 7 módulos definidos en arquitectura.md §5.
- * Usa usePathname() para resaltar la ruta activa.
- * Incluye botón de cerrar sesión.
- * 
+ *
+ * Recibe el rol del usuario (del Server Component padre) y muestra
+ * solo los items de navegación autorizados para ese perfil.
+ *
  * Responsabilidad: SOLO navegación y presentación visual.
- * No contiene lógica de negocio.
  */
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logoutAction } from '@/app/login/actions';
 import styles from './Sidebar.module.css';
+import type { AppRole } from '@/lib/auth/roles';
+import { isAdmin, canEdit } from '@/lib/auth/roles';
 
 interface NavItem {
     href: string;
@@ -28,16 +28,27 @@ const NAV_ITEMS_PRINCIPAL: NavItem[] = [
     { href: '/alertas', label: 'Alertas', icon: '🔔' },
 ];
 
-const NAV_ITEMS_GESTION: NavItem[] = [
+const NAV_ITEMS_GESTION_ALL: NavItem[] = [
     { href: '/agenda', label: 'Agenda Quirófanos', icon: '🗓️' },
-    { href: '/cirujanos', label: 'Facultativos', icon: '👨‍⚕️' },
     { href: '/programacion', label: 'Ayuda Programación', icon: '🎯' },
     { href: '/listas', label: 'Listas Correo', icon: '📬' },
-    { href: '/importacion', label: 'Importación', icon: '📥' },
     { href: '/historial', label: 'Historial', icon: '📜' },
 ];
 
-export default function Sidebar() {
+const NAV_ITEMS_ADMIN_ONLY: NavItem[] = [
+    { href: '/cirujanos', label: 'Facultativos', icon: '👨‍⚕️' },
+    { href: '/importacion', label: 'Importación', icon: '📥' },
+];
+
+const NAV_ITEMS_ADMIN_SECTION: NavItem[] = [
+    { href: '/admin/usuarios', label: 'Gestión Usuarios', icon: '👥' },
+];
+
+interface SidebarProps {
+    rol: AppRole;
+}
+
+export default function Sidebar({ rol }: SidebarProps) {
     const pathname = usePathname();
 
     function isActive(href: string): boolean {
@@ -58,6 +69,11 @@ export default function Sidebar() {
         );
     }
 
+    // Items de Gestión visibles según rol
+    const gestionItems = canEdit(rol)
+        ? NAV_ITEMS_GESTION_ALL
+        : NAV_ITEMS_GESTION_ALL.filter(i => ['/agenda', '/programacion', '/historial'].includes(i.href));
+
     return (
         <aside className={styles.sidebar}>
             {/* Cabecera */}
@@ -77,7 +93,18 @@ export default function Sidebar() {
                 {NAV_ITEMS_PRINCIPAL.map(renderNavItem)}
 
                 <span className={styles.navLabel}>Gestión</span>
-                {NAV_ITEMS_GESTION.map(renderNavItem)}
+                {gestionItems.map(renderNavItem)}
+
+                {/* Items exclusivos de administrador */}
+                {isAdmin(rol) && NAV_ITEMS_ADMIN_ONLY.map(renderNavItem)}
+
+                {/* Sección Administración */}
+                {isAdmin(rol) && (
+                    <>
+                        <span className={styles.navLabel}>Administración</span>
+                        {NAV_ITEMS_ADMIN_SECTION.map(renderNavItem)}
+                    </>
+                )}
             </nav>
 
             {/* Footer con logout */}
@@ -93,3 +120,4 @@ export default function Sidebar() {
         </aside>
     );
 }
+

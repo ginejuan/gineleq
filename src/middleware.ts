@@ -9,6 +9,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware-client';
+import { ADMIN_ONLY_ROUTES } from '@/lib/auth/roles';
 
 const PUBLIC_ROUTES = [
     '/login',
@@ -64,6 +65,22 @@ export async function middleware(request: NextRequest) {
             const dashboardUrl = request.nextUrl.clone();
             dashboardUrl.pathname = '/dashboard';
             return NextResponse.redirect(dashboardUrl);
+        }
+    }
+
+    // Protección por rol: leer rol desde el header que Supabase SSR inyecta
+    // Solo validamos rutas admin-only aquí (el resto se valida en el componente)
+    if (user) {
+        const isAdminOnlyRoute = ADMIN_ONLY_ROUTES.some(
+            (route) => pathname === route || pathname.startsWith(route + '/')
+        );
+
+        if (isAdminOnlyRoute) {
+            // Comprobamos el rol via cookie personalizada que se setea en el layout
+            // Como el middleware no puede hacer queries a Supabase con el admin client,
+            // el resultado del rol se pasa mediante un header de respuesta desde el layout.
+            // La protección definitiva es en el Server Component del layout.
+            // Aquí dejamos pasar y el layout/página redirigirá si no tiene permiso.
         }
     }
 
