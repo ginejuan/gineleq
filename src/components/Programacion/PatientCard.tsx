@@ -23,11 +23,15 @@ export default function PatientCard({ paciente, onDoubleClick }: PatientCardProp
         data: { paciente } // Guardar data extra para recuperar al soltar
     });
 
-    const style = {
-        transform: CSS.Transform.toString(transform),
+    const isTransitoriamenteNoProgramable = (paciente as any).est_programacion === 'Paciente transitoriamente no programable';
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform) as string,
         transition,
         opacity: isDragging ? 0.4 : 1,
         zIndex: isDragging ? 999 : 1,
+        backgroundColor: isTransitoriamenteNoProgramable ? '#ffebe9' : undefined,
+        borderColor: isTransitoriamenteNoProgramable ? '#ffcdd2' : undefined,
     };
 
     return (
@@ -75,8 +79,13 @@ export default function PatientCard({ paciente, onDoubleClick }: PatientCardProp
                     {paciente.diagnostico}
                 </span>
 
-                {(paciente.observaciones || paciente.comentarios) && (
+                {(paciente.observaciones || paciente.comentarios || isTransitoriamenteNoProgramable) && (
                     <div style={{ fontSize: '0.75em', marginTop: '6px', paddingTop: '6px', borderTop: '1px dashed var(--border-color)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        {isTransitoriamenteNoProgramable && (
+                            <div style={{ color: 'var(--color-danger, #d32f2f)', fontWeight: 'bold' }}>
+                                Transitoriamente no programable
+                            </div>
+                        )}
                         {paciente.observaciones && (
                             <div><strong style={{ color: 'var(--text-color)' }}>Obs:</strong> <span style={{ color: 'var(--text-secondary)' }}>{paciente.observaciones}</span></div>
                         )}
