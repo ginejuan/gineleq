@@ -8,9 +8,10 @@ import { PacienteSugerido } from '@/services/programacionService';
 interface PatientCardProps {
     paciente: PacienteSugerido;
     onDoubleClick?: (paciente: PacienteSugerido) => void;
+    readOnly?: boolean;
 }
 
-export default function PatientCard({ paciente, onDoubleClick }: PatientCardProps) {
+export default function PatientCard({ paciente, onDoubleClick, readOnly = false }: PatientCardProps) {
     const {
         attributes,
         listeners,
@@ -20,7 +21,8 @@ export default function PatientCard({ paciente, onDoubleClick }: PatientCardProp
         isDragging,
     } = useSortable({
         id: `paciente-${paciente.rdq}`,
-        data: { paciente } // Guardar data extra para recuperar al soltar
+        data: { paciente },
+        disabled: readOnly,
     });
 
     const isTransitoriamenteNoProgramable = (paciente as any).est_programacion === 'Paciente transitoriamente no programable';
@@ -32,6 +34,7 @@ export default function PatientCard({ paciente, onDoubleClick }: PatientCardProp
         zIndex: isDragging ? 999 : 1,
         backgroundColor: isTransitoriamenteNoProgramable ? '#ffebe9' : undefined,
         borderColor: isTransitoriamenteNoProgramable ? '#ffcdd2' : undefined,
+        cursor: readOnly ? 'default' : undefined,
     };
 
     return (
@@ -46,7 +49,7 @@ export default function PatientCard({ paciente, onDoubleClick }: PatientCardProp
                 if (onDoubleClick) onDoubleClick(paciente);
             }}
             {...attributes}
-            {...listeners}
+            {...(!readOnly ? listeners : {})}
         >
             <div className={styles.cardHeader}>
                 <div className={styles.headerLeft}>

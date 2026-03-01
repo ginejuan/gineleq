@@ -23,7 +23,7 @@ import { PatientDetailModal } from '../Waitlist/PatientDetailModal';
 import { WaitlistRow } from '@/lib/waitlist/waitlist-data';
 import styles from './Programacion.module.css';
 
-export default function ProgramacionBoard() {
+export default function ProgramacionBoard({ readOnly = false }: { readOnly?: boolean }) {
     const [grupoA, setGrupoA] = useState<PacienteSugerido[]>([]);
     const [grupoB, setGrupoB] = useState<PacienteSugerido[]>([]);
     const [quirofanosSemana, setQuirofanosSemana] = useState<QuirofanoConCirujanos[]>([]);
@@ -386,13 +386,14 @@ export default function ProgramacionBoard() {
                         <div className={styles.suggestionList}>
                             <h3>Grupo A (Con anestesista) <span className={styles.badge}>{filteredGrupoA.length}</span></h3>
                             {filteredGrupoA.map(p => (
-                                <PatientCard key={p.rdq} paciente={p} onDoubleClick={handlePatientDoubleClick} />
-                            ))}
+                                <PatientCard key={p.rdq} paciente={p} onDoubleClick={handlePatientDoubleClick} readOnly={readOnly} />
+                            ))
+                            }
                         </div>
                         <div className={styles.suggestionList}>
                             <h3>Grupo B (Anestesia local) <span className={styles.badge}>{filteredGrupoB.length}</span></h3>
                             {filteredGrupoB.map(p => (
-                                <PatientCard key={p.rdq} paciente={p} onDoubleClick={handlePatientDoubleClick} />
+                                <PatientCard key={p.rdq} paciente={p} onDoubleClick={handlePatientDoubleClick} readOnly={readOnly} />
                             ))}
                         </div>
                     </div>
@@ -431,8 +432,9 @@ export default function ProgramacionBoard() {
                                 key={q.id_quirofano}
                                 quirofano={q}
                                 pacientesAsignados={asignaciones[q.id_quirofano] || []}
-                                onToggleCompletado={handleToggleCompletado}
+                                onToggleCompletado={readOnly ? undefined : handleToggleCompletado}
                                 onPatientDoubleClick={handlePatientDoubleClick}
+                                readOnly={readOnly}
                             />
                         ))}
                     </div>
