@@ -93,13 +93,11 @@ export default function Sidebar({ rol }: SidebarProps) {
                 <span className={styles.navLabel}>Gestión</span>
                 {gestionItems.map(renderNavItem)}
 
-                {/* Items exclusivos de administrador */}
-                {isAdmin(rol) && NAV_ITEMS_ADMIN_ONLY.map(renderNavItem)}
-
-                {/* Sección Administración */}
+                {/* Sección Administración — solo admin */}
                 {isAdmin(rol) && (
                     <>
                         <span className={styles.navLabel}>Administración</span>
+                        {NAV_ITEMS_ADMIN_ONLY.map(renderNavItem)}
                         {NAV_ITEMS_ADMIN_SECTION.map(renderNavItem)}
                     </>
                 )}
