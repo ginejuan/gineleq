@@ -31,11 +31,11 @@ const NAV_ITEMS_PRINCIPAL: NavItem[] = [
 const NAV_ITEMS_GESTION_ALL: NavItem[] = [
     { href: '/agenda', label: 'Agenda Quirófanos', icon: '🗓️' },
     { href: '/programacion', label: 'Ayuda Programación', icon: '🎯' },
-    { href: '/listas', label: 'Listas Correo', icon: '📬' },
     { href: '/historial', label: 'Historial', icon: '📜' },
 ];
 
 const NAV_ITEMS_ADMIN_ONLY: NavItem[] = [
+    { href: '/listas', label: 'Listas Correo', icon: '📬' },
     { href: '/cirujanos', label: 'Facultativos', icon: '👨‍⚕️' },
     { href: '/importacion', label: 'Importación', icon: '📥' },
 ];
@@ -69,10 +69,8 @@ export default function Sidebar({ rol }: SidebarProps) {
         );
     }
 
-    // Items de Gestión visibles según rol
-    const gestionItems = canEdit(rol)
-        ? NAV_ITEMS_GESTION_ALL
-        : NAV_ITEMS_GESTION_ALL.filter(i => ['/agenda', '/programacion', '/historial'].includes(i.href));
+    // Todos los items de Gestión son visibles para todos los roles
+    const gestionItems = NAV_ITEMS_GESTION_ALL;
 
     return (
         <aside className={styles.sidebar}>
