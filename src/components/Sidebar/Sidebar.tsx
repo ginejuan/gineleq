@@ -114,6 +114,9 @@ export default function Sidebar({ rol }: SidebarProps) {
                     </button>
                 </form>
                 <span className={styles.version}>GineLeq v0.1.0</span>
+                <span className={styles.version} style={{ fontSize: '0.65em', opacity: 0.7 }}>
+                    © 2026 Juan Jesús Fernández Alba
+                </span>
             </div>
         </aside>
     );
