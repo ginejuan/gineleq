@@ -133,6 +133,9 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
                 <button onClick={handlePrint} className={styles.exportButton}>
                     🖨️ Exportar / Imprimir
                 </button>
+                <button onClick={() => window.close()} className={styles.exportButton} style={{ backgroundColor: '#EF4444' }}>
+                    ✖️ Cerrar
+                </button>
                 <div className={styles.helperText}>
                     💡 Puedes hacer clic en cualquier texto del documento para editarlo antes de imprimir.
                 </div>
