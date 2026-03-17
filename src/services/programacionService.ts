@@ -134,7 +134,8 @@ export const programacionService = {
             // Also checking if the capitalization is correct "APTO", "Apto", etc
             if (p.rdo_preanestesia?.toLowerCase() === 'apto') return true;
 
-            if (p.scoreDetails.puntosOncologico > 0 || p.scoreDetails.puntosPriorizable > 0) return true; // Excepciones
+            const isOnco = p.diagnostico?.trim().toUpperCase().startsWith('NEOPLASIA MALIGNA');
+            if (isOnco || p.scoreDetails.puntosPriorizable > 0) return true; // Excepciones
             return false;
         });
 
