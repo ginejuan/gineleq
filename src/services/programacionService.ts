@@ -6,6 +6,7 @@ export interface ScoreDetails {
     puntosPriorizable: number;
     puntosOncologico: number;
     puntosGarantiaVencida: number;
+    puntosProximoVencimiento: number;
     puntosAntiguedad: number;
     puntosTotales: number;
 }
@@ -60,15 +61,18 @@ export function calcularScoring(paciente: any): PacienteSugerido {
     }
 
     const limite = paciente.plazo_garantia || 365;
+    let pProximoVencimiento = 0;
     if (diasEspera > limite) {
         pGarantia = 500;
+    } else if (diasEspera > (limite - 30)) {
+        pProximoVencimiento = 350;
     }
 
     const isLocal = paciente.t_anestesia?.toLowerCase().includes('local') ||
         paciente.t_anestesia?.toLowerCase().includes('sin');
     const grupo: 'A' | 'B' = isLocal ? 'B' : 'A';
 
-    const puntosTotales = pPriorizable + pOncologico + pGarantia + pAntiguedad;
+    const puntosTotales = pPriorizable + pOncologico + pGarantia + pProximoVencimiento + pAntiguedad;
 
     const tContacto = safeDecrypt(String(paciente.telefonos_contacto ?? ''));
     const tBdu = safeDecrypt(String(paciente.telefonos_bdu ?? ''));
@@ -84,6 +88,7 @@ export function calcularScoring(paciente: any): PacienteSugerido {
             puntosPriorizable: pPriorizable,
             puntosOncologico: pOncologico,
             puntosGarantiaVencida: pGarantia,
+            puntosProximoVencimiento: pProximoVencimiento,
             puntosAntiguedad: pAntiguedad,
             puntosTotales
         }
