@@ -10,7 +10,7 @@ export interface PacienteCandidato {
     nhcBlindIndex: string;     // Para agrupar por paciente
     pacienteBlindIndex: string; // Fallback cuando no hay NHC
     diagnostico: string;
-    intervencion_propuesta: string;
+    intervencion_propuesta: string; // Maps to 'procedimiento' in DB
     estado: string;
     t_registro: number;
     created_at: string;
@@ -52,7 +52,7 @@ function decodeRow(row: any): PacienteCandidato {
         nhcBlindIndex: row.nhc_blind_index ?? '',
         pacienteBlindIndex: row.paciente_blind_index ?? '',
         diagnostico: row.diagnostico ?? '',
-        intervencion_propuesta: row.intervencion_propuesta ?? '',
+        intervencion_propuesta: row.procedimiento ?? row.intervencion_propuesta ?? '',
         estado: row.estado ?? '',
         t_registro: Number(row.t_registro ?? 0),
         created_at: row.created_at ?? '',
@@ -92,7 +92,7 @@ export async function buscarCandidatasAction(
         // Búsqueda por nombre: descifrar todos y filtrar
         const { data, error } = await supabase
             .from('lista_espera')
-            .select('rdq, paciente, nhc, nhc_blind_index, paciente_blind_index, diagnostico, intervencion_propuesta, estado, t_registro, created_at');
+            .select('rdq, paciente, nhc, nhc_blind_index, paciente_blind_index, diagnostico, procedimiento, estado, t_registro, created_at');
 
         if (error) {
             console.error('[trazabilidad] Name lookup error:', error);
