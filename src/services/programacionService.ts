@@ -130,19 +130,11 @@ export const programacionService = {
         // Aplicar el scoring a los libres
         const sugerencias: PacienteSugerido[] = pacientesLibres.map((paciente: any) => calcularScoring(paciente));
 
-        // Filtrado Final por Validación Médica (Anestesia "Apto" en caso del Grupo A)
-        // Descartamos los del Grupo A (Mayor) que no tengan el Apto, A MENOS que sean Oncológicos o Priorizables.
-        const pacientesValidos = sugerencias.filter((p: any) => {
-            if (p.grupo === 'B') return true; // Local pasa directo
-
-            // Check for strict "Apto" equality. 
-            // Also checking if the capitalization is correct "APTO", "Apto", etc
-            if (p.rdo_preanestesia?.toLowerCase() === 'apto') return true;
-
-            const isOnco = p.diagnostico?.trim().toUpperCase().startsWith('NEOPLASIA MALIGNA');
-            if (isOnco || p.scoreDetails.puntosPriorizable > 0) return true; // Excepciones
-            return false;
-        });
+        // Filtrado Final por Validación Médica
+        // El usuario solicitó que aparezcan TODAS las pacientes de la lista de espera activa,
+        // incluso aquellas de Grupo A que no tienen 'Apto' en preanestesia y tienen 0 puntos.
+        // Se elimina el filtro restrictivo anterior.
+        const pacientesValidos = sugerencias;
 
         console.log(`[DEBUG SCORING] Pacientes Válidos Finales: ${pacientesValidos.length}`);
         if (pacientesValidos.length === 0 && sugerencias.length > 0) {
