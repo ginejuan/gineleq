@@ -31,14 +31,22 @@ export default function TrazabilidadView() {
         setSeleccionada(null);
 
         try {
-            const results = await buscarCandidatasAction(searchTerm);
+            const result = await buscarCandidatasAction(searchTerm);
+
+            if (!result.ok) {
+                // Displays the actual server-side error in the UI for debugging
+                setError(`Error del servidor: ${result.error}`);
+                setStep('error');
+                return;
+            }
+
+            const results = result.data;
             if (results.length === 0) {
                 setError('No se encontró ninguna paciente con ese identificador o nombre.');
                 setStep('error');
                 return;
             }
 
-            // Si es búsqueda por RDQ y solo hay 1 resultado → ir directo al timeline
             const isNumeric = /^\d+$/.test(searchTerm.trim());
             if (isNumeric && results.length === 1) {
                 await loadViaje(results[0]);
@@ -48,7 +56,7 @@ export default function TrazabilidadView() {
             setCandidatos(results);
             setStep('candidates');
         } catch (err: any) {
-            setError(err.message ?? 'Error en la búsqueda');
+            setError(`Error inesperado: ${err.message ?? 'sin detalles'}`);
             setStep('error');
         }
     };

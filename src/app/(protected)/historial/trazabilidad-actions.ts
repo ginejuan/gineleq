@@ -62,56 +62,68 @@ function decodeRow(row: any): PacienteCandidato {
 
 /**
  * PASO 1 — Busca candidatas.
+ * Devuelve { ok: true, data } o { ok: false, error }.
  * Si query es numérico → busca por RDQ exacto.
  * Si es texto → descifra todos y filtra por nombre (parcial, case-insensitive).
  */
-export async function buscarCandidatasAction(query: string): Promise<PacienteCandidato[]> {
-    const supabase = createSupabaseAdminClient();
-    query = query.trim();
+export async function buscarCandidatasAction(
+    query: string
+): Promise<{ ok: true; data: PacienteCandidato[] } | { ok: false; error: string }> {
+    try {
+        const supabase = createSupabaseAdminClient();
+        query = query.trim();
 
-    const isNumeric = /^\d+$/.test(query);
+        const isNumeric = /^\d+$/.test(query);
 
-    if (isNumeric) {
-        // Búsqueda exacta por RDQ
+        if (isNumeric) {
+            const { data, error } = await supabase
+                .from('lista_espera')
+                .select('*')
+                .eq('rdq', query)
+                .limit(1);
+
+            if (error) {
+                console.error('[trazabilidad] RDQ lookup error:', error);
+                return { ok: false, error: `Error DB (RDQ): ${error.message}` };
+            }
+            return { ok: true, data: (data ?? []).map(decodeRow) };
+        }
+
+        // Búsqueda por nombre: descifrar todos y filtrar
         const { data, error } = await supabase
             .from('lista_espera')
-            .select('*')
-            .eq('rdq', query)
-            .limit(1);
+            .select('rdq, paciente, nhc, nhc_blind_index, paciente_blind_index, diagnostico, intervencion_propuesta, estado, t_registro, created_at');
 
-        if (error) throw new Error(error.message);
-        return (data ?? []).map(decodeRow);
-    }
+        if (error) {
+            console.error('[trazabilidad] Name lookup error:', error);
+            return { ok: false, error: `Error DB (nombre): ${error.message}` };
+        }
 
-    // Búsqueda por nombre: descifrar todos y filtrar en servidor
-    // (lista de espera de ginecología suele ser < 1000 pacientes → asumible)
-    const { data, error } = await supabase
-        .from('lista_espera')
-        .select('rdq, paciente, nhc, nhc_blind_index, paciente_blind_index, diagnostico, intervencion_propuesta, estado, t_registro, created_at')
-        .not('estado', 'eq', 'Eliminado'); // Excluimos borrados históricos
+        const needle = normalizeStr(query);
 
-    if (error) throw new Error(error.message);
+        const matches = (data ?? [])
+            .map(row => {
+                try { return decodeRow(row); } catch (e) { return null; }
+            })
+            .filter((c): c is PacienteCandidato => {
+                if (!c) return false;
+                return normalizeStr(c.paciente).includes(needle);
+            });
 
-    const needle = normalizeStr(query);
-
-    const matches = (data ?? [])
-        .map(decodeRow)
-        .filter(c => {
-            const name = normalizeStr(c.paciente);
-            return name.includes(needle);
+        matches.sort((a, b) => {
+            const an = normalizeStr(a.paciente);
+            const bn = normalizeStr(b.paciente);
+            const q = normalizeStr(query);
+            if (an.startsWith(q) && !bn.startsWith(q)) return -1;
+            if (!an.startsWith(q) && bn.startsWith(q)) return 1;
+            return an.localeCompare(bn);
         });
 
-    // Ordenamos: primero los que empiezan por el término, luego el resto
-    matches.sort((a, b) => {
-        const an = normalizeStr(a.paciente);
-        const bn = normalizeStr(b.paciente);
-        const q = normalizeStr(query);
-        if (an.startsWith(q) && !bn.startsWith(q)) return -1;
-        if (!an.startsWith(q) && bn.startsWith(q)) return 1;
-        return an.localeCompare(bn);
-    });
-
-    return matches.slice(0, 30);
+        return { ok: true, data: matches.slice(0, 30) };
+    } catch (err: any) {
+        console.error('[trazabilidad] Unexpected error in buscarCandidatasAction:', err);
+        return { ok: false, error: err?.message ?? 'Error inesperado en el servidor' };
+    }
 }
 
 /**
