@@ -1,7 +1,7 @@
 'use server';
 
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
-import { safeDecrypt, blindIndex } from '@/lib/encryption';
+import { safeDecrypt } from '@/lib/encryption';
 
 export interface PacienteCandidato {
     rdq: string;
@@ -31,10 +31,19 @@ export interface ViajeEntry {
     quirofanos: QuirofanoViaje[];
 }
 
+function normalizeStr(s: string): string {
+    // Safe version without Unicode property escapes (works on all Node versions)
+    return s
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, ''); // strip combining diacritics
+}
+
 function decodeRow(row: any): PacienteCandidato {
     const paciente = safeDecrypt(row.paciente ?? '');
     const nhcDecifrado = safeDecrypt(row.nhc ?? '');
-    const tieneNhc = !!row.nhc_blind_index && row.nhc_blind_index !== blindIndex('');
+    // A patient has an NHC if the blind index column exists and is not an empty string
+    const tieneNhc = typeof row.nhc_blind_index === 'string' && row.nhc_blind_index.length > 0;
 
     return {
         rdq: String(row.rdq),
@@ -83,26 +92,26 @@ export async function buscarCandidatasAction(query: string): Promise<PacienteCan
 
     if (error) throw new Error(error.message);
 
-    const needle = query.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+    const needle = normalizeStr(query);
 
     const matches = (data ?? [])
         .map(decodeRow)
         .filter(c => {
-            const name = c.paciente.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+            const name = normalizeStr(c.paciente);
             return name.includes(needle);
         });
 
-    // Ordenamos: primero exactos (empieza por), luego parciales
+    // Ordenamos: primero los que empiezan por el término, luego el resto
     matches.sort((a, b) => {
-        const an = a.paciente.toLowerCase();
-        const bn = b.paciente.toLowerCase();
-        const q = query.toLowerCase();
+        const an = normalizeStr(a.paciente);
+        const bn = normalizeStr(b.paciente);
+        const q = normalizeStr(query);
         if (an.startsWith(q) && !bn.startsWith(q)) return -1;
         if (!an.startsWith(q) && bn.startsWith(q)) return 1;
         return an.localeCompare(bn);
     });
 
-    return matches.slice(0, 30); // max 30 resultados
+    return matches.slice(0, 30);
 }
 
 /**
