@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
 export async function POST(request: Request) {
     try {
@@ -9,6 +10,7 @@ export async function POST(request: Request) {
         const cc = formData.get('cc') as string | null;
         const subject = formData.get('subject') as string;
         const text = formData.get('text') as string;
+        const id_quirofano = formData.get('id_quirofano') as string | null;
 
         // Validar que al menos haya un destinatario (to o cc)
         if (!pdfFile || (!to && !cc)) {
@@ -18,6 +20,10 @@ export async function POST(request: Request) {
             );
         }
 
+        // Convert File to Buffer
+        const arrayBuffer = await pdfFile.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
         // Leer credenciales SMTP
         const host = process.env.SMTP_HOST;
         const port = parseInt(process.env.SMTP_PORT || '587', 10);
@@ -25,17 +31,53 @@ export async function POST(request: Request) {
         const pass = process.env.SMTP_PASSWORD;
         const from = process.env.SMTP_FROM || user;
 
-        if (!host || !user || !pass) {
-            console.error('[SMTP] Credenciales no configuradas (SMTP_HOST, SMTP_USER, SMTP_PASSWORD)');
-            return NextResponse.json(
-                { error: 'El servicio de correo no está configurado en el servidor.' },
-                { status: 500 }
-            );
+        // -- MIGRACIÓN FASE 2: Subir PDF a Supabase Storage --
+        if (id_quirofano) {
+            try {
+                const supabase = createSupabaseAdminClient();
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                // Ensure the filename is safe for the filesystem/storage
+                const originalNameSafe = (pdfFile.name || 'Parte_Quirofano.pdf').replace(/[^a-zA-Z0-9.-]/g, '_');
+                const filePath = `${id_quirofano}/${timestamp}_${originalNameSafe}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('partes_quirofano')
+                    .upload(filePath, buffer, {
+                        contentType: 'application/pdf',
+                        upsert: true
+                    });
+
+                if (!uploadError) {
+                    const { data: publicUrlData } = supabase.storage
+                        .from('partes_quirofano')
+                        .getPublicUrl(filePath);
+
+                    // Insertar metadatos en la tabla quirofanos_documentos
+                    const { data: versionesPrec } = await supabase
+                        .from('quirofanos_documentos')
+                        .select('version')
+                        .eq('id_quirofano', id_quirofano)
+                        .order('version', { ascending: false })
+                        .limit(1);
+
+                    const nextVersion = (versionesPrec && versionesPrec.length > 0) ? versionesPrec[0].version + 1 : 1;
+
+                    await supabase.from('quirofanos_documentos').insert({
+                        id_quirofano,
+                        pdf_url: publicUrlData.publicUrl,
+                        version: nextVersion,
+                        enviado_por: from
+                    });
+                    
+                    console.log(`[STORAGE] PDF subido para quirófano ${id_quirofano} v${nextVersion}`);
+                } else {
+                    console.error('[STORAGE] Error uploading PDF to Supabase:', uploadError);
+                }
+            } catch (storageErr) {
+                console.error('[STORAGE] Excepción guardando PDF:', storageErr);
+            }
         }
 
-        // Convert File to Buffer
-        const arrayBuffer = await pdfFile.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
 
         // Configurar Nodemailer
         const transporter = nodemailer.createTransport({

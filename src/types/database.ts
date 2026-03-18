@@ -191,6 +191,7 @@ export interface QuirofanoConCirujanos extends Quirofano {
     quirofano_cirujano?: {
         cirujanos: Cirujano;
     }[];
+    quirofanos_documentos?: any[];
 }
 
 // --------------------------------------------------------------------------

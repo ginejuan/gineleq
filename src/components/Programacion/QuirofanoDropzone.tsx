@@ -55,15 +55,37 @@ export default function QuirofanoDropzone({ quirofano, pacientesAsignados, onTog
                             ✓ Enviado {quirofano.f_email_enviado ? `el ${new Date(quirofano.f_email_enviado).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''}
                         </div>
                     )}
-                    <a
-                        href={`/programacion/parte/${quirofano.id_quirofano}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.printButton}
-                        title="Imprimir Parte de Quirófano"
-                    >
-                        🖨️
-                    </a>
+                    {(() => {
+                        const docs = quirofano.quirofanos_documentos || [];
+                        const latestPdf = docs.length > 0 
+                            ? [...docs].sort((a: any, b: any) => b.version - a.version)[0] 
+                            : null;
+                        
+                        return (
+                            <>
+                                {latestPdf && (
+                                    <a
+                                        href={latestPdf.pdf_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={styles.latestPdfLink}
+                                        title={`Descargar el Parte Oficial Enviado (v${latestPdf.version})`}
+                                    >
+                                        📄 v{latestPdf.version}
+                                    </a>
+                                )}
+                                <a
+                                    href={`/programacion/parte/${quirofano.id_quirofano}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={styles.printButton}
+                                    title="Modificar / Generar Nuevo Parte"
+                                >
+                                    🖨️
+                                </a>
+                            </>
+                        );
+                    })()}
                     {onToggleCompletado && (
                         <label className={styles.toggleCompletadoLabel} title="Marcar Quirófano como cerrado/completado">
                             <input

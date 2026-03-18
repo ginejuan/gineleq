@@ -20,7 +20,8 @@ export const agendaService = {
           cirujanos (
             *
           )
-        )
+        ),
+        quirofanos_documentos (*)
       `)
             .order('fecha', { ascending: true });
 

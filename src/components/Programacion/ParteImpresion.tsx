@@ -61,6 +61,7 @@ export default function ParteImpresion({ quirofano, pacientes }: PrintPageProps)
         // Construir form-data para enviar al servidor
         const formData = new FormData();
         formData.append('pdf', pdfBlob, opt.filename);
+        formData.append('id_quirofano', quirofano.id_quirofano);
         if (to.length > 0) formData.append('to', to.join(','));
         if (cc.length > 0) formData.append('cc', cc.join(','));
         formData.append('subject', subject);
