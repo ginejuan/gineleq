@@ -280,8 +280,16 @@ export default function ProgramacionBoard({ readOnly = false }: { readOnly?: boo
         }
     };
 
+    // Identificar pacientes ya asignados en los quirófanos visibles para no duplicarlos en sugerencias
+    const assignedRdqsOnBoard = new Set(
+        Object.values(asignaciones).flatMap(list => list.map(p => p.rdq.toString()))
+    );
+
     // Lógica de filtrado
     const isPacienteMachingFilters = (p: PacienteSugerido) => {
+        // 0. Excluir si ya está asignado en alguno de los quirófanos visibles
+        if (assignedRdqsOnBoard.has(p.rdq.toString())) return false;
+
         // 1. Búsqueda por texto libre
         if (searchTerm.trim()) {
             const terms = searchTerm.toLowerCase().trim().split(' ');

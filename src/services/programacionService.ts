@@ -45,19 +45,23 @@ export function calcularScoring(paciente: any): PacienteSugerido {
     // Reglas Clínicas de puntuación
     if (paciente.priorizable) pPriorizable = 1000;
 
-    // Puntos por "Prioridad Preferente" (añadido al puntaje del priorizable para agruparlo o se puede contar separado)
-    // Se decide otorgar 200 puntos fijos si es Preferente, bajo la bolsa de "priorizable" o como un puntaje separado.
-    // Lo más limpio es sumarlo también a pPriorizable para no modificar las interfaces a menos que queramos desglose nuevo.
-    // Aunque, lo mejor es crear un campo separado en el futuro. Por ahora usamos pPriorizable.
-    let extraPreferente = 0;
+    // Puntos por Prioridad (1, 2, 3) - Alta importancia para el usuario
+    const prioridadStr = String(paciente.prioridad || '').trim();
+    if (prioridadStr === '1') pPriorizable += 5000;
+    else if (prioridadStr === '2') pPriorizable += 3000;
+    else if (prioridadStr === '3') pPriorizable += 1000;
+
+    // Puntos por "Prioridad Preferente"
     if (paciente.prioridad?.trim().toUpperCase() === 'PREFERENTE') {
-        extraPreferente = 200;
-        pPriorizable += extraPreferente;
+        pPriorizable += 200;
     }
 
     const isOncologico = paciente.diagnostico?.trim().toUpperCase().startsWith('NEOPLASIA MALIGNA');
-    if (isOncologico && diasEspera >= 23) {
-        pOncologico = 300;
+    if (isOncologico) {
+        // Base de puntos alta para oncología para asegurar visibilidad
+        pOncologico = 2000;
+        // Puntos extra por espera en oncología
+        if (diasEspera >= 23) pOncologico += 300;
     }
 
     const limite = paciente.plazo_garantia || 365;
@@ -115,17 +119,25 @@ export const programacionService = {
         if (error) throw error;
         if (!pacientes) return { grupoA: [], grupoB: [] };
 
-        // Obtener los pacientes que YA están asignados a algún quirófano para no sugerirlos.
-        const { data: asignados, error: errAsign } = await supabase
+        // El usuario solicitó ver las pacientes no programadas.
+        // Filtramos solo aquellas que ya tienen una sesión de quirófano asignada para HOY o el FUTURO.
+        // Pacientes con asignaciones pasadas que sigan en estado 'Activo' deben aparecer para ser reprogramadas.
+        const hoy = new Date().toISOString().split('T')[0];
+        const { data: asignacionesFuturas, error: errAsign } = await supabase
             .from('quirofano_intervencion')
-            .select('rdq');
+            .select('rdq, quirofanos!inner(fecha)')
+            .gte('quirofanos.fecha', hoy);
 
-        if (errAsign) throw errAsign;
-        const rdqsAsignados = new Set(asignados?.map((a: any) => a.rdq.toString()) || []);
-
-        const pacientesLibres = pacientes.filter((p: any) => !rdqsAsignados.has(p.rdq.toString()));
+        if (errAsign) {
+            console.error('Error recuperando asignaciones futuras:', errAsign);
+            // Si hay error, por seguridad no filtramos nada para asegurar visibilidad
+        }
+        
+        const rdqsProgramados = new Set(asignacionesFuturas?.map((a: any) => a.rdq.toString()) || []);
+        const pacientesLibres = pacientes.filter((p: any) => !rdqsProgramados.has(p.rdq.toString()));
+        
         console.log(`[DEBUG SCORING] Pacientes Totales Activos: ${pacientes.length}`);
-        console.log(`[DEBUG SCORING] Pacientes Libres: ${pacientesLibres.length}`);
+        console.log(`[DEBUG SCORING] Pacientes Libres (No programados hoy/futuro): ${pacientesLibres.length}`);
 
         // Aplicar el scoring a los libres
         const sugerencias: PacienteSugerido[] = pacientesLibres.map((paciente: any) => calcularScoring(paciente));
@@ -207,7 +219,20 @@ export const programacionService = {
 
         if (qError) throw qError;
 
-        // 2. Asignar paciente al quirófano
+        // 2. Limpiar cualquier asignación previa del mismo paciente (RDQ)
+        // Esto permite que el paciente se "mueva" de un quirófano a otro si ya estaba programado.
+        const { error: delError } = await supabase
+            .from('quirofano_intervencion')
+            .delete()
+            .eq('rdq', rdq);
+
+        if (delError) {
+            console.error(`Error eliminando asignación previa para RDQ ${rdq}:`, delError);
+            // Continuamos, el insert fallará si hay un índice único, o se duplicará si no lo hay.
+            // Pero lo ideal es intentar limpiar.
+        }
+
+        // 3. Asignar paciente al nuevo quirófano
         const { data, error } = await supabase
             .from('quirofano_intervencion')
             .insert([{
