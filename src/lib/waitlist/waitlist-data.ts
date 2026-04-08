@@ -43,7 +43,8 @@ export interface WaitlistResponse {
 // --------------------------------------------------------------------------
 
 function isOnco(diagnostico: string): boolean {
-    return diagnostico.toUpperCase().startsWith('NEOPLASIA MALIGNA');
+    const d = diagnostico.toUpperCase();
+    return d.startsWith('NEOPLASIA MALIGNA') || d.startsWith('CARCINOMA IN SITU');
 }
 
 function isLocalOrSinAnestesia(tAnestesia: string): boolean {

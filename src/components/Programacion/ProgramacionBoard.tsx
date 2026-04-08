@@ -305,8 +305,9 @@ export default function ProgramacionBoard({ readOnly = false }: { readOnly?: boo
 
         // 2. Filtros Clínicos
         const diag = p.diagnostico?.trim().toUpperCase() || '';
-        const isMama = diag.startsWith('NEOPLASIA MALIGNA MAMA');
-        const isGine = diag.startsWith('NEOPLASIA MALIGNA') && !isMama;
+        const isMama = (diag.startsWith('NEOPLASIA MALIGNA') || diag.startsWith('CARCINOMA IN SITU')) && diag.includes('MAMA');
+        const isOncoBase = diag.startsWith('NEOPLASIA MALIGNA') || diag.startsWith('CARCINOMA IN SITU');
+        const isGine = isOncoBase && !isMama;
 
         if (filterOncoMama || filterOncoGine) {
             let matchesOnco = false;

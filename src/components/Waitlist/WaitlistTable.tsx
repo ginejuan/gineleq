@@ -67,7 +67,10 @@ export function WaitlistTable({ data }: WaitlistTableProps) {
         return '';
     };
 
-    const isOnco = (d: string) => d.toUpperCase().startsWith('NEOPLASIA MALIGNA');
+    const isOnco = (d: string) => {
+        const up = d.toUpperCase();
+        return up.startsWith('NEOPLASIA MALIGNA') || up.startsWith('CARCINOMA IN SITU');
+    };
     const isGarantia = (p: string) => p.toUpperCase().trim() === 'SI';
 
     return (

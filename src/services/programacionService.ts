@@ -56,7 +56,8 @@ export function calcularScoring(paciente: any): PacienteSugerido {
         pPriorizable += 200;
     }
 
-    const isOncologico = paciente.diagnostico?.trim().toUpperCase().startsWith('NEOPLASIA MALIGNA');
+    const diagUpper = (paciente.diagnostico || '').trim().toUpperCase();
+    const isOncologico = diagUpper.startsWith('NEOPLASIA MALIGNA') || diagUpper.startsWith('CARCINOMA IN SITU');
     if (isOncologico) {
         // Base de puntos alta para oncología para asegurar visibilidad
         pOncologico = 2000;
