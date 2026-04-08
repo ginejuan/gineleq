@@ -108,6 +108,12 @@
     border-color: var(--color-primary);
 }
 
+.filterToggle.activeGarantia {
+    background-color: #f3e8ff; /* Purple 100 */
+    color: #6b21a8; /* Purple 800 */
+    border-color: #9333ea; /* Purple 600 */
+}
+
 .listsContainer {
     display: flex;
     flex-direction: column;

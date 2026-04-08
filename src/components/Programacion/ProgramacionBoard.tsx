@@ -38,6 +38,7 @@ export default function ProgramacionBoard({ readOnly = false }: { readOnly?: boo
     const [filterOncoGine, setFilterOncoGine] = useState(false);
     const [filterPriorizable, setFilterPriorizable] = useState(false);
     const [filterAnestesiaLocal, setFilterAnestesiaLocal] = useState(false);
+    const [filterGarantia, setFilterGarantia] = useState(false);
 
     const { setNodeRef: setNodeRefSugerencias } = useDroppable({
         id: 'sugerencias-panel'
@@ -318,6 +319,11 @@ export default function ProgramacionBoard({ readOnly = false }: { readOnly?: boo
 
         if (filterPriorizable && !p.priorizable) return false;
 
+        if (filterGarantia) {
+            const tieneGarantia = p.procedimiento_garantia?.trim().toUpperCase() === 'SI';
+            if (!tieneGarantia) return false;
+        }
+
         if (filterAnestesiaLocal) {
             const anestesia = p.t_anestesia?.toLowerCase() || '';
             if (!anestesia.includes('local') && !anestesia.includes('sin')) {
@@ -383,6 +389,10 @@ export default function ProgramacionBoard({ readOnly = false }: { readOnly?: boo
                             <label className={`${styles.filterToggle} ${filterPriorizable ? styles.activePriorizable : ''}`}>
                                 <input type="checkbox" checked={filterPriorizable} onChange={e => setFilterPriorizable(e.target.checked)} />
                                 Priorizables
+                            </label>
+                            <label className={`${styles.filterToggle} ${filterGarantia ? styles.activeGarantia : ''}`}>
+                                <input type="checkbox" checked={filterGarantia} onChange={e => setFilterGarantia(e.target.checked)} />
+                                Garantía
                             </label>
                             <label className={`${styles.filterToggle} ${filterAnestesiaLocal ? styles.activeLocal : ''}`}>
                                 <input type="checkbox" checked={filterAnestesiaLocal} onChange={e => setFilterAnestesiaLocal(e.target.checked)} />
