@@ -321,7 +321,7 @@ export default function ProgramacionBoard({ readOnly = false }: { readOnly?: boo
 
         if (filterGarantia) {
             const tieneGarantia = p.procedimiento_garantia?.trim().toUpperCase() === 'SI';
-            if (!tieneGarantia) return false;
+            if (!tieneGarantia || isOncoBase) return false;
         }
 
         if (filterAnestesiaLocal) {
