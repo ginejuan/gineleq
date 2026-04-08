@@ -13,6 +13,7 @@ import { DonutChart } from '@/components/Dashboard/DonutChart';
 import { ReadinessBar } from '@/components/Dashboard/ReadinessBar';
 import { WaitTimeBar } from '@/components/Dashboard/WaitTimeBar';
 import { OncoGauge } from '@/components/Dashboard/OncoGauge';
+import { StatusPieChart } from '@/components/Dashboard/StatusPieChart';
 import { PatientTable } from '@/components/Dashboard/PatientTable';
 import pageStyles from '../page.module.css';
 import styles from '@/components/Dashboard/Dashboard.module.css';
@@ -143,6 +144,17 @@ export default async function DashboardPage() {
                     enPlazo={data.oncoGauge.enPlazo}
                     total={data.oncoGauge.total}
                 />
+            </section>
+
+            {/* --- Status Compliance --- */}
+            <h2 className={styles.sectionTitle}>Cumplimiento de Plazos</h2>
+            <p className={styles.sectionSubtitle}>
+                Estado de la lista según límites temporales (Lejos, Próximas, Fuera de Plazo)
+            </p>
+            <section className={styles.statusGrid}>
+                <StatusPieChart distribution={data.statusDistributions.onco} />
+                <StatusPieChart distribution={data.statusDistributions.decreto180} />
+                <StatusPieChart distribution={data.statusDistributions.estandar365} />
             </section>
 
             {/* --- Patient Table --- */}

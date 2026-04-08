@@ -1,0 +1,16 @@
+[
+  {
+    "id_quirofano": "ac049c11-ddfe-4204-a6b5-b40850d3f657",
+    "fecha": "2026-03-30",
+    "tipo_quirofano": "central",
+    "completado": true,
+    "quirofanos_documentos": []
+  },
+  {
+    "id_quirofano": "8999f2f5-7ee4-47fb-a4fd-f43ddb449b5e",
+    "fecha": "2026-03-30",
+    "tipo_quirofano": "HDQ_con_anestesista",
+    "completado": false,
+    "quirofanos_documentos": []
+  }
+]

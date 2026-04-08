@@ -59,6 +59,18 @@ export interface TramoEspera {
     cantidad: number;
 }
 
+export interface StatusSegment {
+    name: string;
+    value: number;
+    color: string;
+}
+
+export interface StatusDistribution {
+    title: string;
+    description: string;
+    data: StatusSegment[];
+}
+
 export interface PatientRow {
     rdq: number;
     paciente: string;
@@ -89,6 +101,11 @@ export interface DashboardData {
     readiness: { ready: number; total: number };
     tramosEspera: TramoEspera[];
     oncoGauge: { enPlazo: number; total: number };
+    statusDistributions: {
+        onco: StatusDistribution;
+        decreto180: StatusDistribution;
+        estandar365: StatusDistribution;
+    };
     patients: PatientRow[];
 }
 
@@ -253,6 +270,38 @@ export async function getDashboardData(): Promise<DashboardData> {
     const oncoAll = decryptedPatients.filter(p => isOnco(p.diagnostico));
     const oncoEnPlazo = oncoAll.filter(p => p.t_registro <= 30).length;
 
+    // --- Status Distributions (Plazos) ---
+    const COLORS = {
+        green: '#10B981',
+        orange: '#F59E0B',
+        red: '#EF4444',
+    };
+
+    const getDistribution = (patients: PatientRow[], limit: number, title: string, desc: string): StatusDistribution => {
+        const far = patients.filter(p => p.t_registro < limit * 0.66).length;
+        const close = patients.filter(p => p.t_registro >= limit * 0.66 && p.t_registro <= limit).length;
+        const past = patients.filter(p => p.t_registro > limit).length;
+
+        return {
+            title,
+            description: desc,
+            data: [
+                { name: 'Lejos del plazo', value: far, color: COLORS.green },
+                { name: 'Próximas al plazo', value: close, color: COLORS.orange },
+                { name: 'Fuera de plazo', value: past, color: COLORS.red },
+            ],
+        };
+    };
+
+    const decreto180Patients = decryptedPatients.filter(p => isGarantia(p));
+    const estandar365Patients = decryptedPatients.filter(p => !isOnco(p.diagnostico) && !isGarantia(p));
+
+    const statusDistributions = {
+        onco: getDistribution(oncoAll, 30, 'Oncológicas (30d)', 'Estado de la lista oncológica'),
+        decreto180: getDistribution(decreto180Patients, 180, 'Decreto 180', 'Estado de pacientes bajo decreto'),
+        estandar365: getDistribution(estandar365Patients, 365, '365 Días', 'Estado del resto de la lista'),
+    };
+
     return {
         kpis: {
             censoTotal,
@@ -277,6 +326,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         readiness: { ready, total: censoTotal },
         tramosEspera,
         oncoGauge: { enPlazo: oncoEnPlazo, total: oncoAll.length },
+        statusDistributions,
         patients: decryptedPatients,
     };
 }
