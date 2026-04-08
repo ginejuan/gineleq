@@ -84,18 +84,23 @@ export async function eliminarListaAction(id: string) {
 }
 
 export async function getListasAction(): Promise<ListaDistribucion[]> {
-    await ensureAuthenticated();
+    try {
+        await ensureAuthenticated();
 
-    const adminClient = createSupabaseAdminClient();
-    const { data, error } = await adminClient
-        .from('listas_distribucion')
-        .select('*')
-        .order('nombre', { ascending: true });
+        const adminClient = createSupabaseAdminClient();
+        const { data, error } = await adminClient
+            .from('listas_distribucion')
+            .select('*')
+            .order('nombre', { ascending: true });
 
-    if (error) {
-        console.error('[Actions] Error fetching listas:', error);
-        throw new Error(`Error en el servidor: ${error.message}`);
+        if (error) {
+            console.error('[Actions] Error fetching listas:', error);
+            throw new Error(`DB Error: ${error.message}`);
+        }
+
+        return (data || []) as ListaDistribucion[];
+    } catch (e: any) {
+        console.error('[Actions] Caught error in getListasAction:', e);
+        throw new Error(`Server Error: ${e.message}`);
     }
-
-    return (data || []) as ListaDistribucion[];
 }

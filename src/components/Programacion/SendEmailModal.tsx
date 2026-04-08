@@ -43,7 +43,10 @@ export function SendEmailModal({ isOpen, onClose, cirujanosMails, onSend, defaul
                     });
                     setSelectedListas(autoListas);
                 })
-                .catch(err => console.error("Error fetching listas", err));
+                .catch(err => {
+                    console.error("Error fetching listas", err);
+                    setError(err.message || 'Error cargando las listas de distribución.');
+                });
 
             // Default select all surgeons with mails
             const initialSet = new Set<string>();
