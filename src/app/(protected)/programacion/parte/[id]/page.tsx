@@ -10,6 +10,9 @@ import { notFound } from "next/navigation";
 // El ParteImpresion.module.css ya tiene position flex con 100vh y background blanco, lo que 
 // debería sobreponerse si lo diseñamos para ocupar el 100% fijo, pero lo integraremos de forma limpia.
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function PartePage(props: { params: Promise<{ id: string }> }) {
     try {
         const params = await props.params;
