@@ -47,6 +47,13 @@ Debajo de los indicadores clave, encontrarás un desglose visual importantísimo
 - **Tiempos de Demora Media:** Refleja en días el promedio matemático que los pacientes llevan esperando, subdividido en Global, Oncológico (Mama y Gine) y Estándar.
 - **Gráficos de Cumplimiento:** Diversos diagramas circulares y barras de carga que ilustran de un vistazo cuántos pacientes de alta prioridad están cubiertos (con fecha programada) frente al total de pacientes pendientes. Y qué porcentaje de los pacientes superan, o están al borde de superar, los Decretos y normativas de garantía.
 
+### 2.3. Tabla de Seguimiento Crítico (Código de Colores)
+Al fondo del Dashboard se visualiza una tabla de seguimiento crítico con las pacientes más relevantes. Cada línea (fila) de esta tabla aplica un código de colores según el estado clínico para ayudar a tomar decisiones a primera vista:
+- **Fila coloreada en Violeta:** Paciente **Priorizable**. Son casos de atención preferente.
+- **Fila coloreada en Verde:** Paciente con **Preanestesia Apto** vigente. Estas pacientes están completamente listas para ser programadas de inmediato.
+- **Fila coloreada en Azul:** Requieren **Anestesia Local / Sin Anestesia** (CMA). Estas pacientes son ideales para rellenar huecos en quirófanos menores.
+- **Fila coloreada en Gris (y tachada):** Paciente **Suspendida**. Su paso por lista está temporalmente detenido.
+
 ---
 
 ## 3. Agenda Quirófanos
