@@ -24,6 +24,11 @@ La interfaz de GineLeq está dividida principalmente en dos áreas:
 1. **La Barra Lateral Izquierda (Menú):** Permite navegar rápidamente entre todas las secciones (Dashboard, Lista de Espera, Alertas, Agenda Quirófanos, Ayuda Programación, etc.).
 2. **El Área Principal de Trabajo:** Donde interactuamos con las tablas, vemos las tarjetas de pacientes o completamos cuadros operativos. Siempre dispone de cabeceras claras que te indican en qué sección estás y ofrecen filtros rápidos (por ejemplo, buscar por NHC o RDQ).
 
+### 1.4. Seguridad y Privacidad de los Datos
+
+Dado el entorno clínico en el que opera la aplicación, **GineLeq cumple con los más altos estándares de privacidad**. 
+Todo el núcleo del programa está diseñado con un sistema de encriptación y cifrado en la base de datos (AES-GCM). Esto significa que **cualquier dato personal identificativo de las pacientes (como su Nombre, Apellidos, NHC y Teléfonos) jamás se guarda como texto plano**. Si alguien no autorizado lograra extraer o visualizar dichos datos en los servidores, únicamente vería cadenas de caracteres ilegibles y bloqueadas con una clave criptográfica. Solo al iniciar sesión legítimamente en el programa a través del entorno oficial, el sistema desempaqueta la información para su lectura clínica.
+
 <br/>
 
 ## 2. Panel de Control (Dashboard)
