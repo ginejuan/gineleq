@@ -90,7 +90,25 @@ La "joya de la corona" del sistema GineLeq. Esta pantalla te permite componer qu
 
 ### 5.1. El Motor de Sugerencias y Puntuación Médica
 A la izquierda, en lugar del aburrido Excel estándar, verás tarjetas de colores de pacientes con "Puntos". 
-- Es importante entender que el software otorga internamente **cientos de Puntos** extra a los pacientes oncológicos, prioridades absolutas y aquellas que caducarán sus garantías o pruebas, organizándotelos en la lista de mayor prioridad (arriba) a menor prioridad (abajo).
+Es importante entender que el software otorga internamente puntos extra organizándote la lista de mayor prioridad (arriba) a menor prioridad (abajo).
+
+La **Sistemática de Puntuación** funciona calculando la suma de los siguientes valores para cada paciente en tiempo real:
+
+1. **Antigüedad en lista (Base):** Se otorga **1 punto por cada día** de espera del paciente.
+2. **Prioridad Clínica (Niveles):**
+   - **Prioridad 1:** +5.000 puntos.
+   - **Prioridad 2:** +3.000 puntos.
+   - **Prioridad 3:** +1.000 puntos.
+   - Si la prioridad o estado general viene marcado como **"Preferente"**: +200 puntos.
+   - Bandera de paciente estricto **"Priorizable"**: +1.000 puntos adicionales.
+3. **Criterio Oncológico:**
+   - Si el diagnóstico contiene "Neoplasia Maligna" o "Carcinoma In Situ": **+2.000 puntos** de base.
+   - Si además esa paciente oncológica sobrepasa o alcanza los 23 días de espera en lista: **+300 puntos extra** (para asegurar su visibilidad máxima de intervención en el ciclo de un mes).
+4. **Decreto de Garantía Quirúrgica:**
+   - Si el paciente ha **superado (vencido)** su plazo legal de garantía: **+500 puntos**.
+   - Si el paciente está en riesgo pórque su plazo caducará en **30 días o menos**: **+350 puntos**.
+
+El sistema coge a la persona de más arriba, asegurando un encaje legal, moral y médico óptimo.
 
 ### 5.2. Moviendo pacientes (Drag & Drop) a la Agenda
 A la derecha tendrás los Quirófanos que creaste en la sección Agenda (Tema 3).
