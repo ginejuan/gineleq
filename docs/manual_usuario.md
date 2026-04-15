@@ -49,8 +49,13 @@ En la parte superior, verás una red de "tarjetas" o indicadores numéricos dise
 
 ### 2.2. Análisis Gráfico y Tiempos de Demora
 Debajo de los indicadores clave, encontrarás un desglose visual importantísimo:
+
+![Análisis Gráfico General](./images/gineleq_dashboard_graficos_generales.jpg)
+
 - **Tiempos de Demora Media:** Refleja en días el promedio matemático que los pacientes llevan esperando, subdividido en Global, Oncológico (Mama y Gine) y Estándar.
 - **Gráficos de Cumplimiento:** Diversos diagramas circulares y barras de carga que ilustran de un vistazo cuántos pacientes de alta prioridad están cubiertos (con fecha programada) frente al total de pacientes pendientes. Y qué porcentaje de los pacientes superan, o están al borde de superar, los Decretos y normativas de garantía.
+
+![Gráficos de Cumplimiento de Plazos](./images/gineleq_dashboard_graficos_cumplimiento_plazos.jpg)
 
 ### 2.3. Tabla de Seguimiento Crítico (Código de Colores)
 Al fondo del Dashboard se visualiza una tabla de seguimiento crítico con las pacientes más relevantes. Cada línea (fila) de esta tabla aplica un código de colores según el estado clínico para ayudar a tomar decisiones a primera vista:
