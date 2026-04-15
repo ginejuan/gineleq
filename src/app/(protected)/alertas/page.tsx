@@ -1,6 +1,7 @@
 import { getWaitlistData, type WaitlistRow } from '@/lib/waitlist/waitlist-data';
 import { WaitlistTable } from '@/components/Waitlist/WaitlistTable';
 import { AlertasFilters } from '@/components/Alertas/AlertasFilters';
+import { ExportExcelButton } from '@/components/Alertas/ExportExcelButton';
 import waitlistStyles from '@/components/Waitlist/Waitlist.module.css';
 import styles from '../page.module.css';
 
@@ -45,9 +46,14 @@ export default async function AlertasPage({ searchParams }: PageProps) {
             <AlertasFilters />
 
             <div className={waitlistStyles.content}>
-                <header className={styles.pageHeader}>
-                    <h1 className={styles.pageTitle}>Alertas</h1>
-                    <p className={styles.pageSubtitle}>Monitorización de plazos estipulados y caducidades</p>
+                <header className={styles.pageHeader} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                    <div>
+                        <h1 className={styles.pageTitle}>Alertas</h1>
+                        <p className={styles.pageSubtitle}>Monitorización de plazos estipulados y caducidades</p>
+                    </div>
+                    <div>
+                        <ExportExcelButton filters={filters} />
+                    </div>
                 </header>
 
                 <WaitlistTable data={data} />
