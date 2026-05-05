@@ -135,6 +135,12 @@ export async function getWaitlistData(params: WaitlistParams = {}): Promise<Wait
         // Alertas Filter (Primary for Alerts view)
         if (filters.alert_filter === 'preanestesia_caducada') {
             if (!isPreanestesiaCaducada(row)) return false;
+        } else if (filters.alert_filter === 'fuera_plazo_onco') {
+            if (!(isOnco(row.diagnostico) && row.t_registro > 30)) return false;
+        } else if (filters.alert_filter === 'fuera_plazo_garantia_180') {
+            if (!(row.procedimiento_garantia.toUpperCase().trim() === 'SI' && row.t_registro > 180)) return false;
+        } else if (filters.alert_filter === 'fuera_plazo_365') {
+            if (!(!isOnco(row.diagnostico) && row.procedimiento_garantia.toUpperCase().trim() !== 'SI' && row.t_registro > 365)) return false;
         }
 
         // Preanestesia Filter

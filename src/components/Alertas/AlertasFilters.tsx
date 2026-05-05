@@ -45,7 +45,7 @@ export function AlertasFilters() {
                             type="radio"
                             name="alert_filter"
                             value="todos"
-                            checked={!searchParams.get('alert_filter') || searchParams.get('alert_filter') === 'todos'}
+                            checked={searchParams.get('alert_filter') === 'todos'}
                             onChange={() => updateFilter('alert_filter', 'todos')}
                             className={styles.checkbox}
                         />
@@ -57,12 +57,54 @@ export function AlertasFilters() {
                             type="radio"
                             name="alert_filter"
                             value="preanestesia_caducada"
-                            checked={searchParams.get('alert_filter') === 'preanestesia_caducada'}
+                            checked={!searchParams.get('alert_filter') || searchParams.get('alert_filter') === 'preanestesia_caducada'}
                             onChange={() => updateFilter('alert_filter', 'preanestesia_caducada')}
                             className={styles.checkbox}
                         />
                         <span style={{ color: 'var(--color-danger, #ef4444)', fontWeight: 500 }}>
                             Preanestesia Caducada (&gt;180 días)
+                        </span>
+                    </label>
+
+                    <label className={styles.filterOption}>
+                        <input
+                            type="radio"
+                            name="alert_filter"
+                            value="fuera_plazo_onco"
+                            checked={searchParams.get('alert_filter') === 'fuera_plazo_onco'}
+                            onChange={() => updateFilter('alert_filter', 'fuera_plazo_onco')}
+                            className={styles.checkbox}
+                        />
+                        <span style={{ color: 'var(--color-danger, #ef4444)', fontWeight: 500 }}>
+                            Fuera de plazo Oncológicas (&gt;30 días)
+                        </span>
+                    </label>
+
+                    <label className={styles.filterOption}>
+                        <input
+                            type="radio"
+                            name="alert_filter"
+                            value="fuera_plazo_garantia_180"
+                            checked={searchParams.get('alert_filter') === 'fuera_plazo_garantia_180'}
+                            onChange={() => updateFilter('alert_filter', 'fuera_plazo_garantia_180')}
+                            className={styles.checkbox}
+                        />
+                        <span style={{ color: 'var(--color-danger, #ef4444)', fontWeight: 500 }}>
+                            Fuera de plazo Garantía 180 días (&gt;180 días)
+                        </span>
+                    </label>
+
+                    <label className={styles.filterOption}>
+                        <input
+                            type="radio"
+                            name="alert_filter"
+                            value="fuera_plazo_365"
+                            checked={searchParams.get('alert_filter') === 'fuera_plazo_365'}
+                            onChange={() => updateFilter('alert_filter', 'fuera_plazo_365')}
+                            className={styles.checkbox}
+                        />
+                        <span style={{ color: 'var(--color-danger, #ef4444)', fontWeight: 500 }}>
+                            Fuera de plazo Garantía 365 días (&gt;365 días)
                         </span>
                     </label>
                 </div>
