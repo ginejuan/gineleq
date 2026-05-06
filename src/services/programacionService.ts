@@ -115,7 +115,8 @@ export const programacionService = {
         const { data: pacientes, error } = await supabase
             .from('lista_espera')
             .select('*')
-            .eq('estado', 'Activo');
+            .eq('estado', 'Activo')
+            .limit(10000);
 
         if (error) throw error;
         if (!pacientes) return { grupoA: [], grupoB: [] };

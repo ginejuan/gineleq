@@ -154,7 +154,8 @@ export async function getDashboardData(): Promise<DashboardData> {
             'f_prev_intervencion, f_preanestesia, est_programacion'
         )
         .eq('estado', 'Activo')
-        .order('t_registro', { ascending: false });
+        .order('t_registro', { ascending: false })
+        .limit(10000);
 
     if (error) {
         throw new Error(`Error cargando datos del dashboard: ${error.message}`);

@@ -1,5 +1,7 @@
 'use server';
 
+import { createSupabaseAdminClient } from '@/lib/supabase/admin';
+
 import { programacionService, PacienteSugerido, ScoreDetails } from '@/services/programacionService';
 import { QuirofanoIntervencion } from '@/types/database';
 
@@ -30,4 +32,38 @@ export async function toggleQuirofanoCompletadoAccion(id_quirofano: string, comp
 export async function marcarEmailEnviadoAccion(id_quirofano: string): Promise<void> {
     const { agendaService } = await import('@/services/agendaService');
     return await agendaService.marcarEmailEnviado(id_quirofano);
+}
+
+export async function guardarParteEditadoAccion(id_quirofano: string, htmlContent: string): Promise<void> {
+    const supabase = createSupabaseAdminClient();
+    const filePath = `${id_quirofano}/edited_parte.html`;
+
+    const { error } = await supabase.storage
+        .from('partes_quirofano')
+        .upload(filePath, htmlContent, {
+            contentType: 'text/html',
+            upsert: true,
+            cacheControl: '0'
+        });
+
+    if (error) {
+        console.error("Error saving edited parte to storage", error);
+        throw new Error(`Error guardando borrador: ${error.message}`);
+    }
+}
+
+export async function cargarParteEditadoAccion(id_quirofano: string): Promise<string | null> {
+    const supabase = createSupabaseAdminClient();
+    const filePath = `${id_quirofano}/edited_parte.html`;
+
+    const { data, error } = await supabase.storage
+        .from('partes_quirofano')
+        .download(filePath);
+
+    if (error) {
+        // Archivo no existe o error
+        return null;
+    }
+
+    return await data.text();
 }

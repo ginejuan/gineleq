@@ -98,7 +98,7 @@ export async function getWaitlistData(params: WaitlistParams = {}): Promise<Wait
     // Filter by DB status. 'Activo' is the default in the DB for patients in list.
     // 'Suspendido' in UI usually refers to the 'suspendida' flag, not the 'estado' column (which is 'Pasivo' for deleted rows).
     // So we fetch 'Activo' rows.
-    query = query.eq('estado', 'Activo');
+    query = query.eq('estado', 'Activo').limit(10000);
 
     const { data: rows, error } = await query;
 
@@ -257,7 +257,8 @@ export async function getWaitlistFilterOptions(): Promise<WaitlistFilterOptions>
     const { data: rows, error } = await supabase
         .from('lista_espera')
         .select('diagnostico, procedimiento')
-        .eq('estado', 'Activo');
+        .eq('estado', 'Activo')
+        .limit(10000);
 
     if (error) {
         throw new Error(`Error fetching filter options: ${error.message}`);
