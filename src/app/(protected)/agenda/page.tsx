@@ -160,6 +160,7 @@ export default function AgendaPage() {
                     onDeleteQuirofano={handleDeleteQuirofano}
                     onEditQuirofano={handleEditQuirofano}
                     onMoveQuirofano={handleMoveQuirofano}
+                    onDayClick={handleOpenModal}
                 />
             )}
 

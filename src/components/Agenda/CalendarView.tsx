@@ -9,9 +9,10 @@ interface CalendarViewProps {
     onDeleteQuirofano: (id: string, dateStr: string) => void;
     onEditQuirofano?: (quirofano: QuirofanoConCirujanos) => void;
     onMoveQuirofano?: (id: string, dateStr: string) => Promise<void>;
+    onDayClick?: (date: Date) => void;
 }
 
-export function CalendarView({ agendaData, onDeleteQuirofano, onEditQuirofano, onMoveQuirofano }: CalendarViewProps) {
+export function CalendarView({ agendaData, onDeleteQuirofano, onEditQuirofano, onMoveQuirofano, onDayClick }: CalendarViewProps) {
     const [viewMode, setViewMode] = useState<'mes' | 'semana' | 'dia'>('mes');
     const [currentDate, setCurrentDate] = useState(new Date());
     const [dragOverDate, setDragOverDate] = useState<string | null>(null);
@@ -262,9 +263,15 @@ export function CalendarView({ agendaData, onDeleteQuirofano, onEditQuirofano, o
                                     <div 
                                         key={dayIndex} 
                                         className={cellClassName} 
-                                        style={{ backgroundColor: !cell.isCurrentMonth ? 'var(--color-bg)' : 'transparent', flex: 1, minHeight: viewMode === 'mes' ? '120px' : '400px' }}
+                                        style={{ 
+                                            backgroundColor: !cell.isCurrentMonth ? 'var(--color-bg)' : 'transparent', 
+                                            flex: 1, 
+                                            minHeight: viewMode === 'mes' ? '120px' : '400px',
+                                            cursor: 'pointer'
+                                        }}
                                         onDragOver={(e) => handleDragOver(e, cellDateStr)}
                                         onDrop={(e) => handleDrop(e, cellDateStr)}
+                                        onClick={() => onDayClick && onDayClick(cell.date)}
                                     >
                                         <div className={`${styles.dayNumber} ${isToday(cell.date) ? styles.dayNumberToday : ''} ${!cell.isCurrentMonth ? styles.dayNumberOtherMonth : ''}`}>
                                             {viewMode === 'dia' ? `${dayNames[cell.date.getDay() === 0 ? 6 : cell.date.getDay() - 1]} ${cell.date.getDate()}` : cell.date.getDate()}
