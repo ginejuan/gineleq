@@ -59,11 +59,62 @@ export default function AgendaPage() {
 
     const handleSaveQuirofano = async (quirofanoData: Omit<Quirofano, 'id_quirofano' | 'created_at' | 'updated_at'>, cirujanosIds: string[]) => {
         if (quirofanoToEdit) {
+            // Validar si cambia la fecha y existe parte enviado o guardado
+            if (quirofanoToEdit.fecha !== quirofanoData.fecha) {
+                const tieneEmail = quirofanoToEdit.email_enviado;
+                const tieneDocumento = quirofanoToEdit.quirofanos_documentos && quirofanoToEdit.quirofanos_documentos.length > 0;
+                
+                if (tieneEmail || tieneDocumento) {
+                    const mensaje = `Este quirófano ya tiene un parte ${tieneEmail ? 'enviado por correo' : ''}${tieneEmail && tieneDocumento ? ' y ' : ''}${tieneDocumento ? 'guardado en el historial' : ''}. ¿Estás seguro de que deseas cambiar la fecha de programación?\n\n(Nota: Se actualizará también la fecha de intervención prevista de todos los pacientes asignados).`;
+                    if (!window.confirm(mensaje)) {
+                        return;
+                    }
+                }
+            }
             await agendaService.updateQuirofano(quirofanoToEdit.id_quirofano, quirofanoData, cirujanosIds);
         } else {
             await agendaService.createQuirofano(quirofanoData, cirujanosIds);
         }
         await fetchAgendaAndCirujanos();
+    };
+
+    const handleMoveQuirofano = async (id: string, newDateStr: string) => {
+        try {
+            const quirofano = agenda.find(q => q.id_quirofano === id);
+            if (!quirofano) {
+                throw new Error('No se encontró el quirófano en la agenda.');
+            }
+
+            // Si la fecha es idéntica, no hacer nada
+            if (quirofano.fecha === newDateStr) {
+                return;
+            }
+
+            // Validar si tiene parte enviado o guardado
+            const tieneEmail = quirofano.email_enviado;
+            const tieneDocumento = quirofano.quirofanos_documentos && quirofano.quirofanos_documentos.length > 0;
+            
+            if (tieneEmail || tieneDocumento) {
+                const mensaje = `Este quirófano ya tiene un parte ${tieneEmail ? 'enviado por correo' : ''}${tieneEmail && tieneDocumento ? ' y ' : ''}${tieneDocumento ? 'guardado en el historial' : ''}. ¿Estás seguro de que deseas cambiar la fecha de programación?\n\n(Nota: Se actualizará también la fecha de intervención prevista de todos los pacientes asignados).`;
+                if (!window.confirm(mensaje)) {
+                    return;
+                }
+            }
+
+            setIsLoading(true);
+            setErrorQuery(null);
+
+            // Preparar actualización parcial de la fecha, manteniendo los mismos cirujanos
+            const cirujanosIds = quirofano.quirofano_cirujano?.map(qc => qc.cirujanos.id_cirujano) || [];
+            await agendaService.updateQuirofano(id, { fecha: newDateStr }, cirujanosIds);
+            
+            await fetchAgendaAndCirujanos();
+        } catch (err: unknown) {
+            console.error('[AgendaPage] Error al mover quirófano:', err);
+            alert(err instanceof Error ? err.message : 'No se pudo mover el quirófano.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleDeleteQuirofano = async (id: string, fechaStr: string) => {
@@ -108,6 +159,7 @@ export default function AgendaPage() {
                     agendaData={agenda}
                     onDeleteQuirofano={handleDeleteQuirofano}
                     onEditQuirofano={handleEditQuirofano}
+                    onMoveQuirofano={handleMoveQuirofano}
                 />
             )}
 

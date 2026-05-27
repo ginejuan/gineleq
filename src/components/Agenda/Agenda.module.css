@@ -441,3 +441,19 @@
     background-color: var(--color-bg);
     color: var(--color-primary);
 }
+
+/* Drag and Drop classes */
+.quirofanoCard[draggable="true"] {
+    cursor: grab;
+}
+
+.quirofanoCardDragging {
+    opacity: 0.4;
+    cursor: grabbing;
+}
+
+.calendarDayCellDragOver {
+    background-color: rgba(15, 76, 92, 0.08) !important;
+    outline: 2px dashed var(--color-primary) !important;
+    outline-offset: -2px;
+}

@@ -105,6 +105,29 @@ export const agendaService = {
             throw new Error(`Error al actualizar el quirófano: ${quirofanoError?.message}`);
         }
 
+        // 1b. Si se actualizó la fecha del quirófano, sincronizar la f_prev_intervencion de los pacientes asignados
+        if (quirofanoData.fecha) {
+            const { data: asignaciones, error: asigError } = await db.raw
+                .from('quirofano_intervencion')
+                .select('rdq')
+                .eq('id_quirofano', id);
+
+            if (asigError) {
+                console.error('[AgendaService] Error fetching assigned patients for date update:', asigError);
+            } else if (asignaciones && asignaciones.length > 0) {
+                const rdqs = asignaciones.map((a: { rdq: number }) => a.rdq);
+                const { error: updateError } = await db.raw
+                    .from('lista_espera')
+                    .update({ f_prev_intervencion: quirofanoData.fecha })
+                    .in('rdq', rdqs);
+
+                if (updateError) {
+                    console.error('[AgendaService] Error updating f_prev_intervencion for assigned patients:', updateError);
+                    throw new Error(`Error al actualizar la fecha de intervención prevista de los pacientes: ${updateError.message}`);
+                }
+            }
+        }
+
         // 2. Limpiar asociaciones anteriores y crear las nuevas
         await db.raw.from('quirofano_cirujano').delete().eq('id_quirofano', id);
 

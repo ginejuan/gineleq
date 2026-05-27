@@ -8,11 +8,13 @@ interface CalendarViewProps {
     agendaData: QuirofanoConCirujanos[];
     onDeleteQuirofano: (id: string, dateStr: string) => void;
     onEditQuirofano?: (quirofano: QuirofanoConCirujanos) => void;
+    onMoveQuirofano?: (id: string, dateStr: string) => Promise<void>;
 }
 
-export function CalendarView({ agendaData, onDeleteQuirofano, onEditQuirofano }: CalendarViewProps) {
+export function CalendarView({ agendaData, onDeleteQuirofano, onEditQuirofano, onMoveQuirofano }: CalendarViewProps) {
     const [viewMode, setViewMode] = useState<'mes' | 'semana' | 'dia'>('mes');
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [dragOverDate, setDragOverDate] = useState<string | null>(null);
 
     // Context menu state
     interface ContextMenuState {
@@ -149,14 +151,46 @@ export function CalendarView({ agendaData, onDeleteQuirofano, onEditQuirofano }:
     };
 
 
-    // Agrupar turnos en el día
-    const getQuirofanosForDate = (date: Date) => {
-        // Corrección de bug de zona horaria al convertir a ISOString
+    const formatDateKey = (date: Date) => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
-        const dateStr = `${year}-${month}-${day}`;
+        return `${year}-${month}-${day}`;
+    };
+
+    // Agrupar turnos en el día
+    const getQuirofanosForDate = (date: Date) => {
+        const dateStr = formatDateKey(date);
         return agendaData.filter(q => q.fecha === dateStr);
+    };
+
+    // Gestores de arrastre
+    const handleDragStart = (e: React.DragEvent, q: QuirofanoConCirujanos) => {
+        e.dataTransfer.setData('text/plain', q.id_quirofano);
+        e.dataTransfer.effectAllowed = 'move';
+        e.currentTarget.classList.add(styles.quirofanoCardDragging);
+    };
+
+    const handleDragEnd = (e: React.DragEvent) => {
+        e.currentTarget.classList.remove(styles.quirofanoCardDragging);
+        setDragOverDate(null);
+    };
+
+    const handleDragOver = (e: React.DragEvent, dateStr: string) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (dragOverDate !== dateStr) {
+            setDragOverDate(dateStr);
+        }
+    };
+
+    const handleDrop = async (e: React.DragEvent, dateStr: string) => {
+        e.preventDefault();
+        setDragOverDate(null);
+        const quirofanoId = e.dataTransfer.getData('text/plain');
+        if (quirofanoId && onMoveQuirofano) {
+            await onMoveQuirofano(quirofanoId, dateStr);
+        }
     };
 
     const getColorByTurno = (turno: string) => {
@@ -220,8 +254,18 @@ export function CalendarView({ agendaData, onDeleteQuirofano, onEditQuirofano }:
                         <div key={weekIndex} className={styles.calendarWeekRow} style={{ flex: 1 }}>
                             {calendarCells.slice(weekIndex * (viewMode === 'dia' ? 1 : 7), (weekIndex + 1) * (viewMode === 'dia' ? 1 : 7)).map((cell, dayIndex) => {
                                 const qs = getQuirofanosForDate(cell.date);
+                                const cellDateStr = formatDateKey(cell.date);
+                                const isDragOver = dragOverDate === cellDateStr;
+                                const cellClassName = `${styles.calendarDayCell} ${isDragOver ? styles.calendarDayCellDragOver : ''}`;
+
                                 return (
-                                    <div key={dayIndex} className={styles.calendarDayCell} style={{ backgroundColor: !cell.isCurrentMonth ? 'var(--color-bg)' : 'transparent', flex: 1, minHeight: viewMode === 'mes' ? '120px' : '400px' }}>
+                                    <div 
+                                        key={dayIndex} 
+                                        className={cellClassName} 
+                                        style={{ backgroundColor: !cell.isCurrentMonth ? 'var(--color-bg)' : 'transparent', flex: 1, minHeight: viewMode === 'mes' ? '120px' : '400px' }}
+                                        onDragOver={(e) => handleDragOver(e, cellDateStr)}
+                                        onDrop={(e) => handleDrop(e, cellDateStr)}
+                                    >
                                         <div className={`${styles.dayNumber} ${isToday(cell.date) ? styles.dayNumberToday : ''} ${!cell.isCurrentMonth ? styles.dayNumberOtherMonth : ''}`}>
                                             {viewMode === 'dia' ? `${dayNames[cell.date.getDay() === 0 ? 6 : cell.date.getDay() - 1]} ${cell.date.getDate()}` : cell.date.getDate()}
                                         </div>
@@ -241,6 +285,9 @@ export function CalendarView({ agendaData, onDeleteQuirofano, onEditQuirofano }:
                                                         onClick={(e) => handleCardClick(e, q)}
                                                         role="button"
                                                         tabIndex={0}
+                                                        draggable={true}
+                                                        onDragStart={(e) => handleDragStart(e, q)}
+                                                        onDragEnd={handleDragEnd}
                                                     >
                                                         <div className={styles.cardHeader} style={{ color: colors.text }}>
                                                             <span className={styles.cardTitle}>
