@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Cirujano, Quirofano, QuirofanoConCirujanos } from '@/types/database';
 import styles from './Agenda.module.css';
 
@@ -23,6 +23,7 @@ export function QuirofanoModal({ isOpen, onClose, onSave, onDelete, cirujanosDis
 
     // Searchable Combobox State
     const [searchTerm, setSearchTerm] = useState('');
+    const searchInputRef = useRef<HTMLInputElement>(null);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -195,6 +196,7 @@ export function QuirofanoModal({ isOpen, onClose, onSave, onDelete, cirujanosDis
                         {/* Searchable Combobox */}
                         <div style={{ position: 'relative' }}>
                             <input
+                                ref={searchInputRef}
                                 type="text"
                                 className={styles.input}
                                 placeholder="Buscar cirujano..."
@@ -222,6 +224,7 @@ export function QuirofanoModal({ isOpen, onClose, onSave, onDelete, cirujanosDis
                                                 onClick={() => {
                                                     toggleCirujano(cirujano.id_cirujano);
                                                     setSearchTerm(''); // Clear search on select
+                                                    searchInputRef.current?.focus();
                                                 }}
                                             >
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
