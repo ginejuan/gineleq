@@ -60,4 +60,11 @@ export const usersService = {
     deactivateUser: async (id: string): Promise<void> => {
         await usersService.updateUser(id, { activo: false });
     },
+
+    /** Resetea la contraseña de un usuario */
+    updateUserPassword: async (id: string, password: string): Promise<void> => {
+        const supabase = createSupabaseAdminClient();
+        const { error } = await supabase.auth.admin.updateUserById(id, { password });
+        if (error) throw error;
+    },
 };

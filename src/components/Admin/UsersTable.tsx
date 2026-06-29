@@ -9,7 +9,7 @@
 import { useState } from 'react';
 import type { UserProfile } from '@/services/usersService';
 import type { AppRole } from '@/lib/auth/roles';
-import { inviteUserAction, updateUserAction } from '@/app/(protected)/admin/usuarios/actions';
+import { inviteUserAction, updateUserAction, resetPasswordAction } from '@/app/(protected)/admin/usuarios/actions';
 
 interface UsersTableProps {
     usuarios: UserProfile[];
@@ -30,6 +30,12 @@ export default function UsersTable({ usuarios: initialUsuarios }: UsersTableProp
     const [inviteError, setInviteError] = useState<string | null>(null);
     const [inviteSuccess, setInviteSuccess] = useState(false);
     const [saving, setSaving] = useState<string | null>(null);
+
+    const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
+    const [editNombre, setEditNombre] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [editError, setEditError] = useState<string | null>(null);
+    const [editSuccess, setEditSuccess] = useState(false);
 
     const handleRolChange = async (id: string, nuevoRol: AppRole) => {
         setSaving(id);
@@ -53,6 +59,45 @@ export default function UsersTable({ usuarios: initialUsuarios }: UsersTableProp
         await updateUserAction(fd);
         setUsuarios(prev => prev.map(u => u.id === id ? { ...u, activo } : u));
         setSaving(null);
+    };
+
+    const handleEditSave = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingUser) return;
+        setSaving(editingUser.id);
+        setEditError(null);
+        setEditSuccess(false);
+
+        try {
+            if (editNombre !== editingUser.nombre) {
+                const fd = new FormData();
+                fd.append('id', editingUser.id);
+                fd.append('nombre', editNombre);
+                fd.append('rol', editingUser.rol);
+                fd.append('activo', String(editingUser.activo));
+                const res = await updateUserAction(fd);
+                if (res.error) throw new Error(res.error);
+            }
+
+            if (newPassword) {
+                const fd = new FormData();
+                fd.append('id', editingUser.id);
+                fd.append('password', newPassword);
+                const res = await resetPasswordAction(fd);
+                if (res.error) throw new Error(res.error);
+            }
+
+            setUsuarios(prev => prev.map(u => u.id === editingUser.id ? { ...u, nombre: editNombre } : u));
+            setEditSuccess(true);
+            setTimeout(() => {
+                setEditingUser(null);
+                setEditSuccess(false);
+            }, 1500);
+        } catch (err: any) {
+            setEditError(err.message || 'Error al guardar cambios');
+        } finally {
+            setSaving(null);
+        }
     };
 
     const handleInvite = async (e: React.FormEvent) => {
@@ -121,7 +166,24 @@ export default function UsersTable({ usuarios: initialUsuarios }: UsersTableProp
                                 <td style={{ padding: '12px 16px', color: 'var(--color-text-secondary)' }}>
                                     {new Date(u.created_at).toLocaleDateString('es-ES')}
                                 </td>
-                                <td style={{ padding: '12px 16px' }}>
+                                <td style={{ padding: '12px 16px', display: 'flex', gap: '8px' }}>
+                                    <button
+                                        disabled={saving === u.id}
+                                        onClick={() => {
+                                            setEditingUser(u);
+                                            setEditNombre(u.nombre || '');
+                                            setNewPassword('');
+                                            setEditError(null);
+                                            setEditSuccess(false);
+                                        }}
+                                        style={{
+                                            padding: '4px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)',
+                                            cursor: 'pointer', fontSize: 'var(--font-size-sm)', background: 'var(--color-surface)',
+                                            color: 'var(--color-text)'
+                                        }}
+                                    >
+                                        Editar
+                                    </button>
                                     <button
                                         disabled={saving === u.id}
                                         onClick={() => handleToggleActivo(u.id, !u.activo)}
@@ -195,6 +257,66 @@ export default function UsersTable({ usuarios: initialUsuarios }: UsersTableProp
                 {inviteError && <p style={{ color: 'var(--color-danger)', marginTop: '8px', fontSize: 'var(--font-size-sm)' }}>{inviteError}</p>}
                 {inviteSuccess && <p style={{ color: '#059669', marginTop: '8px', fontWeight: 600, fontSize: 'var(--font-size-sm)' }}>✓ Invitación enviada correctamente.</p>}
             </div>
+
+            {/* Modal de edición de usuario */}
+            {editingUser && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
+                }}>
+                    <div style={{
+                        background: 'var(--color-surface)', padding: 'var(--spacing-xl)', borderRadius: 'var(--radius-lg)',
+                        width: '400px', maxWidth: '90%', boxShadow: 'var(--shadow-lg)'
+                    }}>
+                        <h2 style={{ fontSize: 'var(--font-size-lg)', fontWeight: 600, marginBottom: 'var(--spacing-md)' }}>
+                            Editar Usuario
+                        </h2>
+                        <form onSubmit={handleEditSave} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 500, color: 'var(--color-text-secondary)' }}>Nombre</label>
+                                <input
+                                    type="text"
+                                    value={editNombre}
+                                    onChange={e => setEditNombre(e.target.value)}
+                                    placeholder="Nombre del usuario"
+                                    style={{ padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', fontSize: 'var(--font-size-sm)' }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 500, color: 'var(--color-text-secondary)' }}>Nueva Contraseña (Opcional)</label>
+                                <input
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={e => setNewPassword(e.target.value)}
+                                    placeholder="Dejar en blanco para no cambiar"
+                                    style={{ padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', fontSize: 'var(--font-size-sm)' }}
+                                />
+                            </div>
+                            
+                            {editError && <div style={{ color: 'var(--color-danger)', fontSize: 'var(--font-size-sm)' }}>{editError}</div>}
+                            {editSuccess && <div style={{ color: '#059669', fontSize: 'var(--font-size-sm)' }}>✓ Guardado correctamente</div>}
+
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--spacing-sm)', marginTop: 'var(--spacing-md)' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setEditingUser(null)}
+                                    disabled={saving === editingUser.id}
+                                    style={{ padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', background: 'transparent', cursor: 'pointer', fontSize: 'var(--font-size-sm)' }}
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={saving === editingUser.id}
+                                    style={{ padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: 'none', background: 'var(--color-primary)', color: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 'var(--font-size-sm)' }}
+                                >
+                                    {saving === editingUser.id ? 'Guardando...' : 'Guardar'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
